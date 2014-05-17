@@ -156,11 +156,29 @@ void instrumentMappingEditor::mappingEditorGraph::set_bounds_for_component(Zone*
         int grid_x = (int)(c->x / grid_width);
         int new_grid_x = grid_x_offset + grid_x;
         int y = getMouseXYRelative().getY();
+        
+        int new_y;
     
         if (new_grid_x >= 0 and new_grid_x < num_columns){
-            c->x = new_grid_x * grid_width + grid_outline;
-            c->setBounds(c->x, c->y + (y - start_drag_y), grid_width - grid_outline, c->height);           
+            c->x = new_grid_x * grid_width + grid_outline;        
         }
+        if (new_grid_x < 0){
+            c->x = 0;        
+        }
+        if (new_grid_x > num_columns){
+            c->x = num_columns * grid_width + grid_outline; 
+        }
+        if (c->y + (y - start_drag_y) < 0){
+            new_y = 0;
+        }
+        if (c->y + (y - start_drag_y) + c->height > height){
+            //std::cout<<"height excees upper boundary"<<" c->y: "<<c->y<<" y: "<<y<<" start drag y: "<<start_drag_y<<" calc: "<<c->y + (y - start_drag_y)<<" c->height: "<<c->height<<" height: "<<height<<std::endl;
+            new_y = height - c->height;
+        }
+        if (c->y + (y - start_drag_y) >= 0 and c->y + (y - start_drag_y) + c->height <= height){
+            new_y = c->y + (y - start_drag_y);
+        }
+        c->setBounds(c->x, new_y, grid_width - grid_outline, c->height); 
     }
             
     if (cursor == MouseCursor(MouseCursor::TopEdgeResizeCursor)){
@@ -198,10 +216,29 @@ void instrumentMappingEditor::mappingEditorGraph::mouseUp(const MouseEvent& e){
         if (dragged_zone->getMouseCursor() == MouseCursor()){
             if (lasso_source->set->getItemArray().size() > 0){
                 for (Zone** i = lasso_source->set->begin(); i<lasso_source->set->end(); i++){
-                    (*i)->y += getMouseXYRelative().getY() - start_drag_y;
+                    int new_y = getMouseXYRelative().getY() - start_drag_y;
+                    if ((*i)->y + new_y + (*i)->height > height){
+                        new_y = height - (*i)->height;
+                        (*i)->y = new_y;
+                    }
+                    if ((*i)->y + new_y < 0){
+                        new_y = 0;
+                        (*i)->y = new_y;
+                    }
+                    if ((*i)->y + new_y >= 0 && (*i)->y + new_y + (*i)->height <= height){
+                        (*i)->y += new_y;
+                    }
+                    
                 }
             }else{
-                dragged_zone->y += getMouseXYRelative().getY() - start_drag_y;
+                int new_y = dragged_zone->y + (getMouseXYRelative().getY() - start_drag_y);
+                if (dragged_zone->y + (getMouseXYRelative().getY() - start_drag_y) + dragged_zone->height > height){
+                    new_y = height - dragged_zone->height;
+                }
+                if (dragged_zone->y + (getMouseXYRelative().getY() - start_drag_y) < 0){
+                    new_y = 0;
+                }
+                dragged_zone->y = new_y;
             }
         }
         if (dragged_zone->getMouseCursor() == MouseCursor(MouseCursor::TopEdgeResizeCursor)){
@@ -221,8 +258,8 @@ void instrumentMappingEditor::mappingEditorGraph::mouseUp(const MouseEvent& e){
                     (*i)->height += getMouseXYRelative().getY() - start_drag_y;
                 }
             }else{
-                dragged_zone->height -= getMouseXYRelative().getY() - dragged_zone->y;
-                dragged_zone->y += getMouseXYRelative().getY() - start_drag_y;
+                dragged_zone->height += getMouseXYRelative().getY() - start_drag_y;
+                //dragged_zone->y += getMouseXYRelative().getY() - start_drag_y;
             }
         }
         dragged_zone = nullptr;
