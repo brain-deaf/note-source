@@ -10,10 +10,10 @@
 
 #include "instrumentComponent.h"
 
-instrumentComponent::instrumentComponent(TabbedComponent* Parent)
-: parent(Parent), Component(){
+instrumentComponent::instrumentComponent(TabbedComponent* Parent, AudioDeviceManager* audio)
+: parent(Parent){
     
-    tabbed_component = new instrumentTabWindow(TabbedButtonBar::TabsAtBottom);
+    tabbed_component = new instrumentTabWindow(TabbedButtonBar::TabsAtBottom, audio);
     instrument_master_component = new instrumentMasterComponent(parent);
     
     addAndMakeVisible(tabbed_component);
@@ -29,11 +29,3 @@ void instrumentComponent::resized(){
     tabbed_component->setBounds(0, 80, getWidth(), getHeight() - 80);
     instrument_master_component->setBounds(0, 0, getWidth(), 80);
 }
-
-/*void instrumentComponent::paint (Graphics& g){
-    g.fillAll (Colour (0xffeeddff));
-
-    g.setFont (Font (16.0f));
-    g.setColour (Colours::red);
-    g.drawText ("Hello Worlds!", getLocalBounds(), Justification::centred, true);
-}*/

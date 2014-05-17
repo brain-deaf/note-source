@@ -12,23 +12,26 @@
 #define INSTRUMENTMAPPINGEDITOR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-//#include "/home/patrick/Juce/JUCE/modules/juce_audio_utils/gui/juce_MidiKeyboardComponent.h"
 
 class instrumentMappingEditor : public Viewport
 {
 public:
     class mappingEditorGraph;
     
-    instrumentMappingEditor(const String& componentName, Component* Parent);
+    instrumentMappingEditor(const String& componentName, Component* Parent, AudioDeviceManager* audio);
     ~instrumentMappingEditor();
+    
+    ScopedPointer<mappingEditorGraph> graph;
+    
+    AudioDeviceManager* audio_manager;
 private:
     ScopedPointer<Component> parent; //cool
-    ScopedPointer<mappingEditorGraph> graph;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (instrumentMappingEditor)
 };
     
 class instrumentMappingEditor::mappingEditorGraph : 
-public Component, public FileDragAndDropTarget, public ButtonListener, public MidiKeyboardStateListener
+public Component, public FileDragAndDropTarget, public ButtonListener, public MidiKeyboardStateListener, public ChangeListener
 {
 public:
     float width;
@@ -39,10 +42,22 @@ public:
     bool dragging;
     int start_drag_y;
     
+    AudioDeviceManager* audio_manager;
+    
+    class _midiDeviceCallback : public MidiInputCallback
+    {
+    public:
+        instrumentMappingEditor::mappingEditorGraph* parent;
+        void register_parent(instrumentMappingEditor::mappingEditorGraph* _parent){parent=_parent;};
+        void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message);
+    };
+    _midiDeviceCallback* midi_callback;
+    
     MidiKeyboardComponent* keyboard;
     MidiKeyboardState* keyboard_state;
     
     SelectedItemSet<int> notes_held;
+    void changeListenerCallback(ChangeBroadcaster* source){repaint();};
     
     class Zone : public TextButton
     {

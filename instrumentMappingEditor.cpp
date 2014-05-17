@@ -10,8 +10,8 @@
 
 #include "instrumentMappingEditor.h"
 
-instrumentMappingEditor::instrumentMappingEditor(const String& componentName, Component* Parent)
-: parent(Parent), Viewport(componentName){
+instrumentMappingEditor::instrumentMappingEditor(const String& componentName, Component* Parent, AudioDeviceManager* audioManager)
+: parent(Parent), audio_manager(audioManager), Viewport(componentName){
     setViewedComponent(graph = new mappingEditorGraph());
     
     graph->width = 1800.0f;
@@ -20,6 +20,11 @@ instrumentMappingEditor::instrumentMappingEditor(const String& componentName, Co
     
     graph->num_columns = 128;
     graph->setBounds(0, 0, graph->width, graph->height + graph->keyboard_height);
+    
+    graph->notes_held.addChangeListener(graph);
+    
+    graph->audio_manager = audio_manager;
+    graph->audio_manager->addMidiInputCallback("", graph->midi_callback);
 }
 
 instrumentMappingEditor::~instrumentMappingEditor(){
@@ -31,7 +36,6 @@ instrumentMappingEditor::~instrumentMappingEditor(){
 instrumentMappingEditor::mappingEditorGraph::mappingEditorGraph()
 : Component(), dragged_zone(nullptr){
     
-    //lasso_source.set->addChangeListener(lasso_source);
     lasso = new LassoComponent<Zone*>;
     lasso_source = new Lasso_Source<Zone*>;
     lasso_source->parent = this;
@@ -41,8 +45,27 @@ instrumentMappingEditor::mappingEditorGraph::mappingEditorGraph()
     keyboard_state->addListener(this);
     keyboard = new MidiKeyboardComponent(*keyboard_state, MidiKeyboardComponent::horizontalKeyboard);
     
+    midi_callback = new _midiDeviceCallback();
+    midi_callback->register_parent(this);
+    
     addAndMakeVisible(keyboard);
 }
+
+void instrumentMappingEditor::mappingEditorGraph::_midiDeviceCallback::handleIncomingMidiMessage
+    (MidiInput* source, const MidiMessage& message){
+    if (message.isNoteOn()){
+        parent->notes_held.addToSelection(message.getNoteNumber());
+    }
+    if (message.isNoteOff()){
+        if (parent->notes_held.isSelected(message.getNoteNumber())){
+            parent->notes_held.deselect(message.getNoteNumber());
+        }
+    }
+}   
+
+
+
+
 
 void instrumentMappingEditor::mappingEditorGraph::resized(){
     keyboard->setBounds(0, height, width, keyboard_height);
@@ -55,27 +78,21 @@ instrumentMappingEditor::mappingEditorGraph::~mappingEditorGraph(){
     }
     lasso_source = nullptr;
     keyboard = nullptr;
+    midi_callback = nullptr;
 }
 
 void instrumentMappingEditor::mappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
-    std::cout<<"note on"<<std::endl;
     notes_held.addToSelection(midiNoteNumber);
-    repaint();
 }
 
 void instrumentMappingEditor::mappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){
-    std::cout<<"note off"<<std::endl;
     if (notes_held.isSelected(midiNoteNumber)){
         notes_held.deselect(midiNoteNumber);
-        repaint();
     }
 }
 
 void instrumentMappingEditor::mappingEditorGraph::paint(Graphics& g){
-    //g.setImageResamplingQuality(Graphics::highResamplingQuality);
-    
     g.fillAll(Colours::antiquewhite);
-    std::cout<<"paint called"<<std::endl;
     
     float grid_outline = 1.0f;
     float grid_width = width / num_columns;
@@ -107,7 +124,6 @@ void instrumentMappingEditor::mappingEditorGraph::filesDropped(const StringArray
     for (int i=0; i<files.size(); i++){
         Zone* new_zone;
         zones.add(new_zone = new Zone(files[i]));
-        //std::cout<<new_zone->velocity.second<<std::endl;
         
         new_zone->removeListener(this);
         new_zone->addListener(this);

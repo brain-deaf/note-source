@@ -18,15 +18,14 @@
 class instrumentComponent : public Component
 {
 public:
-    instrumentComponent(TabbedComponent* Parent);
+    instrumentComponent(TabbedComponent* Parent, AudioDeviceManager* audio);
     ~instrumentComponent();
     void resized();
-    //void paint(Graphics& g);
+    AudioDeviceManager* content_component;
 private:
     ScopedPointer<instrumentTabWindow> tabbed_component;
     ScopedPointer<instrumentMasterComponent> instrument_master_component;
     TabbedComponent* parent;
-    //ScopedPointer<TextButton> text_button;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (instrumentComponent)
 };
 

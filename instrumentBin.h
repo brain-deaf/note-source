@@ -18,11 +18,10 @@
 class instrumentBin : public TabbedComponent
 {
 public:
-    instrumentBin(TabbedButtonBar::Orientation orientation);
+    instrumentBin(TabbedButtonBar::Orientation orientation, AudioDeviceManager* audio_manager);
     ~instrumentBin();
     void register_tab(instrumentComponent* c);
     
-    //void resized();
 private:
     instrumentComponent* instrument_component;
     Array<instrumentComponent*> instruments;

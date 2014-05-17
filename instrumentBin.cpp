@@ -10,8 +10,8 @@
 
 #include "instrumentBin.h"
 
-instrumentBin::instrumentBin(TabbedButtonBar::Orientation orientation) 
-: TabbedComponent(orientation), instrument_component(new instrumentComponent(this)){
+instrumentBin::instrumentBin(TabbedButtonBar::Orientation orientation, AudioDeviceManager* audio) 
+: TabbedComponent(orientation), instrument_component(new instrumentComponent(this, audio)){
     addTab("New Instrument", Colour(100, 100, 100), instrument_component, false);
     instruments.add(instrument_component);
 }
@@ -25,9 +25,3 @@ instrumentBin::~instrumentBin(){
 void instrumentBin::register_tab(instrumentComponent* c){
     instruments.add(c);
 }
-
-/*void instrumentBin::resized(){
-    TabbedComponent(TabbedButtonBar::TabsAtTop).resized();
-    //instrument_component->setBounds(0, 50, getWidth(), getHeight() - 20);
-    //instrument_component->toFront(true);
-}*/

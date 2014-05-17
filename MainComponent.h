@@ -27,9 +27,11 @@ public:
     ~MainContentComponent();
 
     void resized();
+    
+    menuBar menu_bar;
 
 private:
-    menuBar menu_bar;
+    
     instrumentBin instrument_bin;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)

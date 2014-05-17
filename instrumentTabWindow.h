@@ -17,8 +17,10 @@
 class instrumentTabWindow : public TabbedComponent
 {
 public:
-    instrumentTabWindow(TabbedButtonBar::Orientation orientation);
+    instrumentTabWindow(TabbedButtonBar::Orientation orientation, AudioDeviceManager* audio);
     ~instrumentTabWindow();
+    
+    AudioDeviceManager* content_component;
 private:
     ScopedPointer<instrumentMappingEditor> mapping_editor;
     ScopedPointer<TextButton> zoom_button;

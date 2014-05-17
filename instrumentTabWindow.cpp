@@ -10,15 +10,17 @@
 
 #include "instrumentTabWindow.h"
 
-instrumentTabWindow::instrumentTabWindow(TabbedButtonBar::Orientation orientation) : TabbedComponent(orientation){
+instrumentTabWindow::instrumentTabWindow(TabbedButtonBar::Orientation orientation, AudioDeviceManager* audio) : TabbedComponent(orientation){
     addTab("Main", Colour(100, 100, 100), nullptr, false);
     addTab("FX", Colour(100, 100, 100), nullptr, false);
-    addTab("Mapping", Colour(100, 100, 100), mapping_editor = new instrumentMappingEditor("", this), false);
+    addTab("Mapping", Colour(100, 100, 100), mapping_editor = new instrumentMappingEditor("", this, audio), false);
     addTab("Wave", Colour(100, 100, 100), nullptr, false);
     addTab("Mod", Colour(100, 100, 100), nullptr, false);
     
     //addAndMakeVisible(zoom_button = new TextButton("zoom"));
     //zoom_button->setBounds(0, -30, 20, 20);
+    
+    //mapping_editor->set_content(content_component);
 }
 
 instrumentTabWindow::~instrumentTabWindow(){
