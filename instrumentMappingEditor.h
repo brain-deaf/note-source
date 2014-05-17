@@ -12,6 +12,7 @@
 #define INSTRUMENTMAPPINGEDITOR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+//#include "/home/patrick/Juce/JUCE/modules/juce_audio_utils/gui/juce_MidiKeyboardComponent.h"
 
 class instrumentMappingEditor : public Viewport
 {
@@ -27,15 +28,21 @@ private:
 };
     
 class instrumentMappingEditor::mappingEditorGraph : 
-public Component, public FileDragAndDropTarget, public ButtonListener
+public Component, public FileDragAndDropTarget, public ButtonListener, public MidiKeyboardStateListener
 {
 public:
     float width;
     float height;
+    float keyboard_height;
     int num_columns;
     
     bool dragging;
     int start_drag_y;
+    
+    MidiKeyboardComponent* keyboard;
+    MidiKeyboardState* keyboard_state;
+    
+    SelectedItemSet<int> notes_held;
     
     class Zone : public TextButton
     {
@@ -44,16 +51,18 @@ public:
         int x;
         int y;
         int height;
+        std::pair<int, int> velocity;
+        
         instrumentMappingEditor::mappingEditorGraph* parent;
     
         void register_parent(instrumentMappingEditor::mappingEditorGraph* parent);
         void mouseDown(const MouseEvent& event);
         void mouseMove(const MouseEvent& event);
-        
-                
 
         Zone(const String& sample_name) : TextButton(""), name(sample_name){
             setAlpha(0.5f);
+            velocity.first = 0;
+            velocity.second = 127;
         };
        
     
@@ -66,7 +75,11 @@ public:
     ~mappingEditorGraph();
     
     void paint(Graphics& g);
+    void resized();
     void buttonClicked(Button* button);
+    
+    void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity);
+    void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber);
     
     void mouseDrag(const MouseEvent& event);
     void mouseUp(const MouseEvent& event);

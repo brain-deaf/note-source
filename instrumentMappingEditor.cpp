@@ -15,9 +15,11 @@ instrumentMappingEditor::instrumentMappingEditor(const String& componentName, Co
     setViewedComponent(graph = new mappingEditorGraph());
     
     graph->width = 1800.0f;
-    graph->height = 450.0f;
+    graph->height = 335.0f;
+    graph->keyboard_height = 100.0f;
+    
     graph->num_columns = 128;
-    graph->setBounds(0, 0, graph->width, graph->height);
+    graph->setBounds(0, 0, graph->width, graph->height + graph->keyboard_height);
 }
 
 instrumentMappingEditor::~instrumentMappingEditor(){
@@ -34,6 +36,17 @@ instrumentMappingEditor::mappingEditorGraph::mappingEditorGraph()
     lasso_source = new Lasso_Source<Zone*>;
     lasso_source->parent = this;
     lasso_source->set = new SelectedItemSet<Zone*>;
+    
+    keyboard_state = new MidiKeyboardState();
+    keyboard_state->addListener(this);
+    keyboard = new MidiKeyboardComponent(*keyboard_state, MidiKeyboardComponent::horizontalKeyboard);
+    
+    addAndMakeVisible(keyboard);
+}
+
+void instrumentMappingEditor::mappingEditorGraph::resized(){
+    keyboard->setBounds(0, height, width, keyboard_height);
+    keyboard->setKeyWidth(width / num_columns * 1.7125f);
 }
 
 instrumentMappingEditor::mappingEditorGraph::~mappingEditorGraph(){
@@ -41,21 +54,46 @@ instrumentMappingEditor::mappingEditorGraph::~mappingEditorGraph(){
         delete zones[i];
     }
     lasso_source = nullptr;
+    keyboard = nullptr;
+}
+
+void instrumentMappingEditor::mappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
+    std::cout<<"note on"<<std::endl;
+    notes_held.addToSelection(midiNoteNumber);
+    repaint();
+}
+
+void instrumentMappingEditor::mappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){
+    std::cout<<"note off"<<std::endl;
+    if (notes_held.isSelected(midiNoteNumber)){
+        notes_held.deselect(midiNoteNumber);
+        repaint();
+    }
 }
 
 void instrumentMappingEditor::mappingEditorGraph::paint(Graphics& g){
-    g.setImageResamplingQuality(Graphics::highResamplingQuality);
+    //g.setImageResamplingQuality(Graphics::highResamplingQuality);
     
-    g.fillAll (Colours::antiquewhite);
+    g.fillAll(Colours::antiquewhite);
+    std::cout<<"paint called"<<std::endl;
     
     float grid_outline = 1.0f;
     float grid_width = width / num_columns;
     
+    g.setColour(Colours::black);
+    g.setOpacity(0.2f);
+    for (int* i=notes_held.begin(); i<notes_held.end(); i++){
+        g.fillRect(Rectangle<int>(*i*grid_width, 0, grid_width, height));
+    }
+    
+    g.setColour(Colours::black);
+    g.setOpacity(1.0f);
     Path myPath;
     for (int i=0; i<this->num_columns; i++){
         myPath.startNewSubPath (i*grid_width, 0.0f);       
         myPath.lineTo (i*grid_width, height);                
     }
+
 
     g.strokePath (myPath, PathStrokeType (grid_outline));
 }
@@ -69,6 +107,7 @@ void instrumentMappingEditor::mappingEditorGraph::filesDropped(const StringArray
     for (int i=0; i<files.size(); i++){
         Zone* new_zone;
         zones.add(new_zone = new Zone(files[i]));
+        //std::cout<<new_zone->velocity.second<<std::endl;
         
         new_zone->removeListener(this);
         new_zone->addListener(this);
@@ -87,10 +126,7 @@ void instrumentMappingEditor::mappingEditorGraph::filesDropped(const StringArray
     }
 }
 
-void instrumentMappingEditor::mappingEditorGraph::buttonClicked(Button* button){
-    //dragged_zone = (Zone*)button;
-    //std::cout<<"dragged zone: "<<dragged_zone<<std::endl;
-}
+void instrumentMappingEditor::mappingEditorGraph::buttonClicked(Button* button){}
 
 void instrumentMappingEditor::mappingEditorGraph::mouseDown(const MouseEvent& e){
     addAndMakeVisible(lasso);
@@ -114,13 +150,9 @@ void instrumentMappingEditor::mappingEditorGraph::set_bounds_for_component(Zone*
     if (cursor == MouseCursor(MouseCursor::TopEdgeResizeCursor)){
         int y = getMouseXYRelative().getY();
         c->setBounds(c->x, c->y + (y - start_drag_y), grid_width - grid_outline, c->height - (y - start_drag_y));
-        //c->height -= y - c->y;
-        //c->y = y;
-        //std::cout<<"start_drag_y: "<<start_drag_y<<" height: "<<c->height<<std::endl;
     }
     if (cursor == MouseCursor(MouseCursor::BottomEdgeResizeCursor)){
         int y = getMouseXYRelative().getY();
-        //c->height += y - start_drag_y;
         c->setBounds(c->x, c->y, grid_width - grid_outline, c->height + (y - start_drag_y));
     }
 }
@@ -135,13 +167,6 @@ void instrumentMappingEditor::mappingEditorGraph::mouseDrag(const MouseEvent& e)
         
         if (lasso_source->set->getItemArray().contains(dragged_zone)){
             for (Zone** i = lasso_source->set->begin(); i<lasso_source->set->end(); i++){
-                /*int grid_x = (int)((*i)->x / grid_width);
-                int new_grid_x = grid_x_offset + grid_x;
-    
-                if (new_grid_x >= 0 and new_grid_x < num_columns){
-                    (*i)->x = new_grid_x * grid_width + grid_outline; 
-                    (*i)->setBounds((*i)->x, (*i)->y, grid_width - grid_outline, (*i)->height);
-                }*/
                 set_bounds_for_component((*i), dragged_zone->getMouseCursor(), grid_outline, grid_width, grid_x_offset);
             }
         }else{
@@ -167,7 +192,6 @@ void instrumentMappingEditor::mappingEditorGraph::mouseUp(const MouseEvent& e){
             if (lasso_source->set->getItemArray().size() > 0){
                 for (Zone** i = lasso_source->set->begin(); i<lasso_source->set->end(); i++){
                     (*i)->height -= getMouseXYRelative().getY() - start_drag_y;
-                    std::cout<<"height: "<<(*i)->height<<std::endl;
                     (*i)->y += getMouseXYRelative().getY() - start_drag_y;
                 }
             }else{
@@ -179,8 +203,6 @@ void instrumentMappingEditor::mappingEditorGraph::mouseUp(const MouseEvent& e){
             if (lasso_source->set->getItemArray().size() > 0){
                 for (Zone** i = lasso_source->set->begin(); i<lasso_source->set->end(); i++){
                     (*i)->height += getMouseXYRelative().getY() - start_drag_y;
-                    //std::cout<<"height: "<<(*i)->height<<std::endl;
-                    //(*i)->y += getMouseXYRelative().getY() - start_drag_y;
                 }
             }else{
                 dragged_zone->height -= getMouseXYRelative().getY() - dragged_zone->y;
@@ -223,7 +245,5 @@ void instrumentMappingEditor::mappingEditorGraph::Zone::mouseMove(const MouseEve
         }
         setMouseCursor(MouseCursor());
     }
-    
-    //std::cout<<e.x<<std::endl<<e.y<<std::endl;
 }
 
