@@ -121,12 +121,18 @@ public:
             dragging = true;
             int left  = area.getX();
             int right = area.getRight();
+            int top   = area.getY();
+            int bottom= area.getBottom();
             
             for (int i=0; i<zones_.size(); i++){
-                if ((zones_[i]->x >= left && zones_[i]->x <= right) || 
+                if (((zones_[i]->x >= left && zones_[i]->x <= right) || 
                     (zones_[i]->x + parent->width / parent->num_columns >= left 
-                    && zones_[i]->x + parent->width / parent->num_columns <= right)){
+                    && zones_[i]->x + parent->width / parent->num_columns <= right)) && 
+                    
+                    ((zones_[i]->y >= top && zones_[i]->y <= bottom) || top >= zones_[i]->y and top <= zones_[i]->y + zones_[i]->height)){
+                        
                     itemsFound.add(zones_[i]);
+                    std::cout<<"y: "<<zones_[i]->y<<" top: "<<top<<" bottom: "<<bottom<<std::endl;
                 }else{
                     itemsFound.removeFirstMatchingValue(zones_[i]);
                     zones_[i]->setToggleState(false, 1);

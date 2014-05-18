@@ -44,6 +44,7 @@ instrumentMappingEditor::mappingEditorGraph::mappingEditorGraph()
     keyboard_state = new MidiKeyboardState();
     keyboard_state->addListener(this);
     keyboard = new MidiKeyboardComponent(*keyboard_state, MidiKeyboardComponent::horizontalKeyboard);
+    //keyboard->setKeyPressForNote(KeyPress('a', 0, 'a'), 0);
     
     midi_callback = new _midiDeviceCallback();
     midi_callback->register_parent(this);
@@ -54,7 +55,9 @@ instrumentMappingEditor::mappingEditorGraph::mappingEditorGraph()
 void instrumentMappingEditor::mappingEditorGraph::_midiDeviceCallback::handleIncomingMidiMessage
     (MidiInput* source, const MidiMessage& message){
     if (message.isNoteOn()){
+        const Graphics g(Graphics(Image()));
         parent->notes_held.addToSelection(message.getNoteNumber());
+        //parent->keyboard->repaint();
     }
     if (message.isNoteOff()){
         if (parent->notes_held.isSelected(message.getNoteNumber())){
@@ -83,6 +86,9 @@ instrumentMappingEditor::mappingEditorGraph::~mappingEditorGraph(){
 
 void instrumentMappingEditor::mappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
     notes_held.addToSelection(midiNoteNumber);
+    std::cout<<"note on"<<std::endl;
+    //keyboard_state->noteOn(0, midiNoteNumber, 1);
+    
 }
 
 void instrumentMappingEditor::mappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){
