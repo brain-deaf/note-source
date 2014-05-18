@@ -172,7 +172,6 @@ void instrumentMappingEditor::mappingEditorGraph::set_bounds_for_component(Zone*
             new_y = 0;
         }
         if (c->y + (y - start_drag_y) + c->height > height){
-            //std::cout<<"height excees upper boundary"<<" c->y: "<<c->y<<" y: "<<y<<" start drag y: "<<start_drag_y<<" calc: "<<c->y + (y - start_drag_y)<<" c->height: "<<c->height<<" height: "<<height<<std::endl;
             new_y = height - c->height;
         }
         if (c->y + (y - start_drag_y) >= 0 and c->y + (y - start_drag_y) + c->height <= height){
@@ -183,11 +182,23 @@ void instrumentMappingEditor::mappingEditorGraph::set_bounds_for_component(Zone*
             
     if (cursor == MouseCursor(MouseCursor::TopEdgeResizeCursor)){
         int y = getMouseXYRelative().getY();
-        c->setBounds(c->x, c->y + (y - start_drag_y), grid_width - grid_outline, c->height - (y - start_drag_y));
+        int new_y = c->y + (y - start_drag_y);
+        int new_height = c->height - (y - start_drag_y);
+        
+        if (new_y < 0){
+            new_y = 0;
+            new_height = c->height + (height - (height - c->y));
+        }
+        
+        c->setBounds(c->x, new_y, grid_width - grid_outline, new_height);
     }
     if (cursor == MouseCursor(MouseCursor::BottomEdgeResizeCursor)){
         int y = getMouseXYRelative().getY();
-        c->setBounds(c->x, c->y, grid_width - grid_outline, c->height + (y - start_drag_y));
+        int new_height = c->height + (y - start_drag_y);
+        if (new_height + c->y > height){
+            new_height = height - (c->y + c->height) + c->height;
+        }
+        c->setBounds(c->x, c->y, grid_width - grid_outline, new_height);
     }
 }
 
@@ -244,22 +255,44 @@ void instrumentMappingEditor::mappingEditorGraph::mouseUp(const MouseEvent& e){
         if (dragged_zone->getMouseCursor() == MouseCursor(MouseCursor::TopEdgeResizeCursor)){
             if (lasso_source->set->getItemArray().size() > 0){
                 for (Zone** i = lasso_source->set->begin(); i<lasso_source->set->end(); i++){
-                    (*i)->height -= getMouseXYRelative().getY() - start_drag_y;
-                    (*i)->y += getMouseXYRelative().getY() - start_drag_y;
+                    int new_y = (*i)->y + (getMouseXYRelative().getY() - start_drag_y);
+                    int new_height = (*i)->height - (getMouseXYRelative().getY() - start_drag_y);
+                    
+                    if (new_y < 0){
+                        new_y = 0;
+                        new_height = (*i)->height + (height - (height - (*i)->y));
+                    }
+                    
+                    (*i)->height = new_height;
+                    (*i)->y = new_y;
                 }
             }else{
-                dragged_zone->height -= getMouseXYRelative().getY() - dragged_zone->y;
-                dragged_zone->y += getMouseXYRelative().getY() - start_drag_y;
+                int new_y = dragged_zone->y + (getMouseXYRelative().getY() - start_drag_y);
+                int new_height = dragged_zone->height - (getMouseXYRelative().getY() - start_drag_y);
+        
+                if (new_y < 0){
+                    new_y = 0;
+                    new_height = dragged_zone->height + (height - (height - dragged_zone->y));
+                }
+                dragged_zone->height = new_height;
+                dragged_zone->y = new_y;
             }
         }
         if (dragged_zone->getMouseCursor() == MouseCursor(MouseCursor::BottomEdgeResizeCursor)){
             if (lasso_source->set->getItemArray().size() > 0){
                 for (Zone** i = lasso_source->set->begin(); i<lasso_source->set->end(); i++){
-                    (*i)->height += getMouseXYRelative().getY() - start_drag_y;
+                    int new_height = (*i)->height + (getMouseXYRelative().getY() - start_drag_y);
+                    if (new_height + (*i)->y > height){
+                        new_height = height - ((*i)->y + (*i)->height) + (*i)->height;
+                    }
+                    (*i)->height = new_height;
                 }
             }else{
-                dragged_zone->height += getMouseXYRelative().getY() - start_drag_y;
-                //dragged_zone->y += getMouseXYRelative().getY() - start_drag_y;
+                int new_height = dragged_zone->height + (getMouseXYRelative().getY() - start_drag_y);
+                if (new_height + dragged_zone->y > height){
+                    new_height = height - (dragged_zone->y + dragged_zone->height) + dragged_zone->height;
+                }
+                dragged_zone->height = new_height;
             }
         }
         dragged_zone = nullptr;
