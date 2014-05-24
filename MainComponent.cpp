@@ -14,7 +14,7 @@ MainContentComponent::MainContentComponent() : menu_bar(), instrument_bin(Tabbed
 {
     addAndMakeVisible(&instrument_bin);
     
-    setSize (800, 600);
+    setSize (1000, 730);
     addAndMakeVisible(&menu_bar);
     menu_bar.set_parent_instrument_bin(&instrument_bin);
 }

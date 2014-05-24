@@ -49,6 +49,9 @@ instrumentMappingEditor::mappingEditorGraph::mappingEditorGraph()
     midi_callback = new _midiDeviceCallback();
     midi_callback->register_parent(this);
     
+    //dragged_zone = new Zone("test");
+    zone_info_set = new SelectedItemSet<Zone*>;
+    
     addAndMakeVisible(keyboard);
 }
 
@@ -64,6 +67,7 @@ void instrumentMappingEditor::mappingEditorGraph::_midiDeviceCallback::handleInc
             parent->notes_held.deselect(message.getNoteNumber());
         }
     }
+    
 }   
 
 
@@ -82,6 +86,7 @@ instrumentMappingEditor::mappingEditorGraph::~mappingEditorGraph(){
     lasso_source = nullptr;
     keyboard = nullptr;
     midi_callback = nullptr;
+    zone_info_set = nullptr;
 }
 
 void instrumentMappingEditor::mappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
@@ -244,8 +249,7 @@ void instrumentMappingEditor::mappingEditorGraph::mouseUp(const MouseEvent& e){
                     }
                     if ((*i)->y + new_y >= 0 && (*i)->y + new_y + (*i)->height <= height){
                         (*i)->y += new_y;
-                    }
-                    
+                    }      
                 }
             }else{
                 int new_y = dragged_zone->y + (getMouseXYRelative().getY() - start_drag_y);
@@ -322,6 +326,8 @@ void instrumentMappingEditor::mappingEditorGraph::Zone::register_parent(instrume
 
 void instrumentMappingEditor::mappingEditorGraph::Zone::mouseDown(const MouseEvent& e){
     parent->dragged_zone = this;
+    parent->zone_info_set->selectOnly(this);
+    
     this->clicked();
 }
 

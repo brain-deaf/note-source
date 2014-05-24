@@ -12,7 +12,7 @@
 #define INSTRUMENTTABWINDOW_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "instrumentMappingEditor.h"
+#include "mappingEditorBin.h"
 
 class instrumentTabWindow : public TabbedComponent
 {
@@ -22,7 +22,7 @@ public:
     
     AudioDeviceManager* content_component;
 private:
-    ScopedPointer<instrumentMappingEditor> mapping_editor;
+    ScopedPointer<mappingEditorBin> mapping_editor;
     ScopedPointer<TextButton> zoom_button;
     //JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (instrumentTabWindow)
 };
