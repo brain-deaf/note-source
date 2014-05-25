@@ -213,34 +213,37 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e)
 
 void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     if (dragged_zone != nullptr){
-        if (dragged_zone->getMouseCursor() == MouseCursor()){
+        auto cursor = dragged_zone -> getMouseCursor();
+        if (cursor == MouseCursor::NormalCursor){
             if (lasso_source->set()->getItemArray().size() > 0){
                 for (auto i : (*lasso_source->set())){
                     int new_y = getMouseXYRelative().getY() - start_drag_y;
-                    if (i->y() + new_y + i->height() > height_){
+                    if (i->y() + new_y + i->height() > height()){
                         new_y = height_ - i->height();
                         i->y(new_y);
                     }
-                    if (i->y() + new_y < 0){
+                    else if (i->y() + new_y < 0){
                         new_y = 0;
                         i->y(new_y);
                     }
-                    if (i->y() + new_y >= 0 && i->y() + new_y + i->height() <= height_){
+                    else if (i->y() + new_y >= 0 && i->y() + new_y + i->height() <= height()){
                         i->y(new_y+i->y());
                     }
                 }
             }else{
-                int new_y = dragged_zone->y() + (getMouseXYRelative().getY() - start_drag_y);
-                if (dragged_zone->y() + (getMouseXYRelative().getY() - start_drag_y) + dragged_zone->height() > height()){
-                    new_y = height_ - dragged_zone->height();
+                auto Y = getMouseXYRelative().getY();
+                auto y = dragged_zone->y();
+                int new_y = y + Y - start_drag_y;
+                if (new_y + dragged_zone->height() > height()){
+                    new_y = height() - dragged_zone->height();
                 }
-                if (dragged_zone->y() + (getMouseXYRelative().getY() - start_drag_y) < 0){
+                else if (new_y < 0){
                     new_y = 0;
                 }
                 dragged_zone->y(new_y);
             }
         }
-        if (dragged_zone->getMouseCursor() == MouseCursor(MouseCursor::TopEdgeResizeCursor)){
+        else if (cursor == MouseCursor::TopEdgeResizeCursor){
             if (lasso_source->set()->getItemArray().size() > 0){
                 for (auto i : *(lasso_source->set())){
                     int new_y = i->y() + (getMouseXYRelative().getY() - start_drag_y);
@@ -264,7 +267,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                 dragged_zone->y(new_y);
             }
         }
-        if (dragged_zone->getMouseCursor() == MouseCursor(MouseCursor::BottomEdgeResizeCursor)){
+        else if (cursor == MouseCursor::BottomEdgeResizeCursor){
             if (lasso_source->set()->getItemArray().size() > 0){
                 for (auto i : *(lasso_source->set())){
                     int new_height = i->height() + (getMouseXYRelative().getY() - start_drag_y);
@@ -287,7 +290,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     if (!lasso_source->dragging()){
         for (auto i : (*lasso_source->set())){
             i->setToggleState(false, sendNotification);
-            if (i->getMouseCursor() == MouseCursor()){
+            if (i->getMouseCursor() == MouseCursor::NormalCursor){
                 i->y(i->y()+getMouseXYRelative().getY() - start_drag_y);
             }
         }
@@ -298,6 +301,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
 }
 
 typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
+
 Zone::Zone(const String& sample_name,AudioDeviceManager* am) : TextButton(""), name_(sample_name), audio_manager(am){
     setAlpha(0.5f);
     velocity.first = 0;
@@ -313,27 +317,32 @@ Zone::Zone(const String& sample_name,AudioDeviceManager* am) : TextButton(""), n
     reader_source = new AudioFormatReaderSource(format_manager.createReaderFor(f),true);
     transport_source.setSource(reader_source);
 }
+
+Zone::~Zone() { 
+    reader_source = nullptr;
+}   
 void Zone::changeListenerCallback (ChangeBroadcaster* src)
 {
-  if (audio_manager == src) {
-    AudioDeviceManager::AudioDeviceSetup setup;
-    audio_manager->getAudioDeviceSetup (setup);
-
-    if (setup.outputChannels.isZero()) {
-      source_player.setSource (nullptr);
-    } else {
-      source_player.setSource (&transport_source);
+    if (audio_manager == src) {
+        AudioDeviceManager::AudioDeviceSetup setup;
+        audio_manager->getAudioDeviceSetup (setup);
+        if (setup.outputChannels.isZero()) {
+            source_player.setSource (nullptr);
+        } else {
+            source_player.setSource (&transport_source);
+        }
+    } else if (&transport_source == src) {
+        if (transport_source.isPlaying()) {
+            changeState (Playing);
+        } else {
+            if ((Stopping == state) || (Playing == state)) {
+                changeState (Stopped);
+            }
+            else if (Pausing == state) {
+                changeState (Paused);
+            }
+        }
     }
-  } else if (&transport_source == src) {
-    if (transport_source.isPlaying()) {
-      changeState (Playing);
-    } else {
-      if ((Stopping == state) || (Playing == state))
-        changeState (Stopped);
-      else if (Pausing == state)
-        changeState (Paused);
-    }
-  }
 }
 
 void Zone::changeState (TransportState newState)
@@ -344,7 +353,7 @@ void Zone::changeState (TransportState newState)
         case Stopped:
             transport_source.setPosition (0.0);
             break;
-            case Starting:
+        case Starting:
             transport_source.start();
             break;
         case Playing:
@@ -365,7 +374,6 @@ void Zone::register_parent(InstrumentMappingEditor::MappingEditorGraph* c){paren
 void Zone::mouseDown(const MouseEvent& e){
     parent->dragged_zone = this;
     parent->zone_info_set()->selectOnly(this);
-    this->clicked();
 }
 
 void Zone::mouseMove(const MouseEvent& e){
@@ -382,3 +390,11 @@ void Zone::mouseMove(const MouseEvent& e){
     }
 }
 
+void Zone::mouseDoubleClick(const MouseEvent& e){
+    if(state == Stopped) {
+        changeState(Starting);
+    }
+    else {
+        changeState(Stopping);
+    }
+}

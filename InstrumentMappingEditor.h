@@ -44,6 +44,7 @@ public:
     class Zone : public TextButton, public ChangeListener {
     public:
         Zone(const String& sample_name,AudioDeviceManager* am);
+        ~Zone();
         enum TransportState {
             Stopped,
             Starting,
@@ -52,6 +53,7 @@ public:
             Paused,
             Stopping
         };
+
         void changeState (TransportState newState);
         void changeListenerCallback (ChangeBroadcaster* source); 
         const String& name(){return name_;}
@@ -64,6 +66,7 @@ public:
         void register_parent(MappingEditorGraph* parent);
         void mouseDown(const MouseEvent& event);
         void mouseMove(const MouseEvent& event);
+        void mouseDoubleClick(const MouseEvent& event);
     private:
         const String name_;
         int x_;
