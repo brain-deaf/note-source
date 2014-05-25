@@ -7,7 +7,7 @@
 
   ==============================================================================
 */
-
+#include <stdexcept>
 #include "InstrumentMappingEditor.h"
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, Component* Parent, AudioDeviceManager* audioManager)
@@ -300,6 +300,11 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     dragging = false;
 }
 
+class BadFormatException : public std::runtime_error{
+public: 
+    BadFormatException(String s) : std::runtime_error(s.toStdString()){}
+};
+
 typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
 Zone::Zone(const String& sample_name,AudioDeviceManager* am) : TextButton(""), name_(sample_name), audio_manager(am){
@@ -307,6 +312,7 @@ Zone::Zone(const String& sample_name,AudioDeviceManager* am) : TextButton(""), n
     velocity.first = 0;
     velocity.second = 127;
     format_manager.registerBasicFormats();
+    std::cout<<format_manager.getWildcardForAllFormats()<<std::endl;
     source_player.setSource(&transport_source);
     audio_manager->addAudioCallback(&source_player);
     audio_manager->initialise(0,2,nullptr,true);
@@ -314,7 +320,11 @@ Zone::Zone(const String& sample_name,AudioDeviceManager* am) : TextButton(""), n
     transport_source.addChangeListener(this);
     state = Stopped;
     File f(sample_name);
-    reader_source = new AudioFormatReaderSource(format_manager.createReaderFor(f),true);
+    auto r = format_manager.createReaderFor(f);
+    if( r == nullptr) {
+        throw BadFormatException("cannot play "+sample_name);
+    }
+    reader_source = new AudioFormatReaderSource(r,true);
     transport_source.setSource(reader_source);
 }
 
