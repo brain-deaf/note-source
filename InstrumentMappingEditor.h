@@ -24,7 +24,7 @@ public:
     
     AudioDeviceManager* audio_manager;
 private:
-    ScopedPointer<Component> parent; //cool
+    Component* parent; 
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMappingEditor)
 };
@@ -99,7 +99,7 @@ public:
                     itemsFound.add(i);
                 } else {
                     itemsFound.removeFirstMatchingValue(i);
-                    i->setToggleState(false, 1);
+                    i->setToggleState(false, sendNotification);
                 }
             }
         };
@@ -111,7 +111,7 @@ public:
         void changeListenerCallback(ChangeBroadcaster* source){
             if (source == set_){
                 for (auto i : *static_cast<SelectedItemSet<SelectableItemType>*>(source)){
-                    i->setToggleState(true, 1);
+                    i->setToggleState(true, sendNotification);
                 }
             }
         }

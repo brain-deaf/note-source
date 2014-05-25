@@ -78,6 +78,8 @@ InstrumentMappingEditor::MappingEditorGraph::~MappingEditorGraph(){
     lasso_source = nullptr;
     delete keyboard;
     keyboard = nullptr;
+    delete keyboard_state;
+    keyboard_state = nullptr;
     delete midi_callback_;
     midi_callback_ = nullptr;
     delete zone_info_set_;
@@ -294,7 +296,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     lasso->endLasso();
     if (!lasso_source->dragging()){
         for (auto i : (*lasso_source->set())){
-            i->setToggleState(false, 1);
+            i->setToggleState(false, sendNotification);
             if (i->getMouseCursor() == MouseCursor()){
                 i->y(i->y()+getMouseXYRelative().getY() - start_drag_y);
             }
