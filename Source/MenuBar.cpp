@@ -78,12 +78,11 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
     }
     if (menuItemID == ID_AudioSettings){
         audio_settings_window = new AudioSettingsWindow("Audio and MIDI Settings", Colours::grey,
-            DocumentWindow::closeButton, false);
+            DocumentWindow::closeButton, true);
         audio_settings = new AudioDeviceSelectorComponent(*device_manager_, 0, 2, 0, 2, true, true, true, false); 
-        audio_settings_window->setContentOwned(audio_settings, true);
-        audio_settings_window->centreWithSize(getWidth(), getHeight());
-        audio_settings_window->setVisible(true);
         audio_settings->setBounds(0, 0, 500, 400);
+        audio_settings_window->setContentOwned(audio_settings, true);
+        audio_settings_window->setVisible(true);
     }
         
 }
