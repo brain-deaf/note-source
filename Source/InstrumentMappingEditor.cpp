@@ -11,8 +11,8 @@
 #include "InstrumentMappingEditor.h"
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, Component* Parent, AudioDeviceManager* audioManager)
-: parent(Parent), audio_manager(audioManager), Viewport(componentName),
-  graph(new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128)){
+:   Viewport(componentName),graph(new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128)),audio_manager(audioManager),parent(Parent)
+  {
     setViewedComponent(graph);
 
     graph->setBounds(0, 0, graph->width(), graph->height() + graph->keyboard_height());
@@ -26,7 +26,7 @@ InstrumentMappingEditor::~InstrumentMappingEditor(){
 }
 
 InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h, float kh, int nc)
-: Component(), dragged_zone(nullptr), width_(w), height_(h), keyboard_height_(kh), num_columns_(nc){
+: Component(), width_(w),height_(h), keyboard_height_(kh), num_columns_(nc), dragged_zone(nullptr) {
 
     lasso = new LassoComponent<Zone*>;
     lasso_source = new MappingLasso<Zone*>;
@@ -46,7 +46,6 @@ InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h
 void InstrumentMappingEditor::MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
     (MidiInput* source, const MidiMessage& message) {
     if (message.isNoteOn()) {
-        const Graphics g(Graphics(Image()));
         parent->notes_held().addToSelection(message.getNoteNumber());
     }
     if (message.isNoteOff()) {

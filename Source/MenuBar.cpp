@@ -7,7 +7,7 @@
 
   ==============================================================================
 */
-
+#include <stdexcept>
 #include "MenuBar.h"
 
 MenuBar::MenuBar() : menu_bar_component(this), menu_file(), menu_view(), menu_edit(){
@@ -45,6 +45,11 @@ StringArray MenuBar::getMenuBarNames(){
     return s;
 }
 
+class BadMenuException : public std::runtime_error {
+public:
+    BadMenuException(String menuName) : std::runtime_error(menuName.toStdString()){}
+};
+
 PopupMenu MenuBar::getMenuForIndex(int topLevelMenuIndex, const String& menuName){
     if (menuName == "File"){
         return menu_file;
@@ -56,6 +61,9 @@ PopupMenu MenuBar::getMenuForIndex(int topLevelMenuIndex, const String& menuName
     
     if (menuName == "Edit"){
         return menu_edit;
+    }
+    else {
+        throw BadMenuException(menuName);
     }
 }
 
@@ -70,7 +78,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
     }
     if (menuItemID == ID_AudioSettings){
         audio_settings_window = new AudioSettingsWindow("Audio and MIDI Settings", Colours::grey,
-            DocumentWindow::closeButton);
+            DocumentWindow::closeButton, false);
         audio_settings = new AudioDeviceSelectorComponent(*device_manager_, 0, 2, 0, 2, true, true, true, false); 
         audio_settings_window->setContentOwned(audio_settings, true);
         audio_settings_window->centreWithSize(getWidth(), getHeight());

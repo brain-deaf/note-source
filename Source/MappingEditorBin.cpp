@@ -9,7 +9,7 @@
 */
 
 #include "MappingEditorBin.h"
-MappingEditorBin::MappingEditorBin(AudioDeviceManager* audio) : mapping_editor_height(435), Component(){
+MappingEditorBin::MappingEditorBin(AudioDeviceManager* audio) : Component(),mapping_editor_height(435){
         mapping_editor = new InstrumentMappingEditor("", this, audio);
         zone_info = new ZoneInfo(mapping_editor);
         addAndMakeVisible(mapping_editor);

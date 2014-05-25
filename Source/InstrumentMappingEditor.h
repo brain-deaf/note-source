@@ -111,8 +111,8 @@ public:
                 if (((i->x() >= left && i->x() <= right) || 
                     (i->x() + parent_->width() / parent_->num_columns() >= left && 
                      i->x() + parent_->width() / parent_->num_columns() <= right)) && 
-                   ((i->y() >= top && i->y() <= bottom) || top >= i->y() &&
-                     top <= i->y() + i->height())){
+                   ((i->y() >= top && i->y() <= bottom) || ((top >= i->y() &&
+                     top <= i->y() + i->height())))){
                     itemsFound.add(i);
                 } else {
                     itemsFound.removeFirstMatchingValue(i);
@@ -155,7 +155,7 @@ public:
     void height(float h){height_=h;}
     float height() { return height_;}
     void keyboard_height(float kh){keyboard_height_=kh;}
-    float keyboard_height(){keyboard_height_;}
+    float keyboard_height(){return keyboard_height_;}
     void num_columns(int nc){num_columns_=nc;}
     int num_columns(){return num_columns_;}
     void audio_manager(AudioDeviceManager* am) {audio_manager_ = am;}
