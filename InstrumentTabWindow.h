@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    instrumentTabWindow.h
+    InstrumentTabWindow.h
     Created: 9 May 2014 6:26:40pm
     Author:  patrick
 
@@ -12,19 +12,19 @@
 #define INSTRUMENTTABWINDOW_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "mappingEditorBin.h"
+#include "MappingEditorBin.h"
 
-class instrumentTabWindow : public TabbedComponent
+class InstrumentTabWindow : public TabbedComponent
 {
 public:
-    instrumentTabWindow(TabbedButtonBar::Orientation orientation, AudioDeviceManager* audio);
-    ~instrumentTabWindow();
+    InstrumentTabWindow(TabbedButtonBar::Orientation orientation, AudioDeviceManager* audio);
+    ~InstrumentTabWindow();
     
-    AudioDeviceManager* content_component;
 private:
-    ScopedPointer<mappingEditorBin> mapping_editor;
+    AudioDeviceManager* content_component;
+    ScopedPointer<MappingEditorBin> mapping_editor;
     ScopedPointer<TextButton> zoom_button;
-    //JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (instrumentTabWindow)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentTabWindow)
 };
 
 

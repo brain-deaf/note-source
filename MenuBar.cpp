@@ -8,9 +8,9 @@
   ==============================================================================
 */
 
-#include "menuBar.h"
+#include "MenuBar.h"
 
-menuBar::menuBar() : menu_bar_component(this), menu_file(), menu_view(), menu_edit(){
+MenuBar::MenuBar() : menu_bar_component(this), menu_file(), menu_view(), menu_edit(){
     addAndMakeVisible(&menu_bar_component);
     
     menu_file.addItem(ID_New, "New Instrument");
@@ -20,20 +20,23 @@ menuBar::menuBar() : menu_bar_component(this), menu_file(), menu_view(), menu_ed
     menu_view.addItem(ID_View1, "Nothing Here");
     menu_edit.addItem(ID_Edit1, "Nothing Here");
     
-    device_manager = new AudioDeviceManager();
-    midi_callback = new midiDeviceCallback();
-    device_manager->addMidiInputCallback("", midi_callback);
+    device_manager_ = new AudioDeviceManager();
+    midi_callback = new MidiDeviceCallback();
+    device_manager_->addMidiInputCallback("", midi_callback);
 
 }
 
-menuBar::~menuBar(){
-    device_manager = nullptr;
+MenuBar::~MenuBar(){
+    delete device_manager_;
+    delete midi_callback;
+    device_manager_ = nullptr;
+    midi_callback = nullptr;
 }
 
-menuBar::audioSettingsWindow::audioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop=true)
+MenuBar::AudioSettingsWindow::AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop=true)
 : DocumentWindow(name, backgroundColour, requiredButtons, addToDesktop){}
     
-StringArray menuBar::getMenuBarNames(){
+StringArray MenuBar::getMenuBarNames(){
     StringArray s;
     s.add("File");
     s.add("View");
@@ -42,7 +45,7 @@ StringArray menuBar::getMenuBarNames(){
     return s;
 }
 
-PopupMenu menuBar::getMenuForIndex(int topLevelMenuIndex, const String& menuName){
+PopupMenu MenuBar::getMenuForIndex(int topLevelMenuIndex, const String& menuName){
     if (menuName == "File"){
         return menu_file;
     }
@@ -56,19 +59,19 @@ PopupMenu menuBar::getMenuForIndex(int topLevelMenuIndex, const String& menuName
     }
 }
 
-void menuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
+void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
     if (menuItemID == ID_Quit){
         JUCEApplication::quit();
     }
     if (menuItemID == ID_New){
-        instrumentComponent* i = new instrumentComponent(parent_instrument_bin, device_manager);
+        InstrumentComponent* i = new InstrumentComponent(parent_instrument_bin, device_manager_);
         parent_instrument_bin->addTab("New Instrument", Colour(100, 100, 100), i, false);
         parent_instrument_bin->register_tab(i);
     }
     if (menuItemID == ID_AudioSettings){
-        audio_settings_window = new audioSettingsWindow("Audio and MIDI Settings", Colours::grey,
+        audio_settings_window = new AudioSettingsWindow("Audio and MIDI Settings", Colours::grey,
             DocumentWindow::closeButton);
-        audio_settings = new AudioDeviceSelectorComponent(*device_manager, 0, 2, 0, 2, true, true, true, false); 
+        audio_settings = new AudioDeviceSelectorComponent(*device_manager_, 0, 2, 0, 2, true, true, true, false); 
         audio_settings_window->setContentOwned(audio_settings, true);
         audio_settings_window->centreWithSize(getWidth(), getHeight());
         audio_settings_window->setVisible(true);
@@ -77,10 +80,10 @@ void menuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
         
 }
 
-void menuBar::resized(){
+void MenuBar::resized(){
     menu_bar_component.setBounds(0, 0, getWidth(), 20);
 }
 
-void menuBar::set_parent_instrument_bin(instrumentBin* bin){
+void MenuBar::set_parent_instrument_bin(InstrumentBin* bin){
     parent_instrument_bin = bin;
 }

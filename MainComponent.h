@@ -9,8 +9,8 @@
 #ifndef MAINCOMPONENT_H_INCLUDED
 #define MAINCOMPONENT_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "menuBar.h"
-#include "instrumentBin.h"
+#include "MenuBar.h"
+#include "InstrumentBin.h"
 
 
 
@@ -19,21 +19,15 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent   : public Component
+class MainContentComponent : public Component
 {
 public:
-    //==============================================================================
     MainContentComponent();
     ~MainContentComponent();
-
     void resized();
-    
-    menuBar menu_bar;
-
 private:
-    
-    instrumentBin instrument_bin;
-    //==============================================================================
+    MenuBar menu_bar;
+    InstrumentBin instrument_bin;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 

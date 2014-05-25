@@ -10,19 +10,15 @@
 
 
 //==============================================================================
-MainContentComponent::MainContentComponent() : menu_bar(), instrument_bin(TabbedButtonBar::TabsAtTop, menu_bar.device_manager)
-{
+MainContentComponent::MainContentComponent() : menu_bar(), instrument_bin(TabbedButtonBar::TabsAtTop, menu_bar.device_manager()) {
     addAndMakeVisible(&instrument_bin);
-    
     setSize (1000, 730);
     addAndMakeVisible(&menu_bar);
     menu_bar.set_parent_instrument_bin(&instrument_bin);
 }
 
-MainContentComponent::~MainContentComponent()
-{
+MainContentComponent::~MainContentComponent() {
 }
-
 
 void MainContentComponent::resized()
 {

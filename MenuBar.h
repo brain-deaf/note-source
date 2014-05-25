@@ -12,41 +12,34 @@
 #define MENUBAR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "instrumentBin.h"
+#include "InstrumentBin.h"
 
-class menuBar : public MenuBarModel, public Component
+class MenuBar : public MenuBarModel, public Component
 {
 public:
-    menuBar();
-    ~menuBar();
+    MenuBar();
+    ~MenuBar();
     
     StringArray getMenuBarNames();
     PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
     void menuItemSelected(int menuItemID, int topLevelMenuIndex);
     void resized();
-    void set_parent_instrument_bin(instrumentBin* parent_instrument_bin);
+    void set_parent_instrument_bin(InstrumentBin* parent_instrument_bin);
     
-    AudioDeviceSelectorComponent* audio_settings;
-    AudioDeviceManager* device_manager;
       
-    class midiDeviceCallback : public MidiInputCallback
+    class MidiDeviceCallback : public MidiInputCallback
     {
     public:
         void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message){
-            //std::cout<<"midi event!!"<<std::endl;
         };
     };
     
-    class audioSettingsWindow : public DocumentWindow
+    class AudioSettingsWindow : public DocumentWindow
     {
     public:
-        audioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop);
+        AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop);
         void closeButtonPressed(){delete this;};
     };
-    
-    midiDeviceCallback* midi_callback;
-    
-    audioSettingsWindow* audio_settings_window;
     
     enum menuIDs{
         ID_New = 1000,
@@ -56,12 +49,19 @@ public:
         ID_Edit1,
         ID_AudioSettings,
     };
+
+    AudioDeviceManager* device_manager(){return device_manager_;}
+    void device_manager(AudioDeviceManager* adm) {device_manager_ = adm;}
 private:
+    AudioDeviceSelectorComponent* audio_settings;
+    AudioDeviceManager* device_manager_;
+    MidiDeviceCallback* midi_callback;
+    AudioSettingsWindow* audio_settings_window;
     MenuBarComponent menu_bar_component;
     PopupMenu menu_file;
     PopupMenu menu_view;
     PopupMenu menu_edit;
-    instrumentBin* parent_instrument_bin;
+    InstrumentBin* parent_instrument_bin;
 };
 
 

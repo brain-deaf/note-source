@@ -8,24 +8,24 @@
   ==============================================================================
 */
 
-#include "instrumentComponent.h"
+#include "InstrumentComponent.h"
 
-instrumentComponent::instrumentComponent(TabbedComponent* Parent, AudioDeviceManager* audio)
+InstrumentComponent::InstrumentComponent(TabbedComponent* Parent, AudioDeviceManager* audio)
 : parent(Parent){
     
-    tabbed_component = new instrumentTabWindow(TabbedButtonBar::TabsAtBottom, audio);
-    instrument_master_component = new instrumentMasterComponent(parent);
+    tabbed_component = new InstrumentTabWindow(TabbedButtonBar::TabsAtBottom, audio);
+    instrument_master_component = new InstrumentMasterComponent(parent);
     
     addAndMakeVisible(tabbed_component);
     addAndMakeVisible(instrument_master_component);
 }
 
-instrumentComponent::~instrumentComponent(){
+InstrumentComponent::~InstrumentComponent(){
     tabbed_component = nullptr;
     instrument_master_component = nullptr;
 }
 
-void instrumentComponent::resized(){
+void InstrumentComponent::resized(){
     tabbed_component->setBounds(0, 80, getWidth(), getHeight() - 80);
     instrument_master_component->setBounds(0, 0, getWidth(), 80);
 }
