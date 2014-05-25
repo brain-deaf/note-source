@@ -41,16 +41,19 @@ public:
         void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message);
     };
 
-    class Zone : public TextButton
-    {
-        const String name_;
-        int x_;
-        int y_;
-        int height_;
-        std::pair<int, int> velocity;
-        MappingEditorGraph* parent;
+    class Zone : public TextButton, public ChangeListener {
     public:
-        Zone(const String& sample_name);
+        Zone(const String& sample_name,AudioDeviceManager* am);
+        enum TransportState {
+            Stopped,
+            Starting,
+            Playing,
+            Pausing,
+            Paused,
+            Stopping
+        };
+        void changeState (TransportState newState);
+        void changeListenerCallback (ChangeBroadcaster* source); 
         const String& name(){return name_;}
         void x(int xx){x_ = xx;}
         int x() { return x_;}
@@ -58,11 +61,22 @@ public:
         int y() { return y_;}
         void height(int h){height_=h;}
         int height(){return height_;}
-    
         void register_parent(MappingEditorGraph* parent);
         void mouseDown(const MouseEvent& event);
         void mouseMove(const MouseEvent& event);
-
+    private:
+        const String name_;
+        int x_;
+        int y_;
+        int height_;
+        std::pair<int, int> velocity;
+        MappingEditorGraph* parent;
+        AudioDeviceManager* audio_manager;
+        ScopedPointer<AudioFormatReaderSource> reader_source;
+        AudioFormatManager format_manager;
+        AudioTransportSource transport_source;
+        AudioSourcePlayer source_player;
+        TransportState state;
     };
 
     template <class SelectableItemType>

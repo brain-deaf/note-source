@@ -36,7 +36,6 @@ InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h
     keyboard_state = new MidiKeyboardState();
     keyboard_state->addListener(this);
     keyboard = new MidiKeyboardComponent(*keyboard_state, MidiKeyboardComponent::horizontalKeyboard);
-    keyboard->setBounds(0, getHeight() - keyboard_height_, getWidth(), keyboard_height_);
     addAndMakeVisible(keyboard);
 
     midi_callback_ = new MidiDeviceCallback();
@@ -45,12 +44,12 @@ InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
-    (MidiInput* source, const MidiMessage& message){
-    if (message.isNoteOn()){
+    (MidiInput* source, const MidiMessage& message) {
+    if (message.isNoteOn()) {
         const Graphics g(Graphics(Image()));
         parent->notes_held().addToSelection(message.getNoteNumber());
     }
-    if (message.isNoteOff()){
+    if (message.isNoteOff()) {
         if (parent->notes_held().isSelected(message.getNoteNumber())){
             parent->notes_held().deselect(message.getNoteNumber());
         }
@@ -80,8 +79,6 @@ InstrumentMappingEditor::MappingEditorGraph::~MappingEditorGraph(){
 
 void InstrumentMappingEditor::MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
     notes_held_.addToSelection(midiNoteNumber);
-    std::cout<<"note on"<<std::endl;
-    //keyboard_state->noteOn(0, midiNoteNumber, 1);
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){
@@ -117,16 +114,18 @@ void InstrumentMappingEditor::MappingEditorGraph::filesDropped(const StringArray
     float grid_outline = 1.0f;
     float grid_width = width_ / num_columns_;
     for (int i=0; i<files.size(); i++){
-        Zone* new_zone;
-        zones.add(new_zone = new Zone(files[i]));
+        Zone* new_zone = new Zone(files[i],audio_manager());
+        zones.add(new_zone);
+        new_zone->changeState(Zone::Starting);
+
         new_zone->removeListener(this);
         new_zone->addListener(this);
         new_zone->removeMouseListener(new_zone);
         new_zone->addMouseListener(this, true);
 
-        new_zone->x(static_cast<int>(x / grid_width) * grid_width + grid_outline + grid_width*i);
+        new_zone->x((x / grid_width) * grid_width + grid_outline + grid_width*i);
         new_zone->y(0);
-        new_zone->height(height_);
+        new_zone->height(getHeight());
         new_zone->register_parent(this);
         new_zone->setBounds(new_zone->x(), new_zone->y(), grid_width - grid_outline, new_zone->height());
         addAndMakeVisible(new_zone);
@@ -198,7 +197,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e)
         float grid_outline = 1.0f;
         float grid_width = width_ / num_columns_;
 
-        int grid_x_offset = static_cast<int>((e.x / grid_width));
+        int grid_x_offset = e.x / grid_width;
 
         if (lasso_source->set()->getItemArray().contains(dragged_zone)){
             for (auto i : (*lasso_source->set())){
@@ -298,21 +297,78 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     dragging = false;
 }
 
-InstrumentMappingEditor::MappingEditorGraph::Zone::Zone(const String& sample_name) : TextButton(""), name_(sample_name){
+typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
+Zone::Zone(const String& sample_name,AudioDeviceManager* am) : TextButton(""), name_(sample_name), audio_manager(am){
     setAlpha(0.5f);
     velocity.first = 0;
     velocity.second = 127;
+    format_manager.registerBasicFormats();
+    source_player.setSource(&transport_source);
+    audio_manager->addAudioCallback(&source_player);
+    audio_manager->initialise(0,2,nullptr,true);
+    audio_manager->addChangeListener(this);
+    transport_source.addChangeListener(this);
+    state = Stopped;
+    File f(sample_name);
+    reader_source = new AudioFormatReaderSource(format_manager.createReaderFor(f),true);
+    transport_source.setSource(reader_source);
+}
+void Zone::changeListenerCallback (ChangeBroadcaster* src)
+{
+  if (audio_manager == src) {
+    AudioDeviceManager::AudioDeviceSetup setup;
+    audio_manager->getAudioDeviceSetup (setup);
+
+    if (setup.outputChannels.isZero()) {
+      source_player.setSource (nullptr);
+    } else {
+      source_player.setSource (&transport_source);
+    }
+  } else if (&transport_source == src) {
+    if (transport_source.isPlaying()) {
+      changeState (Playing);
+    } else {
+      if ((Stopping == state) || (Playing == state))
+        changeState (Stopped);
+      else if (Pausing == state)
+        changeState (Paused);
+    }
+  }
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::Zone::register_parent(InstrumentMappingEditor::MappingEditorGraph* c){parent=c;}
+void Zone::changeState (TransportState newState)
+{
+    if (state != newState) {
+        state = newState;
+        switch (state) {
+        case Stopped:
+            transport_source.setPosition (0.0);
+            break;
+            case Starting:
+            transport_source.start();
+            break;
+        case Playing:
+            break;
+        case Pausing:
+            transport_source.stop();
+            break;
+        case Paused:
+            break;
+        case Stopping:
+            transport_source.stop();
+            break;
+        }
+    }
+}
+void Zone::register_parent(InstrumentMappingEditor::MappingEditorGraph* c){parent=c;}
 
-void InstrumentMappingEditor::MappingEditorGraph::Zone::mouseDown(const MouseEvent& e){
+void Zone::mouseDown(const MouseEvent& e){
     parent->dragged_zone = this;
     parent->zone_info_set()->selectOnly(this);
     this->clicked();
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::Zone::mouseMove(const MouseEvent& e){
+void Zone::mouseMove(const MouseEvent& e){
     if (!this->parent->dragging){
         if (e.y < 5){
             setMouseCursor(MouseCursor::TopEdgeResizeCursor);
