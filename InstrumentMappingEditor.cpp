@@ -11,18 +11,12 @@
 #include "InstrumentMappingEditor.h"
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, Component* Parent, AudioDeviceManager* audioManager)
-: parent(Parent), audio_manager(audioManager), Viewport(componentName){
-    setViewedComponent(graph = new MappingEditorGraph());
+: parent(Parent), audio_manager(audioManager), Viewport(componentName),
+  graph(new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128)){
+    setViewedComponent(graph);
 
-    graph->width(1800.0f);
-    graph->height(335.0f);
-    graph->keyboard_height(100.0f);
-
-    graph->num_columns(128);
     graph->setBounds(0, 0, graph->width(), graph->height() + graph->keyboard_height());
-
     graph->notes_held().addChangeListener(graph);
-
     graph->audio_manager(audio_manager);
     graph->audio_manager()->addMidiInputCallback("", graph->midi_callback());
 }
@@ -31,8 +25,8 @@ InstrumentMappingEditor::~InstrumentMappingEditor(){
     graph = nullptr;
 }
 
-InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph()
-: Component(), dragged_zone(nullptr){
+InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h, float kh, int nc)
+: Component(), dragged_zone(nullptr), width_(w), height_(h), keyboard_height_(kh), num_columns_(nc){
 
     lasso = new LassoComponent<Zone*>;
     lasso_source = new MappingLasso<Zone*>;
@@ -42,13 +36,12 @@ InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph()
     keyboard_state = new MidiKeyboardState();
     keyboard_state->addListener(this);
     keyboard = new MidiKeyboardComponent(*keyboard_state, MidiKeyboardComponent::horizontalKeyboard);
+    keyboard->setBounds(0, getHeight() - keyboard_height_, getWidth(), keyboard_height_);
+    addAndMakeVisible(keyboard);
 
     midi_callback_ = new MidiDeviceCallback();
     midi_callback_->register_parent(this);
-
     zone_info_set_ = new SelectedItemSet<Zone*>;
-
-    addAndMakeVisible(keyboard);
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
@@ -62,12 +55,11 @@ void InstrumentMappingEditor::MappingEditorGraph::MidiDeviceCallback::handleInco
             parent->notes_held().deselect(message.getNoteNumber());
         }
     }
-
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::resized(){
-    keyboard->setBounds(0, height_, width_, keyboard_height_);
-    keyboard->setKeyWidth(width_ / num_columns_ * 1.7125f);
+    keyboard->setBounds(0, getHeight() - keyboard_height_, getWidth(), keyboard_height_);
+    keyboard->setKeyWidth(getWidth() / num_columns_ * 1.7125f);
 }
 
 InstrumentMappingEditor::MappingEditorGraph::~MappingEditorGraph(){
@@ -116,7 +108,6 @@ void InstrumentMappingEditor::MappingEditorGraph::paint(Graphics& g){
         myPath.lineTo (i*grid_width, height_);
     }
 
-
     g.strokePath (myPath, PathStrokeType (grid_outline));
 }
 
@@ -161,19 +152,19 @@ void InstrumentMappingEditor::MappingEditorGraph::set_bounds_for_component(Zone*
         if (new_grid_x >= 0 && new_grid_x < num_columns_){
             c->x(new_grid_x * grid_width + grid_outline);
         }
-        if (new_grid_x < 0){
+        else if (new_grid_x < 0){
             c->x(0);
         }
-        if (new_grid_x > num_columns_){
+        else if (new_grid_x > num_columns_){
             c->x(num_columns_ * grid_width + grid_outline);
         }
         if (c->y() + (y - start_drag_y) < 0){
             new_y = 0;
         }
-        if (c->y() + (y - start_drag_y) + c->height() > height_){
+        else if (c->y() + (y - start_drag_y) + c->height() > height_){
             new_y = height_ - c->height();
         }
-        if (c->y() + (y - start_drag_y) >= 0 && c->y() + (y - start_drag_y) + c->height() <= height_){
+        else if (c->y() + (y - start_drag_y) >= 0 && c->y() + (y - start_drag_y) + c->height() <= height_){
             new_y = c->y() + (y - start_drag_y);
         }
         c->setBounds(c->x(), new_y, grid_width - grid_outline, c->height());

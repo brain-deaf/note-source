@@ -117,7 +117,7 @@ public:
         }
     };
 
-    MappingEditorGraph();
+    MappingEditorGraph(float,float,float,int);
     ~MappingEditorGraph();
     void changeListenerCallback(ChangeBroadcaster* source){repaint();};
     void set_bounds_for_component(Zone* z, MouseCursor cursor, float grid_outline, float grid_width, int grid_x_offset);
