@@ -68,23 +68,26 @@ PopupMenu MenuBar::getMenuForIndex(int topLevelMenuIndex, const String& menuName
 }
 
 void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
-    if (menuItemID == ID_Quit){
-        JUCEApplication::quit();
-    }
-    if (menuItemID == ID_New){
-        InstrumentComponent* i = new InstrumentComponent(parent_instrument_bin, device_manager_);
-        parent_instrument_bin->addTab("New Instrument", Colour(100, 100, 100), i, false);
-        parent_instrument_bin->register_tab(i);
-    }
-    if (menuItemID == ID_AudioSettings){
-        audio_settings_window = new AudioSettingsWindow("Audio and MIDI Settings", Colours::grey,
+    switch (menuItemID) {
+        case ID_Quit: {
+            JUCEApplication::quit();
+        }
+
+        case ID_New: {
+            InstrumentComponent* i = new InstrumentComponent(parent_instrument_bin, device_manager_);
+            parent_instrument_bin->addTab("New Instrument", Colour(100, 100, 100), i, false);
+            parent_instrument_bin->register_tab(i);
+        }
+
+        case ID_AudioSettings: {
+            audio_settings_window = new AudioSettingsWindow("Audio and MIDI Settings", Colours::grey,
             DocumentWindow::closeButton, true);
-        audio_settings = new AudioDeviceSelectorComponent(*device_manager_, 0, 2, 0, 2, true, true, true, false); 
-        audio_settings->setBounds(0, 0, 500, 400);
-        audio_settings_window->setContentOwned(audio_settings, true);
-        audio_settings_window->setVisible(true);
+            audio_settings = new AudioDeviceSelectorComponent(*device_manager_, 0, 2, 0, 2, true, true, true, false); 
+            audio_settings->setBounds(0, 0, 500, 400);
+            audio_settings_window->setContentOwned(audio_settings, true);
+            audio_settings_window->setVisible(true);
+        }
     }
-        
 }
 
 void MenuBar::resized(){
