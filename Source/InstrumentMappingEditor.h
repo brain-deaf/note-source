@@ -141,7 +141,7 @@ public:
     void set_bounds_for_component(Zone* z, MouseCursor cursor, float grid_outline, float grid_width, int grid_x_offset);
     void paint(Graphics& g);
     void resized();
-    void buttonClicked(Button* button);
+    virtual void buttonClicked(Button* button) override;
     void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity);
     void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber);
     void mouseDrag(const MouseEvent& event);

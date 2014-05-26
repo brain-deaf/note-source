@@ -22,7 +22,6 @@ class MainContentComponent : public Component
 {
 public:
     MainContentComponent();
-    ~MainContentComponent();
     void resized();
 private:
     MenuBar menu_bar;

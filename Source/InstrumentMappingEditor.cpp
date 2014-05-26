@@ -26,6 +26,8 @@ InstrumentMappingEditor::~InstrumentMappingEditor(){
     graph = nullptr;
 }
 
+void InstrumentMappingEditor::MappingEditorGraph::buttonClicked(Button *){}
+
 InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h, float kh, int nc)
 : Component(), width_(w),height_(h), keyboard_height_(kh), num_columns_(nc), dragged_zone(nullptr) {
 

@@ -11,8 +11,8 @@
 #include "InstrumentComponent.h"
 
 InstrumentComponent::InstrumentComponent(TabbedComponent* p, std::shared_ptr<AudioDeviceManager>& audio)
-: parent(p), tabbed_component(new InstrumentTabWindow(TabbedButtonBar::TabsAtBottom, audio),
-        instrument_master_component(new InstrumentMasterComponent(parent){
+: parent(p), tabbed_component{new InstrumentTabWindow(TabbedButtonBar::TabsAtBottom, audio)},
+        instrument_master_component{new InstrumentMasterComponent(parent)}{
     
     instrument_master_component = new InstrumentMasterComponent(parent);
     
