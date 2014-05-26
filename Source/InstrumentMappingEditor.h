@@ -19,14 +19,10 @@ class InstrumentMappingEditor : public Viewport
 public:
     class MappingEditorGraph;
     InstrumentMappingEditor(const String& componentName, Component* Parent, std::shared_ptr<AudioDeviceManager>& audio);
-    ~InstrumentMappingEditor();
-    
     ScopedPointer<MappingEditorGraph> graph;
-    
     std::shared_ptr<AudioDeviceManager> audio_manager;
 private:
     Component* parent; 
-    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMappingEditor)
 };
     
@@ -38,8 +34,9 @@ public:
     {
         MappingEditorGraph* parent;
     public:
-        void register_parent(MappingEditorGraph* _parent){parent=_parent;}
+        MidiDeviceCallback(MappingEditorGraph * p): parent{p}{}
         void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message);
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiDeviceCallback)
     };
 
     class Zone : public TextButton, public ChangeListener {
@@ -80,6 +77,7 @@ public:
         AudioTransportSource transport_source;
         AudioSourcePlayer source_player;
         TransportState state;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Zone)
     };
 
     template <class SelectableItemType>
@@ -89,8 +87,9 @@ public:
         MappingEditorGraph* parent;
         SelectedItemSet<SelectableItemType> set; 
         bool dragging_;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MappingLasso<SelectableItemType>)
     public:
-        MappingLasso(MappingEditorGraph * p) : parent{p} {}
+        MappingLasso(MappingEditorGraph * p) : parent{p}, dragging_{false} {}
         bool dragging(){return dragging_;}
         void dragging(bool d) {dragging_=d;}
         Array<Zone*>& zones(){return zones_;}
@@ -154,6 +153,7 @@ public:
     float keyboard_height(){return keyboard_height_;}
     void num_columns(int nc){num_columns_=nc;}
     int num_columns(){return num_columns_;}
+    bool dragging(){return dragging_;}
     void audio_manager(std::shared_ptr<AudioDeviceManager> am) {audio_manager_ = am;}
     std::shared_ptr<AudioDeviceManager>& audio_manager() { return audio_manager_;}
     SelectedItemSet<int>& notes_held() { return notes_held_;}
@@ -164,7 +164,7 @@ private:
     float height_;
     float keyboard_height_;
     int num_columns_;
-    bool dragging;
+    bool dragging_;
     int start_drag_y;
     std::shared_ptr<AudioDeviceManager> audio_manager_;
     MidiDeviceCallback* midi_callback_;

@@ -22,15 +22,11 @@ InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, Co
     graph->audio_manager()->addMidiInputCallback("", graph->midi_callback());
 }
 
-InstrumentMappingEditor::~InstrumentMappingEditor(){
-    graph = nullptr;
-}
-
 void InstrumentMappingEditor::MappingEditorGraph::buttonClicked(Button *){}
 
 InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h, float kh, int nc)
 : Component(), width_{w}, height_{h}, keyboard_height_{kh},
-    num_columns_{nc}, dragged_zone{nullptr}, dragging{false}, 
+    num_columns_{nc}, dragged_zone{nullptr}, dragging_{false}, 
     lasso{new LassoComponent<Zone*>},lasso_source{new MappingLasso<Zone*>(this)} {
 
     keyboard_state = new MidiKeyboardState();
@@ -38,9 +34,19 @@ InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h
     keyboard = new MidiKeyboardComponent(*keyboard_state, MidiKeyboardComponent::horizontalKeyboard);
     addAndMakeVisible(keyboard);
 
-    midi_callback_ = new MidiDeviceCallback();
-    midi_callback_->register_parent(this);
+    midi_callback_ = new MidiDeviceCallback(this);
     zone_info_set_ = new SelectedItemSet<Zone*>;
+}
+
+InstrumentMappingEditor::MappingEditorGraph::~MappingEditorGraph(){
+    for (auto i : zones){
+        delete i;
+    }
+    delete lasso_source;
+    delete keyboard;
+    delete keyboard_state;
+    delete midi_callback_;
+    delete zone_info_set_;
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
@@ -58,22 +64,6 @@ void InstrumentMappingEditor::MappingEditorGraph::MidiDeviceCallback::handleInco
 void InstrumentMappingEditor::MappingEditorGraph::resized(){
     keyboard->setBounds(0, getHeight() - keyboard_height_, getWidth(), keyboard_height_);
     keyboard->setKeyWidth(getWidth() / num_columns_ * 1.7125f);
-}
-
-InstrumentMappingEditor::MappingEditorGraph::~MappingEditorGraph(){
-    for (auto i : zones){
-        delete i;
-    }
-    delete lasso_source;
-    lasso_source = nullptr;
-    delete keyboard;
-    keyboard = nullptr;
-    delete keyboard_state;
-    keyboard_state = nullptr;
-    delete midi_callback_;
-    midi_callback_ = nullptr;
-    delete zone_info_set_;
-    zone_info_set_ = nullptr;
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
@@ -135,7 +125,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDown(const MouseEvent& e)
     addAndMakeVisible(lasso);
     lasso->beginLasso(e, lasso_source);
     start_drag_y = getMouseXYRelative().getY();
-    dragging = true;
+    dragging_ = true;
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::set_bounds_for_component(Zone* c, MouseCursor cursor, float grid_outline, float grid_width, int grid_x_offset){
@@ -295,7 +285,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
         set.deselectAll();
     }
     lasso_source->dragging(false);
-    dragging = false;
+    dragging_ = false;
 }
 
 class BadFormatException : public std::runtime_error{
@@ -327,6 +317,7 @@ Zone::Zone(MappingEditorGraph* p, const String& sample_name,std::shared_ptr<Audi
 }
 
 Zone::~Zone() { 
+    changeState(Stopping);
     audio_manager->removeAudioCallback(&source_player);
 }   
 void Zone::changeListenerCallback (ChangeBroadcaster* src) {
@@ -382,7 +373,7 @@ void Zone::mouseDown(const MouseEvent& e) {
 }
 
 void Zone::mouseMove(const MouseEvent& e) {
-    if (!parent->dragging){
+    if (!parent->dragging()){
         if (e.y < 5){
             setMouseCursor(MouseCursor::TopEdgeResizeCursor);
             return;

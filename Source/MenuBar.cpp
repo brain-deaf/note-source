@@ -11,7 +11,7 @@
 #include "MenuBar.h"
 
 MenuBar::MenuBar() : menu_bar_component{this}, menu_file{}, menu_view{}, menu_edit{},
-    audio_settings_window{nullptr},parent_instrument_bin(nullptr) {
+    audio_settings_window{nullptr},parent_instrument_bin{nullptr} {
     addAndMakeVisible(menu_bar_component);
     
     menu_file.addItem(ID_New, "New Instrument");
@@ -25,7 +25,7 @@ MenuBar::MenuBar() : menu_bar_component{this}, menu_file{}, menu_view{}, menu_ed
 }
 
 MenuBar::~MenuBar() {
-
+    delete audio_settings_window; // in case main window closes while it's up
 }
 
 MenuBar::AudioSettingsWindow::AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop=true)
