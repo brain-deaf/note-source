@@ -44,7 +44,7 @@ public:
 
     class Zone : public TextButton, public ChangeListener {
     public:
-        Zone(const String& sample_name,std::shared_ptr<AudioDeviceManager>& am);
+        Zone(MappingEditorGraph * p,const String& sample_name,std::shared_ptr<AudioDeviceManager>& am);
         ~Zone();
         enum TransportState {
             Stopped,
@@ -64,7 +64,6 @@ public:
         int y() { return y_;}
         void height(int h){height_=h;}
         int height(){return height_;}
-        void register_parent(MappingEditorGraph* parent);
         void mouseDown(const MouseEvent& event);
         void mouseMove(const MouseEvent& event);
         void mouseDoubleClick(const MouseEvent& event);
@@ -87,17 +86,14 @@ public:
     class MappingLasso: public LassoSource<SelectableItemType>, public ChangeListener
     {
         Array<Zone*> zones_;
-        InstrumentMappingEditor::MappingEditorGraph* parent_;
-        SelectedItemSet<SelectableItemType>* set_; 
+        MappingEditorGraph* parent;
+        SelectedItemSet<SelectableItemType> set; 
         bool dragging_;
     public:
+        MappingLasso(MappingEditorGraph * p) : parent{p} {}
         bool dragging(){return dragging_;}
-        void dragging(bool d){dragging_=d;}
-        void set(SelectedItemSet<SelectableItemType>* s){ set_=s;}
-        SelectedItemSet<SelectableItemType>* set(){ return set_;}
+        void dragging(bool d) {dragging_=d;}
         Array<Zone*>& zones(){return zones_;}
-        ~MappingLasso(){delete set_; set_ = nullptr;};
-        void parent(InstrumentMappingEditor::MappingEditorGraph* p){parent_ = p;}
         void findLassoItemsInArea (Array <SelectableItemType>& itemsFound,
                                        const Rectangle<int>& area){
             dragging(true);
@@ -110,8 +106,8 @@ public:
             
             for (auto i : zones_){
                 if (((i->x() >= left && i->x() <= right) || 
-                    (i->x() + parent_->width() / parent_->num_columns() >= left && 
-                     i->x() + parent_->width() / parent_->num_columns() <= right)) && 
+                    (i->x() + parent->width() / parent->num_columns() >= left && 
+                     i->x() + parent->width() / parent->num_columns() <= right)) && 
                    ((i->y() >= top && i->y() <= bottom) || ((top >= i->y() &&
                      top <= i->y() + i->height())))){
                     itemsFound.add(i);
@@ -122,13 +118,12 @@ public:
             }
         };
         SelectedItemSet<SelectableItemType>& getLassoSelection(){
-            set_->addChangeListener(this);
-            return *set_;
+            return set;
         };
         
         void changeListenerCallback(ChangeBroadcaster* source){
-            if (source == set_){
-                for (auto i : *static_cast<SelectedItemSet<SelectableItemType>*>(source)){
+            if (source == &set){
+                for (auto i : set){
                     i->setToggleState(true, sendNotification);
                 }
             }

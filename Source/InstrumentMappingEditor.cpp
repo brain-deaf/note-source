@@ -29,12 +29,9 @@ InstrumentMappingEditor::~InstrumentMappingEditor(){
 void InstrumentMappingEditor::MappingEditorGraph::buttonClicked(Button *){}
 
 InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h, float kh, int nc)
-: Component(), width_(w),height_(h), keyboard_height_(kh), num_columns_(nc), dragged_zone(nullptr) {
-
-    lasso = new LassoComponent<Zone*>;
-    lasso_source = new MappingLasso<Zone*>;
-    lasso_source->parent(this);
-    lasso_source->set(new SelectedItemSet<Zone*>);
+: Component(), width_{w}, height_{h}, keyboard_height_{kh},
+    num_columns_{nc}, dragged_zone{nullptr}, dragging{false}, 
+    lasso{new LassoComponent<Zone*>},lasso_source{new MappingLasso<Zone*>(this)} {
 
     keyboard_state = new MidiKeyboardState();
     keyboard_state->addListener(this);
@@ -116,7 +113,7 @@ void InstrumentMappingEditor::MappingEditorGraph::filesDropped(const StringArray
     float grid_outline = 1.0f;
     float grid_width = width_ / num_columns_;
     for (int i=0; i<files.size(); i++){
-        Zone* new_zone = new Zone(files[i],audio_manager());
+        Zone* new_zone = new Zone(this,files[i],audio_manager());
         zones.add(new_zone);
         new_zone->changeState(Zone::Starting);
 
@@ -128,7 +125,6 @@ void InstrumentMappingEditor::MappingEditorGraph::filesDropped(const StringArray
         new_zone->x((x / grid_width) * grid_width + grid_outline + grid_width*i);
         new_zone->y(0);
         new_zone->height(getHeight());
-        new_zone->register_parent(this);
         new_zone->setBounds(new_zone->x(), new_zone->y(), grid_width - grid_outline, new_zone->height());
         addAndMakeVisible(new_zone);
         lasso_source->zones().add(new_zone);
@@ -157,6 +153,7 @@ void InstrumentMappingEditor::MappingEditorGraph::set_bounds_for_component(Zone*
         else if (new_grid_x > num_columns_){
             c->x(num_columns_ * grid_width + grid_outline);
         }
+         
         if (c->y() + (y - start_drag_y) < 0){
             new_y = 0;
         }
@@ -199,8 +196,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e)
 
         int grid_x_offset = e.x / grid_width;
 
-        if (lasso_source->set()->getItemArray().contains(dragged_zone)){
-            for (auto i : (*lasso_source->set())){
+        if (lasso_source->getLassoSelection().getItemArray().contains(dragged_zone)){
+            for (auto i : lasso_source->getLassoSelection()) {
                 set_bounds_for_component(i, dragged_zone->getMouseCursor(), grid_outline, grid_width, grid_x_offset);
             }
         }else{
@@ -212,11 +209,12 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e)
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
+    auto set = lasso_source->getLassoSelection();
     if (dragged_zone != nullptr){
         auto cursor = dragged_zone -> getMouseCursor();
         if (cursor == MouseCursor::NormalCursor){
-            if (lasso_source->set()->getItemArray().size() > 0){
-                for (auto i : (*lasso_source->set())){
+            if (set.getItemArray().size() > 0){
+                for (auto i : set){
                     int new_y = getMouseXYRelative().getY() - start_drag_y;
                     if (i->y() + new_y + i->height() > height()){
                         new_y = height_ - i->height();
@@ -244,8 +242,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
             }
         }
         else if (cursor == MouseCursor::TopEdgeResizeCursor){
-            if (lasso_source->set()->getItemArray().size() > 0){
-                for (auto i : *(lasso_source->set())){
+            if (set.getItemArray().size() > 0){
+                for (auto i : set){
                     int new_y = i->y() + (getMouseXYRelative().getY() - start_drag_y);
                     int new_height = i->height() - (getMouseXYRelative().getY() - start_drag_y);
                     if (new_y < 0){
@@ -268,8 +266,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
             }
         }
         else if (cursor == MouseCursor::BottomEdgeResizeCursor){
-            if (lasso_source->set()->getItemArray().size() > 0){
-                for (auto i : *(lasso_source->set())){
+            if (set.getItemArray().size() > 0){
+                for (auto i : set){
                     int new_height = i->height() + (getMouseXYRelative().getY() - start_drag_y);
                     if (new_height + i->y() > height_){
                         new_height = height_ - (i->y() + i->height()) + i->height();
@@ -288,13 +286,13 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     }
     lasso->endLasso();
     if (!lasso_source->dragging()){
-        for (auto i : (*lasso_source->set())){
+        for (auto i : set){
             i->setToggleState(false, sendNotification);
             if (i->getMouseCursor() == MouseCursor::NormalCursor){
                 i->y(i->y()+getMouseXYRelative().getY() - start_drag_y);
             }
         }
-        lasso_source->set()->deselectAll();
+        set.deselectAll();
     }
     lasso_source->dragging(false);
     dragging = false;
@@ -307,7 +305,8 @@ public:
 
 typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
-Zone::Zone(const String& sample_name,std::shared_ptr<AudioDeviceManager>& am) : TextButton(""), name_(sample_name), audio_manager(am){
+Zone::Zone(MappingEditorGraph* p, const String& sample_name,std::shared_ptr<AudioDeviceManager>& am) 
+    : TextButton(""), name_(sample_name), parent(p), audio_manager(am){
     setAlpha(0.5f);
     velocity.first = 0;
     velocity.second = 127;
@@ -329,10 +328,8 @@ Zone::Zone(const String& sample_name,std::shared_ptr<AudioDeviceManager>& am) : 
 }
 
 Zone::~Zone() { 
-    reader_source = nullptr;
 }   
-void Zone::changeListenerCallback (ChangeBroadcaster* src)
-{
+void Zone::changeListenerCallback (ChangeBroadcaster* src) {
     if (&*(audio_manager) == src) {
         AudioDeviceManager::AudioDeviceSetup setup;
         audio_manager->getAudioDeviceSetup (setup);
@@ -355,8 +352,7 @@ void Zone::changeListenerCallback (ChangeBroadcaster* src)
     }
 }
 
-void Zone::changeState (TransportState newState)
-{
+void Zone::changeState (TransportState newState) {
     if (state != newState) {
         state = newState;
         switch (state) {
@@ -379,20 +375,19 @@ void Zone::changeState (TransportState newState)
         }
     }
 }
-void Zone::register_parent(InstrumentMappingEditor::MappingEditorGraph* c){parent=c;}
 
-void Zone::mouseDown(const MouseEvent& e){
+void Zone::mouseDown(const MouseEvent& e) {
     parent->dragged_zone = this;
     parent->zone_info_set()->selectOnly(this);
 }
 
-void Zone::mouseMove(const MouseEvent& e){
-    if (!this->parent->dragging){
+void Zone::mouseMove(const MouseEvent& e) {
+    if (!parent->dragging){
         if (e.y < 5){
             setMouseCursor(MouseCursor::TopEdgeResizeCursor);
             return;
         }
-        if (height_ - e.y < 5){
+        else if (height_ - e.y < 5){
             setMouseCursor(MouseCursor::BottomEdgeResizeCursor);
             return;
         }
