@@ -122,9 +122,9 @@ void InstrumentMappingEditor::MappingEditorGraph::filesDropped(const StringArray
         new_zone->removeMouseListener(new_zone);
         new_zone->addMouseListener(this, true);
 
-        new_zone->x((x / grid_width) * grid_width + grid_outline + grid_width*i);
+        new_zone->x(static_cast<int>(x / grid_width) * grid_width + grid_outline + grid_width*i);
         new_zone->y(0);
-        new_zone->height(getHeight());
+        new_zone->height(height());
         new_zone->setBounds(new_zone->x(), new_zone->y(), grid_width - grid_outline, new_zone->height());
         addAndMakeVisible(new_zone);
         lasso_source->zones().add(new_zone);
