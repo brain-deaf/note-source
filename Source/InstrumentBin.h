@@ -16,10 +16,10 @@
 
 class InstrumentBin : public TabbedComponent {
 public:
-    InstrumentBin(TabbedButtonBar::Orientation orientation, AudioDeviceManager* audio_manager);
+    InstrumentBin(TabbedButtonBar::Orientation orientation, std::shared_ptr<AudioDeviceManager>& audio_manager);
     ~InstrumentBin();
     void register_tab(InstrumentComponent* c);
-    
+
 private:
     InstrumentComponent* instrument_component;
     Array<InstrumentComponent*> instruments;

@@ -11,6 +11,7 @@
 #ifndef INSTRUMENTMASTERCOMPONENT_H_INCLUDED
 #define INSTRUMENTMASTERCOMPONENT_H_INCLUDED
 
+#include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class InstrumentMasterComponent : public Component, public Button::Listener {
@@ -19,8 +20,8 @@ public:
     class InstrumentLabel : public Label {
     public:
         InstrumentLabel(const String& componentName, 
-                const String& labelText, TabbedComponent* Parent)
-        : Label(componentName, labelText){ parent = Parent;}
+                        const String& labelText, TabbedComponent* p)
+        : Label(componentName, labelText),parent(p){}
 
         void textWasEdited();
     private:
@@ -39,7 +40,6 @@ public:
         TabbedComponent* parent;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentButton)
     };
-
 
     InstrumentMasterComponent(TabbedComponent* parent);
     ~InstrumentMasterComponent();

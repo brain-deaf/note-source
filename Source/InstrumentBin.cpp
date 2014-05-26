@@ -10,8 +10,8 @@
 
 #include "InstrumentBin.h"
 
-InstrumentBin::InstrumentBin(TabbedButtonBar::Orientation orientation, AudioDeviceManager* audio)
-: TabbedComponent(orientation), instrument_component(new InstrumentComponent(this, audio)){
+InstrumentBin::InstrumentBin(TabbedButtonBar::Orientation orientation, std::shared_ptr<AudioDeviceManager> audio)
+: TabbedComponent{orientation}, instrument_component{new InstrumentComponent(this, audio)}{
     addTab("New Instrument", Colour(100, 100, 100), instrument_component, false);
     instruments.add(instrument_component);
 }

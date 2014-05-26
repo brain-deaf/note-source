@@ -8,9 +8,10 @@
   ==============================================================================
 */
 #include <stdexcept>
+#include <memory>
 #include "InstrumentMappingEditor.h"
 
-InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, Component* Parent, AudioDeviceManager* audioManager)
+InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, Component* Parent, std::shared_ptr<AudioDeviceManager>& audioManager)
 :   Viewport(componentName),graph(new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128)),audio_manager(audioManager),parent(Parent)
   {
     setViewedComponent(graph);
@@ -131,8 +132,6 @@ void InstrumentMappingEditor::MappingEditorGraph::filesDropped(const StringArray
         lasso_source->zones().add(new_zone);
     }
 }
-
-void InstrumentMappingEditor::MappingEditorGraph::buttonClicked(Button* button){}
 
 void InstrumentMappingEditor::MappingEditorGraph::mouseDown(const MouseEvent& e){
     addAndMakeVisible(lasso);
@@ -306,7 +305,7 @@ public:
 
 typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
-Zone::Zone(const String& sample_name,AudioDeviceManager* am) : TextButton(""), name_(sample_name), audio_manager(am){
+Zone::Zone(const String& sample_name,std::shared_ptr<AudioDeviceManager>& am) : TextButton(""), name_(sample_name), audio_manager(am){
     setAlpha(0.5f);
     velocity.first = 0;
     velocity.second = 127;
@@ -332,7 +331,7 @@ Zone::~Zone() {
 }   
 void Zone::changeListenerCallback (ChangeBroadcaster* src)
 {
-    if (audio_manager == src) {
+    if (&*(audio_manager) == src) {
         AudioDeviceManager::AudioDeviceSetup setup;
         audio_manager->getAudioDeviceSetup (setup);
         if (setup.outputChannels.isZero()) {

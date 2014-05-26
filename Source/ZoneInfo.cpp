@@ -10,7 +10,7 @@
 
 #include "ZoneInfo.h"
 
-ZoneInfo::ZoneInfo(InstrumentMappingEditor* m) : Component(), mapping_editor(m), zone(m->graph->zone_info_set()){
+ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component(), mapping_editor(m), zone(m->graph->zone_info_set()){
     zone->addChangeListener(this);
     file_name = new Label("lolol");
     file_name->setBounds(5, 10, 600, 20);

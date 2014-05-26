@@ -15,12 +15,12 @@
 #include "InstrumentMappingEditor.h"
 
 class ZoneInfo : public Component, public ChangeListener {
-    InstrumentMappingEditor* mapping_editor;
+    std::shared_ptr<InstrumentMappingEditor> mapping_editor;
     SelectedItemSet<InstrumentMappingEditor::MappingEditorGraph::Zone*>* zone;
     Label* file_name;
 
 public:
-    ZoneInfo(InstrumentMappingEditor* m);
+    ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m);
     ~ZoneInfo();
 
     void changeListenerCallback(ChangeBroadcaster* source);

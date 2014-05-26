@@ -12,7 +12,7 @@
 
 
 InstrumentMasterComponent::InstrumentMasterComponent(TabbedComponent* Parent)
-: Component(), parent(Parent){
+: Component{}, parent{Parent}{
     instrument_label = new InstrumentLabel("component name", "New Instrument", parent);
     instrument_label->setEditable(false, true, true);
     instrument_label->setJustificationType(Justification::centred);
@@ -44,7 +44,7 @@ void InstrumentMasterComponent::buttonClicked(Button* button){
 }
 
 void InstrumentMasterComponent::InstrumentLabel::textWasEdited(){
-    this->parent->setTabName(this->parent->getCurrentTabIndex(), this->getText());
+    parent->setTabName(parent->getCurrentTabIndex(), getText());
 }
 
 void InstrumentMasterComponent::InstrumentButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown){

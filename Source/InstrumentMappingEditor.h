@@ -11,18 +11,19 @@
 #ifndef INSTRUMENTMAPPINGEDITOR_H_INCLUDED
 #define INSTRUMENTMAPPINGEDITOR_H_INCLUDED
 
+#include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class InstrumentMappingEditor : public Viewport
 {
 public:
     class MappingEditorGraph;
-    InstrumentMappingEditor(const String& componentName, Component* Parent, AudioDeviceManager* audio);
+    InstrumentMappingEditor(const String& componentName, Component* Parent, std::shared_ptr<AudioDeviceManager>& audio);
     ~InstrumentMappingEditor();
     
     ScopedPointer<MappingEditorGraph> graph;
     
-    AudioDeviceManager* audio_manager;
+    std::shared_ptr<AudioDeviceManager> audio_manager;
 private:
     Component* parent; 
     
@@ -43,7 +44,7 @@ public:
 
     class Zone : public TextButton, public ChangeListener {
     public:
-        Zone(const String& sample_name,AudioDeviceManager* am);
+        Zone(const String& sample_name,std::shared_ptr<AudioDeviceManager>& am);
         ~Zone();
         enum TransportState {
             Stopped,
@@ -74,7 +75,7 @@ public:
         int height_;
         std::pair<int, int> velocity;
         MappingEditorGraph* parent;
-        AudioDeviceManager* audio_manager;
+        std::shared_ptr<AudioDeviceManager> audio_manager;
         ScopedPointer<AudioFormatReaderSource> reader_source;
         AudioFormatManager format_manager;
         AudioTransportSource transport_source;
@@ -158,8 +159,8 @@ public:
     float keyboard_height(){return keyboard_height_;}
     void num_columns(int nc){num_columns_=nc;}
     int num_columns(){return num_columns_;}
-    void audio_manager(AudioDeviceManager* am) {audio_manager_ = am;}
-    AudioDeviceManager* audio_manager() { return audio_manager_;}
+    void audio_manager(std::shared_ptr<AudioDeviceManager> am) {audio_manager_ = am;}
+    std::shared_ptr<AudioDeviceManager>& audio_manager() { return audio_manager_;}
     SelectedItemSet<int>& notes_held() { return notes_held_;}
     MidiDeviceCallback* midi_callback() { return midi_callback_;}
 
@@ -170,7 +171,7 @@ private:
     int num_columns_;
     bool dragging;
     int start_drag_y;
-    AudioDeviceManager* audio_manager_;
+    std::shared_ptr<AudioDeviceManager> audio_manager_;
     MidiDeviceCallback* midi_callback_;
     MidiKeyboardComponent* keyboard;
     MidiKeyboardState* keyboard_state;

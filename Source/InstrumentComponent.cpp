@@ -10,10 +10,10 @@
 
 #include "InstrumentComponent.h"
 
-InstrumentComponent::InstrumentComponent(TabbedComponent* Parent, AudioDeviceManager* audio)
-: parent(Parent){
+InstrumentComponent::InstrumentComponent(TabbedComponent* p, std::shared_ptr<AudioDeviceManager>& audio)
+: parent(p), tabbed_component(new InstrumentTabWindow(TabbedButtonBar::TabsAtBottom, audio),
+        instrument_master_component(new InstrumentMasterComponent(parent){
     
-    tabbed_component = new InstrumentTabWindow(TabbedButtonBar::TabsAtBottom, audio);
     instrument_master_component = new InstrumentMasterComponent(parent);
     
     addAndMakeVisible(tabbed_component);

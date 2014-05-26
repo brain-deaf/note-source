@@ -18,21 +18,12 @@ class MenuBar : public MenuBarModel, public Component
 {
 public:
     MenuBar();
-    ~MenuBar();
     
     StringArray getMenuBarNames();
     PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
     void menuItemSelected(int menuItemID, int topLevelMenuIndex);
     void resized();
     void set_parent_instrument_bin(InstrumentBin* parent_instrument_bin);
-    
-      
-    class MidiDeviceCallback : public MidiInputCallback
-    {
-    public:
-        void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message){
-        };
-    };
     
     class AudioSettingsWindow : public DocumentWindow
     {
@@ -50,17 +41,15 @@ public:
         ID_AudioSettings,
     };
 
-    AudioDeviceManager* device_manager(){return device_manager_;}
-    void device_manager(AudioDeviceManager* adm) {device_manager_ = adm;}
+    auto device_manager(){return device_manager_;}
+    void device_manager(std::shared_ptr<AudioDeviceManager>& adm) {device_manager_ = adm;}
 private:
-    AudioDeviceSelectorComponent* audio_settings;
-    AudioDeviceManager* device_manager_;
-    MidiDeviceCallback* midi_callback;
-    AudioSettingsWindow* audio_settings_window;
+    std::shared_ptr<AudioDeviceManager> device_manager_;
     MenuBarComponent menu_bar_component;
     PopupMenu menu_file;
     PopupMenu menu_view;
     PopupMenu menu_edit;
+    AudioSettingsWindow* audio_settings_window;
     InstrumentBin* parent_instrument_bin;
 };
 
