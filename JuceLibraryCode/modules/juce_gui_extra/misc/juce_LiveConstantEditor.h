@@ -288,7 +288,7 @@ namespace LiveConstantEditor
     @endcode
  */
  #define JUCE_LIVE_CONSTANT(initialValue) \
-    (juce::LiveConstantEditor::getValue (__FILE__, __LINE__ - 1, initialValue))
+    (LiveConstantEditor::getValue (__FILE__, __LINE__ - 1, initialValue))
 #else
  #define JUCE_LIVE_CONSTANT(initialValue) \
     (initialValue)

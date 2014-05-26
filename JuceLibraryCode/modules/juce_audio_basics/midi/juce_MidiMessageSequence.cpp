@@ -29,7 +29,6 @@ MidiMessageSequence::MidiMessageSequence()
 MidiMessageSequence::MidiMessageSequence (const MidiMessageSequence& other)
 {
     list.addCopiesOf (other.list);
-    updateMatchedPairs();
 }
 
 MidiMessageSequence& MidiMessageSequence::operator= (const MidiMessageSequence& other)
@@ -53,17 +52,17 @@ void MidiMessageSequence::clear()
     list.clear();
 }
 
-int MidiMessageSequence::getNumEvents() const noexcept
+int MidiMessageSequence::getNumEvents() const
 {
     return list.size();
 }
 
-MidiMessageSequence::MidiEventHolder* MidiMessageSequence::getEventPointer (const int index) const noexcept
+MidiMessageSequence::MidiEventHolder* MidiMessageSequence::getEventPointer (const int index) const
 {
     return list [index];
 }
 
-double MidiMessageSequence::getTimeOfMatchingKeyUp (const int index) const noexcept
+double MidiMessageSequence::getTimeOfMatchingKeyUp (const int index) const
 {
     if (const MidiEventHolder* const meh = list [index])
         if (meh->noteOffObject != nullptr)
@@ -72,7 +71,7 @@ double MidiMessageSequence::getTimeOfMatchingKeyUp (const int index) const noexc
     return 0.0;
 }
 
-int MidiMessageSequence::getIndexOfMatchingKeyUp (const int index) const noexcept
+int MidiMessageSequence::getIndexOfMatchingKeyUp (const int index) const
 {
     if (const MidiEventHolder* const meh = list [index])
         return list.indexOf (meh->noteOffObject);
@@ -80,12 +79,12 @@ int MidiMessageSequence::getIndexOfMatchingKeyUp (const int index) const noexcep
     return -1;
 }
 
-int MidiMessageSequence::getIndexOf (MidiEventHolder* const event) const noexcept
+int MidiMessageSequence::getIndexOf (MidiEventHolder* const event) const
 {
     return list.indexOf (event);
 }
 
-int MidiMessageSequence::getNextIndexAtTime (const double timeStamp) const noexcept
+int MidiMessageSequence::getNextIndexAtTime (const double timeStamp) const
 {
     const int numEvents = list.size();
 
@@ -98,17 +97,17 @@ int MidiMessageSequence::getNextIndexAtTime (const double timeStamp) const noexc
 }
 
 //==============================================================================
-double MidiMessageSequence::getStartTime() const noexcept
+double MidiMessageSequence::getStartTime() const
 {
     return getEventTime (0);
 }
 
-double MidiMessageSequence::getEndTime() const noexcept
+double MidiMessageSequence::getEndTime() const
 {
     return getEventTime (list.size() - 1);
 }
 
-double MidiMessageSequence::getEventTime (const int index) const noexcept
+double MidiMessageSequence::getEventTime (const int index) const
 {
     if (const MidiEventHolder* const meh = list [index])
         return meh->message.getTimeStamp();
@@ -182,13 +181,13 @@ void MidiMessageSequence::addSequence (const MidiMessageSequence& other,
 }
 
 //==============================================================================
-void MidiMessageSequence::sort() noexcept
+void MidiMessageSequence::sort()
 {
     MidiMessageSequenceSorter sorter;
     list.sort (sorter, true);
 }
 
-void MidiMessageSequence::updateMatchedPairs() noexcept
+void MidiMessageSequence::updateMatchedPairs()
 {
     for (int i = 0; i < list.size(); ++i)
     {
@@ -227,7 +226,7 @@ void MidiMessageSequence::updateMatchedPairs() noexcept
     }
 }
 
-void MidiMessageSequence::addTimeToMessages (const double delta) noexcept
+void MidiMessageSequence::addTimeToMessages (const double delta)
 {
     for (int i = list.size(); --i >= 0;)
     {

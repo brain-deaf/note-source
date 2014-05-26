@@ -18,6 +18,7 @@ class MenuBar : public MenuBarModel, public Component
 {
 public:
     MenuBar();
+    ~MenuBar();
     
     StringArray getMenuBarNames();
     PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
@@ -29,9 +30,9 @@ public:
     {
     public:
         AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop);
-        void closeButtonPressed(){delete this;};
+        void closeButtonPressed(){delete this;}
     };
-    
+
     enum menuIDs{
         ID_New = 1000,
         ID_Save,  

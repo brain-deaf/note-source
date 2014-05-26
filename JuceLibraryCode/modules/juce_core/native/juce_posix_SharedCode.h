@@ -397,10 +397,13 @@ void FileInputStream::openHandle()
         status = getResultForErrno();
 }
 
-FileInputStream::~FileInputStream()
+void FileInputStream::closeHandle()
 {
     if (fileHandle != 0)
+    {
         close (getFD (fileHandle));
+        fileHandle = 0;
+    }
 }
 
 size_t FileInputStream::readInternal (void* const buffer, const size_t numBytes)
@@ -1020,12 +1023,12 @@ public:
                 // we're the child process..
                 close (pipeHandles[0]);   // close the read handle
 
-                if ((streamFlags & wantStdOut) != 0)
+                if ((streamFlags | wantStdOut) != 0)
                     dup2 (pipeHandles[1], 1); // turns the pipe into stdout
                 else
                     close (STDOUT_FILENO);
 
-                if ((streamFlags & wantStdErr) != 0)
+                if ((streamFlags | wantStdErr) != 0)
                     dup2 (pipeHandles[1], 2);
                 else
                     close (STDERR_FILENO);

@@ -49,7 +49,7 @@ ComboBox::ComboBox (const String& name)
       noChoicesMessage (TRANS("(no choices)"))
 {
     setRepaintsOnMouseActivity (true);
-    lookAndFeelChanged();
+    ComboBox::lookAndFeelChanged();
     currentId.addListener (this);
 }
 
@@ -410,22 +410,12 @@ void ComboBox::enablementChanged()
     repaint();
 }
 
-void ComboBox::colourChanged()
-{
-    lookAndFeelChanged();
-}
-
-void ComboBox::parentHierarchyChanged()
-{
-    lookAndFeelChanged();
-}
-
 void ComboBox::lookAndFeelChanged()
 {
     repaint();
 
     {
-        ScopedPointer<Label> newLabel (getLookAndFeel().createComboBoxTextBox (*this));
+        ScopedPointer <Label> newLabel (getLookAndFeel().createComboBoxTextBox (*this));
         jassert (newLabel != nullptr);
 
         if (label != nullptr)
@@ -454,6 +444,11 @@ void ComboBox::lookAndFeelChanged()
     label->setColour (TextEditor::outlineColourId, Colours::transparentBlack);
 
     resized();
+}
+
+void ComboBox::colourChanged()
+{
+    lookAndFeelChanged();
 }
 
 //==============================================================================

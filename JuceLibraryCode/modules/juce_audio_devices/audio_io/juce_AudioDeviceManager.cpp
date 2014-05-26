@@ -859,11 +859,8 @@ void AudioDeviceManager::addMidiInputCallback (const String& name, MidiInputCall
     if (name.isEmpty() || isMidiInputEnabled (name))
     {
         const ScopedLock sl (midiCallbackLock);
-
-        MidiCallbackInfo mc;
-        mc.deviceName = name;
-        mc.callback = callbackToAdd;
-        midiCallbacks.add (mc);
+        midiCallbacks.add (callbackToAdd);
+        midiCallbackDevices.add (name);
     }
 }
 
@@ -871,12 +868,11 @@ void AudioDeviceManager::removeMidiInputCallback (const String& name, MidiInputC
 {
     for (int i = midiCallbacks.size(); --i >= 0;)
     {
-        const MidiCallbackInfo& mc = midiCallbacks.getReference(i);
-
-        if (mc.callback == callbackToRemove && mc.deviceName == name)
+        if (midiCallbackDevices[i] == name && midiCallbacks.getUnchecked(i) == callbackToRemove)
         {
             const ScopedLock sl (midiCallbackLock);
             midiCallbacks.remove (i);
+            midiCallbackDevices.remove (i);
         }
     }
 }
@@ -885,14 +881,16 @@ void AudioDeviceManager::handleIncomingMidiMessageInt (MidiInput* source, const 
 {
     if (! message.isActiveSense())
     {
+        const bool isDefaultSource = (source == nullptr || source == enabledMidiInputs.getFirst());
+
         const ScopedLock sl (midiCallbackLock);
 
-        for (int i = 0; i < midiCallbacks.size(); ++i)
+        for (int i = midiCallbackDevices.size(); --i >= 0;)
         {
-            const MidiCallbackInfo& mc = midiCallbacks.getReference(i);
+            const String name (midiCallbackDevices[i]);
 
-            if (mc.deviceName.isEmpty() || mc.deviceName == source->getName())
-                mc.callback->handleIncomingMidiMessage (source, message);
+            if ((isDefaultSource && name.isEmpty()) || (name.isNotEmpty() && name == source->getName()))
+                midiCallbacks.getUnchecked(i)->handleIncomingMidiMessage (source, message);
         }
     }
 }

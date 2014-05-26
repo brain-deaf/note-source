@@ -306,7 +306,7 @@ public:
 typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
 Zone::Zone(MappingEditorGraph* p, const String& sample_name,std::shared_ptr<AudioDeviceManager>& am) 
-    : TextButton(""), name_(sample_name), parent(p), audio_manager(am){
+    : TextButton(""), name_{sample_name}, parent{p}, audio_manager{am}, state{Stopped}{
     setAlpha(0.5f);
     velocity.first = 0;
     velocity.second = 127;
@@ -317,7 +317,6 @@ Zone::Zone(MappingEditorGraph* p, const String& sample_name,std::shared_ptr<Audi
     audio_manager->initialise(0,2,nullptr,true);
     audio_manager->addChangeListener(this);
     transport_source.addChangeListener(this);
-    state = Stopped;
     File f(sample_name);
     auto r = format_manager.createReaderFor(f);
     if( r == nullptr) {
@@ -328,6 +327,7 @@ Zone::Zone(MappingEditorGraph* p, const String& sample_name,std::shared_ptr<Audi
 }
 
 Zone::~Zone() { 
+    audio_manager->removeAudioCallback(&source_player);
 }   
 void Zone::changeListenerCallback (ChangeBroadcaster* src) {
     if (&*(audio_manager) == src) {

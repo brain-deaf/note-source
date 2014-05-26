@@ -24,6 +24,10 @@ MenuBar::MenuBar() : menu_bar_component{this}, menu_file{}, menu_view{}, menu_ed
     device_manager_ = std::make_shared<AudioDeviceManager>();
 }
 
+MenuBar::~MenuBar() {
+
+}
+
 MenuBar::AudioSettingsWindow::AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop=true)
 : DocumentWindow{name, backgroundColour, requiredButtons, addToDesktop}{}
     

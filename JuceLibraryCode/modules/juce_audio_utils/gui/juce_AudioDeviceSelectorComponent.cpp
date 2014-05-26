@@ -75,10 +75,11 @@ class AudioDeviceSelectorComponent::MidiInputSelectorComponentListBox  : public 
                                                                          private ListBoxModel
 {
 public:
-    MidiInputSelectorComponentListBox (AudioDeviceManager& dm, const String& noItems)
+    MidiInputSelectorComponentListBox (AudioDeviceManager& dm,
+                                       const String& noItemsMessage_)
         : ListBox (String::empty, nullptr),
           deviceManager (dm),
-          noItemsMessage (noItems)
+          noItemsMessage (noItemsMessage_)
     {
         items = MidiInput::getDevices();
 
@@ -86,12 +87,15 @@ public:
         setOutlineThickness (1);
     }
 
-    int getNumRows() override
+    int getNumRows()
     {
         return items.size();
     }
 
-    void paintListBoxItem (int row, Graphics& g, int width, int height, bool rowIsSelected) override
+    void paintListBoxItem (int row,
+                           Graphics& g,
+                           int width, int height,
+                           bool rowIsSelected)
     {
         if (isPositiveAndBelow (row, items.size()))
         {
@@ -114,7 +118,7 @@ public:
         }
     }
 
-    void listBoxItemClicked (int row, const MouseEvent& e) override
+    void listBoxItemClicked (int row, const MouseEvent& e)
     {
         selectRow (row);
 
@@ -122,12 +126,12 @@ public:
             flipEnablement (row);
     }
 
-    void listBoxItemDoubleClicked (int row, const MouseEvent&) override
+    void listBoxItemDoubleClicked (int row, const MouseEvent&)
     {
         flipEnablement (row);
     }
 
-    void returnKeyPressed (int row) override
+    void returnKeyPressed (int row)
     {
         flipEnablement (row);
     }

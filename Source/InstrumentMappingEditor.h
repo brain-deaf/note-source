@@ -56,7 +56,7 @@ public:
         };
 
         void changeState (TransportState newState);
-        void changeListenerCallback (ChangeBroadcaster* source); 
+        virtual void changeListenerCallback (ChangeBroadcaster* source) override; 
         const String& name(){return name_;}
         void x(int xx){x_ = xx;}
         int x() { return x_;}

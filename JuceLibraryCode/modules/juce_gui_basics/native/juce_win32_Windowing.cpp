@@ -902,15 +902,10 @@ public:
 
     void performAnyPendingRepaintsNow() override
     {
-        if (component.isVisible())
-        {
-            WeakReference<Component> localRef (&component);
-            MSG m;
-
-            if (isUsingUpdateLayeredWindow() || PeekMessage (&m, hwnd, WM_PAINT, WM_PAINT, PM_REMOVE))
-                if (localRef != nullptr) // (the PeekMessage call can dispatch messages, which may delete this comp)
-                    handlePaintMessage();
-        }
+        MSG m;
+        if (component.isVisible()
+             && (PeekMessage (&m, hwnd, WM_PAINT, WM_PAINT, PM_REMOVE) || isUsingUpdateLayeredWindow()))
+            handlePaintMessage();
     }
 
     //==============================================================================

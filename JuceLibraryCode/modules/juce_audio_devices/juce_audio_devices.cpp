@@ -125,7 +125,6 @@
  #if JUCE_USE_ANDROID_OPENSLES
   #include <SLES/OpenSLES.h>
   #include <SLES/OpenSLES_Android.h>
-  #include <SLES/OpenSLES_AndroidConfiguration.h>
  #endif
 
 #endif

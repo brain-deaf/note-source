@@ -438,14 +438,14 @@ void Graphics::drawRect (Rectangle<float> r, const float lineThickness) const
 //==============================================================================
 void Graphics::fillEllipse (const Rectangle<float>& area) const
 {
-    Path p;
-    p.addEllipse (area);
-    fillPath (p);
+    fillEllipse (area.getX(), area.getY(), area.getWidth(), area.getHeight());
 }
 
-void Graphics::fillEllipse (float x, float y, float w, float h) const
+void Graphics::fillEllipse (float x, float y, float width, float height) const
 {
-    fillEllipse (Rectangle<float> (x, y, w, h));
+    Path p;
+    p.addEllipse (x, y, width, height);
+    fillPath (p);
 }
 
 void Graphics::drawEllipse (float x, float y, float width, float height, float lineThickness) const

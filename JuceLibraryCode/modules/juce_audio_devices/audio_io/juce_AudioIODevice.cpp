@@ -22,16 +22,20 @@
   ==============================================================================
 */
 
-AudioIODevice::AudioIODevice (const String& deviceName, const String& deviceTypeName)
-    : name (deviceName), typeName (deviceTypeName)
+AudioIODevice::AudioIODevice (const String& deviceName, const String& typeName_)
+    : name (deviceName),
+      typeName (typeName_)
 {
 }
 
-AudioIODevice::~AudioIODevice() {}
+AudioIODevice::~AudioIODevice()
+{
+}
 
-void AudioIODeviceCallback::audioDeviceError (const String&)    {}
-bool AudioIODevice::setAudioPreprocessingEnabled (bool)         { return false; }
-bool AudioIODevice::hasControlPanel() const                     { return false; }
+bool AudioIODevice::hasControlPanel() const
+{
+    return false;
+}
 
 bool AudioIODevice::showControlPanel()
 {
@@ -39,3 +43,6 @@ bool AudioIODevice::showControlPanel()
                      // their hasControlPanel() method.
     return false;
 }
+
+//==============================================================================
+void AudioIODeviceCallback::audioDeviceError (const String&) {}
