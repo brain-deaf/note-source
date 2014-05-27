@@ -11,6 +11,7 @@
 
 //==============================================================================
 MainContentComponent::MainContentComponent() : device_manager{}, menu_bar{}, instrument_bin{TabbedButtonBar::TabsAtTop} {
+    device_manager->initialise(0,2,nullptr,true);
     addAndMakeVisible(instrument_bin);
     setSize (1000, 730);
     addAndMakeVisible(menu_bar);

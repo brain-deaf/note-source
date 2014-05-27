@@ -11,17 +11,19 @@
 #include "InstrumentComponent.h"
 
 InstrumentComponent::InstrumentComponent(TabbedComponent* p)
-: Component{}, parent{p}, tabbed_component{new InstrumentTabWindow(*this,TabbedButtonBar::TabsAtBottom)},
-        instrument_master_component{new InstrumentMasterComponent(parent)}{
+: Component{}, device_manager{}, mixer{}, 
+    source_player{}, tabs{new InstrumentTabWindow(*this,TabbedButtonBar::TabsAtBottom)},
+        master{new InstrumentMasterComponent(parent)},parent{p}{
    
-    addAndMakeVisible(tabbed_component);
-    addAndMakeVisible(instrument_master_component);
+    addAndMakeVisible(tabs);
+    addAndMakeVisible(master);
 }
 
 void InstrumentComponent::resized(){
-    tabbed_component->setBounds(0, 80, getWidth(), getHeight() - 80);
-    instrument_master_component->setBounds(0, 0, getWidth(), 80);
+    tabs->setBounds(0, 80, getWidth(), getHeight() - 80);
+    master->setBounds(0, 0, getWidth(), 80);
 }
 void InstrumentComponent::addFilePlayer(std::shared_ptr<FilePlayer> p) {
     sources.add(p);
+    sample_names.add(p->sampleName());
 }
