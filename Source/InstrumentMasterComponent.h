@@ -32,8 +32,9 @@ public:
     class InstrumentButton : public ShapeButton
     {
     public:
-        InstrumentButton(const String& name, Colour normalColour, Colour overColour, Colour downColour, TabbedComponent* Parent) 
-        : ShapeButton(name, normalColour, overColour, downColour){ parent = Parent;};
+        InstrumentButton(const String& name, Colour normalColour, 
+                Colour overColour, Colour downColour, TabbedComponent* p) 
+        : ShapeButton{name, normalColour, overColour, downColour}, parent{p}{}
 
         void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
     private:
@@ -41,8 +42,7 @@ public:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentButton)
     };
 
-    InstrumentMasterComponent(TabbedComponent* parent);
-    ~InstrumentMasterComponent();
+    InstrumentMasterComponent(TabbedComponent* p);
     void paint(Graphics& g);
     void resized();
     void buttonClicked(Button* button);

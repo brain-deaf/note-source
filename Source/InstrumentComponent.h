@@ -19,7 +19,6 @@ class InstrumentComponent : public Component
 {
 public:
     InstrumentComponent(TabbedComponent* Parent, std::shared_ptr<AudioDeviceManager>& audio);
-    ~InstrumentComponent();
     void resized();
 private:
     std::shared_ptr<AudioDeviceManager> content_component;

@@ -11,8 +11,8 @@
 #include "InstrumentMasterComponent.h"
 
 
-InstrumentMasterComponent::InstrumentMasterComponent(TabbedComponent* Parent)
-: Component{}, parent{Parent}{
+InstrumentMasterComponent::InstrumentMasterComponent(TabbedComponent* p)
+: Component{}, parent{p}{
     instrument_label = new InstrumentLabel("component name", "New Instrument", parent);
     instrument_label->setEditable(false, true, true);
     instrument_label->setJustificationType(Justification::centred);
@@ -21,11 +21,6 @@ InstrumentMasterComponent::InstrumentMasterComponent(TabbedComponent* Parent)
     x_button = new InstrumentButton("close", Colour(50, 50, 50), Colour(60, 60, 60), Colour(0, 20, 90), parent);
     x_button->addListener(this);
     addAndMakeVisible(x_button);
-}
-
-InstrumentMasterComponent::~InstrumentMasterComponent(){
-    instrument_label = nullptr;
-    x_button = nullptr;
 }
 
 void InstrumentMasterComponent::paint (Graphics& g){
