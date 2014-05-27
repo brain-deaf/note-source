@@ -10,9 +10,8 @@
 
 #include "InstrumentTabWindow.h"
 
-InstrumentTabWindow::InstrumentTabWindow(TabbedButtonBar::Orientation orientation, 
-                                         std::shared_ptr<AudioDeviceManager>& audio) 
-    : TabbedComponent{orientation},mapping_editor{new MappingEditorBin(audio)}{
+InstrumentTabWindow::InstrumentTabWindow(TabbedButtonBar::Orientation orientation) 
+    : TabbedComponent{orientation},mapping_editor{new MappingEditorBin()}{
     addTab("Main", Colour(100, 100, 100), nullptr, false);
     addTab("FX", Colour(100, 100, 100), nullptr, false);
     addTab("Mapping", Colour(100, 100, 100), mapping_editor , false);

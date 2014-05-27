@@ -16,7 +16,7 @@
 
 class InstrumentBin : public TabbedComponent {
 public:
-    InstrumentBin(TabbedButtonBar::Orientation orientation, std::shared_ptr<AudioDeviceManager> audio_manager);
+    InstrumentBin(TabbedButtonBar::Orientation orientation);
     ~InstrumentBin();
     void register_tab(InstrumentComponent* c);
 

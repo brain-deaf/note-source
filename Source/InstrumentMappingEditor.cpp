@@ -11,15 +11,14 @@
 #include <memory>
 #include "InstrumentMappingEditor.h"
 
-InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, Component* Parent, std::shared_ptr<AudioDeviceManager>& audioManager)
-:   Viewport(componentName),graph(new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128)),audio_manager(audioManager),parent(Parent)
+InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, Component* p)
+:   Viewport{componentName},graph{new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128)}
+    ,parent{p}
   {
     setViewedComponent(graph);
 
     graph->setBounds(0, 0, graph->width(), graph->height() + graph->keyboard_height());
     graph->notes_held().addChangeListener(graph);
-    graph->audio_manager(audio_manager);
-    graph->audio_manager()->addMidiInputCallback("", graph->midi_callback());
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::buttonClicked(Button *){}
@@ -33,8 +32,9 @@ InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h
     keyboard_state->addListener(this);
     keyboard = new MidiKeyboardComponent(*keyboard_state, MidiKeyboardComponent::horizontalKeyboard);
     addAndMakeVisible(keyboard);
-
+    SharedResourcePointer<AudioDeviceManager> dm;
     midi_callback_ = new MidiDeviceCallback(this);
+    dm->addMidiInputCallback("",midi_callback_);
     zone_info_set_ = new SelectedItemSet<Zone*>;
 }
 
@@ -103,7 +103,7 @@ void InstrumentMappingEditor::MappingEditorGraph::filesDropped(const StringArray
     float grid_outline = 1.0f;
     float grid_width = width_ / num_columns_;
     for (int i=0; i<files.size(); i++){
-        Zone* new_zone = new Zone(this,files[i],audio_manager());
+        Zone* new_zone = new Zone(this,files[i]);
         zones.add(new_zone);
         new_zone->changeState(Zone::Starting);
 
@@ -295,17 +295,18 @@ public:
 
 typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
-Zone::Zone(MappingEditorGraph* p, const String& sample_name,std::shared_ptr<AudioDeviceManager>& am) 
-    : TextButton(""), name_{sample_name}, parent{p}, audio_manager{am}, state{Stopped}{
+Zone::Zone(MappingEditorGraph* p, const String& sample_name) 
+    : TextButton(""), name_{sample_name}, parent{p}, state{Stopped},
+    device_manager{} {
     setAlpha(0.5f);
     velocity.first = 0;
     velocity.second = 127;
     format_manager.registerBasicFormats();
     std::cout<<format_manager.getWildcardForAllFormats()<<std::endl;
     source_player.setSource(&transport_source);
-    audio_manager->addAudioCallback(&source_player);
-    audio_manager->initialise(0,2,nullptr,true);
-    audio_manager->addChangeListener(this);
+    device_manager->addAudioCallback(&source_player);
+    device_manager->initialise(0,2,nullptr,true);
+    device_manager->addChangeListener(this);
     transport_source.addChangeListener(this);
     File f(sample_name);
     auto r = format_manager.createReaderFor(f);
@@ -318,12 +319,12 @@ Zone::Zone(MappingEditorGraph* p, const String& sample_name,std::shared_ptr<Audi
 
 Zone::~Zone() { 
     changeState(Stopping);
-    audio_manager->removeAudioCallback(&source_player);
+    device_manager->removeAudioCallback(&source_player);
 }   
 void Zone::changeListenerCallback (ChangeBroadcaster* src) {
-    if (&*(audio_manager) == src) {
+    if (&*(device_manager) == src) {
         AudioDeviceManager::AudioDeviceSetup setup;
-        audio_manager->getAudioDeviceSetup (setup);
+        device_manager->getAudioDeviceSetup (setup);
         if (setup.outputChannels.isZero()) {
             source_player.setSource (nullptr);
         } else {

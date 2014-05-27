@@ -42,10 +42,8 @@ public:
         ID_AudioSettings,
     };
 
-    auto device_manager(){return device_manager_;}
-    void device_manager(std::shared_ptr<AudioDeviceManager>& adm) {device_manager_ = adm;}
 private:
-    std::shared_ptr<AudioDeviceManager> device_manager_;
+    SharedResourcePointer<AudioDeviceManager> device_manager_;
     MenuBarComponent menu_bar_component;
     PopupMenu menu_file;
     PopupMenu menu_view;

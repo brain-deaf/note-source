@@ -18,10 +18,10 @@
 class InstrumentComponent : public Component
 {
 public:
-    InstrumentComponent(TabbedComponent* Parent, std::shared_ptr<AudioDeviceManager>& audio);
+    InstrumentComponent(TabbedComponent* Parent);
     void resized();
 private:
-    std::shared_ptr<AudioDeviceManager> content_component;
+    Array<ScopedPointer<AudioSource>> audio_sources;
     ScopedPointer<InstrumentTabWindow> tabbed_component;
     ScopedPointer<InstrumentMasterComponent> instrument_master_component;
     TabbedComponent* parent;

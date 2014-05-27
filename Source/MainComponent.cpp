@@ -10,7 +10,7 @@
 
 
 //==============================================================================
-MainContentComponent::MainContentComponent() : menu_bar{}, instrument_bin{TabbedButtonBar::TabsAtTop, menu_bar.device_manager()} {
+MainContentComponent::MainContentComponent() : device_manager{}, menu_bar{}, instrument_bin{TabbedButtonBar::TabsAtTop} {
     addAndMakeVisible(instrument_bin);
     setSize (1000, 730);
     addAndMakeVisible(menu_bar);

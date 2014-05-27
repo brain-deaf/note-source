@@ -20,8 +20,6 @@ MenuBar::MenuBar() : menu_bar_component{this}, menu_file{}, menu_view{}, menu_ed
     menu_file.addItem(ID_Quit, "Quit");
     menu_view.addItem(ID_View1, "Nothing Here");
     menu_edit.addItem(ID_Edit1, "Nothing Here");
-    
-    device_manager_ = std::make_shared<AudioDeviceManager>();
 }
 
 MenuBar::~MenuBar() {
@@ -70,7 +68,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
         }
 
         case ID_New: {
-            InstrumentComponent* i = new InstrumentComponent(parent_instrument_bin, device_manager_);
+            InstrumentComponent* i = new InstrumentComponent(parent_instrument_bin);
             parent_instrument_bin->addTab("New Instrument", Colour(100, 100, 100), i, false);
             parent_instrument_bin->register_tab(i);
             break;

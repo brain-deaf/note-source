@@ -20,7 +20,7 @@ class MappingEditorBin : public Component
     ZoneInfo zone_info;
     int mapping_editor_height;
 public:
-    MappingEditorBin(std::shared_ptr<AudioDeviceManager> & audio);
+    MappingEditorBin();
     void resized();
 };
 

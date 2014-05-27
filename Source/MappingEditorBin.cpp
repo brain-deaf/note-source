@@ -9,10 +9,11 @@
 */
 #include <memory>
 #include "MappingEditorBin.h"
-MappingEditorBin::MappingEditorBin(std::shared_ptr<AudioDeviceManager>& audio) : Component{},
-    mapping_editor{std::make_shared<InstrumentMappingEditor>("",this,audio)}, zone_info{mapping_editor}, mapping_editor_height{435}{
-        addAndMakeVisible(*mapping_editor);
-        addAndMakeVisible(zone_info);
+MappingEditorBin::MappingEditorBin() : Component{},
+    mapping_editor{std::make_shared<InstrumentMappingEditor>("",this)}, 
+    zone_info{mapping_editor}, mapping_editor_height{435} {
+    addAndMakeVisible(*mapping_editor);
+    addAndMakeVisible(zone_info);
 }
 
 void MappingEditorBin::resized() {

@@ -18,9 +18,8 @@ class InstrumentMappingEditor : public Viewport
 {
 public:
     class MappingEditorGraph;
-    InstrumentMappingEditor(const String& componentName, Component* Parent, std::shared_ptr<AudioDeviceManager>& audio);
+    InstrumentMappingEditor(const String& componentName, Component* Parent);
     ScopedPointer<MappingEditorGraph> graph;
-    std::shared_ptr<AudioDeviceManager> audio_manager;
 private:
     Component* parent; 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMappingEditor)
@@ -41,7 +40,7 @@ public:
 
     class Zone : public TextButton, public ChangeListener {
     public:
-        Zone(MappingEditorGraph * p,const String& sample_name,std::shared_ptr<AudioDeviceManager>& am);
+        Zone(MappingEditorGraph * p,const String& sample_name);
         ~Zone();
         enum TransportState {
             Stopped,
@@ -70,8 +69,8 @@ public:
         int y_;
         int height_;
         std::pair<int, int> velocity;
+        SharedResourcePointer<AudioDeviceManager> device_manager;
         MappingEditorGraph* parent;
-        std::shared_ptr<AudioDeviceManager> audio_manager;
         ScopedPointer<AudioFormatReaderSource> reader_source;
         AudioFormatManager format_manager;
         AudioTransportSource transport_source;
@@ -154,8 +153,6 @@ public:
     void num_columns(int nc){num_columns_=nc;}
     int num_columns(){return num_columns_;}
     bool dragging(){return dragging_;}
-    void audio_manager(std::shared_ptr<AudioDeviceManager> am) {audio_manager_ = am;}
-    std::shared_ptr<AudioDeviceManager>& audio_manager() { return audio_manager_;}
     SelectedItemSet<int>& notes_held() { return notes_held_;}
     MidiDeviceCallback* midi_callback() { return midi_callback_;}
 
@@ -166,7 +163,6 @@ private:
     int num_columns_;
     bool dragging_;
     int start_drag_y;
-    std::shared_ptr<AudioDeviceManager> audio_manager_;
     MidiDeviceCallback* midi_callback_;
     MidiKeyboardComponent* keyboard;
     MidiKeyboardState* keyboard_state;
