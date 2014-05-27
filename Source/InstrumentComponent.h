@@ -14,14 +14,17 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentTabWindow.h"
 #include "InstrumentMasterComponent.h"
+#include "FilePlayer.h"
 
 class InstrumentComponent : public Component
 {
 public:
     InstrumentComponent(TabbedComponent* Parent);
     void resized();
+    void addFilePlayer(std::shared_ptr<FilePlayer>);
 private:
-    Array<ScopedPointer<AudioSource>> audio_sources;
+    ScopedPointer<AudioSource> mixer;
+    Array<std::shared_ptr<FilePlayer>> sources;
     ScopedPointer<InstrumentTabWindow> tabbed_component;
     ScopedPointer<InstrumentMasterComponent> instrument_master_component;
     TabbedComponent* parent;

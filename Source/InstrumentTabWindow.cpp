@@ -10,8 +10,9 @@
 
 #include "InstrumentTabWindow.h"
 
-InstrumentTabWindow::InstrumentTabWindow(TabbedButtonBar::Orientation orientation) 
-    : TabbedComponent{orientation},mapping_editor{new MappingEditorBin()}{
+InstrumentTabWindow::InstrumentTabWindow(InstrumentComponent& instrument,
+        TabbedButtonBar::Orientation orientation) 
+    : TabbedComponent{orientation},mapping_editor{new MappingEditorBin(instrument)}{
     addTab("Main", Colour(100, 100, 100), nullptr, false);
     addTab("FX", Colour(100, 100, 100), nullptr, false);
     addTab("Mapping", Colour(100, 100, 100), mapping_editor , false);

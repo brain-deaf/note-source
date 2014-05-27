@@ -18,7 +18,7 @@
 class InstrumentTabWindow : public TabbedComponent
 {
 public:
-    InstrumentTabWindow(TabbedButtonBar::Orientation orientation);
+    InstrumentTabWindow(InstrumentComponent& instrument, TabbedButtonBar::Orientation orientation);
     ~InstrumentTabWindow();
     
 private:

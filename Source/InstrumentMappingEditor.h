@@ -13,15 +13,18 @@
 
 #include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "FilePlayer.h"
+
+class InstrumentComponent;
 
 class InstrumentMappingEditor : public Viewport
 {
 public:
     class MappingEditorGraph;
-    InstrumentMappingEditor(const String& componentName, Component* Parent);
+    InstrumentMappingEditor(const String& componentName, InstrumentComponent& i);
     ScopedPointer<MappingEditorGraph> graph;
 private:
-    Component* parent; 
+    InstrumentComponent& instrument; 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMappingEditor)
 };
     
@@ -38,21 +41,9 @@ public:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiDeviceCallback)
     };
 
-    class Zone : public TextButton, public ChangeListener {
+    class Zone : public TextButton{
     public:
-        Zone(MappingEditorGraph * p,const String& sample_name);
-        ~Zone();
-        enum TransportState {
-            Stopped,
-            Starting,
-            Playing,
-            Pausing,
-            Paused,
-            Stopping
-        };
-
-        void changeState (TransportState newState);
-        virtual void changeListenerCallback (ChangeBroadcaster* source) override; 
+        Zone(MappingEditorGraph * p, const String& sample_name,InstrumentComponent& i);
         const String& name(){return name_;}
         void x(int xx){x_ = xx;}
         int x() { return x_;}
@@ -64,18 +55,15 @@ public:
         void mouseMove(const MouseEvent& event);
         void mouseDoubleClick(const MouseEvent& event);
     private:
+        MappingEditorGraph * parent;
+        InstrumentComponent& instrument;
+        std::shared_ptr<FilePlayer> file_player;
+        
         const String name_;
         int x_;
         int y_;
         int height_;
         std::pair<int, int> velocity;
-        SharedResourcePointer<AudioDeviceManager> device_manager;
-        MappingEditorGraph* parent;
-        ScopedPointer<AudioFormatReaderSource> reader_source;
-        AudioFormatManager format_manager;
-        AudioTransportSource transport_source;
-        AudioSourcePlayer source_player;
-        TransportState state;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Zone)
     };
 
@@ -128,7 +116,7 @@ public:
         }
     };
 
-    MappingEditorGraph(float,float,float,int);
+    MappingEditorGraph(float,float,float,int,InstrumentComponent&);
     ~MappingEditorGraph();
     void changeListenerCallback(ChangeBroadcaster* source){repaint();};
     void set_bounds_for_component(Zone* z, MouseCursor cursor, float grid_outline, float grid_width, int grid_x_offset);
@@ -163,6 +151,7 @@ private:
     int num_columns_;
     bool dragging_;
     int start_drag_y;
+    InstrumentComponent& instrument;
     MidiDeviceCallback* midi_callback_;
     MidiKeyboardComponent* keyboard;
     MidiKeyboardState* keyboard_state;

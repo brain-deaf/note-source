@@ -5,6 +5,8 @@
               jucerVersion="3.1.0">
   <MAINGROUP id="mDmDtX" name="Note">
     <GROUP id="{E7B5BC5B-0EE2-6069-3A31-101A9563FA74}" name="Source"/>
+    <FILE id="FyGNFr" name="FilePlayer.cpp" compile="1" resource="0" file="Source/FilePlayer.cpp"/>
+    <FILE id="WxDBZI" name="FilePlayer.h" compile="0" resource="0" file="Source/FilePlayer.h"/>
     <FILE id="zWAv9y" name="InstrumentBin.cpp" compile="1" resource="0"
           file="Source/InstrumentBin.cpp"/>
     <FILE id="M0XrGO" name="InstrumentComponent.cpp" compile="1" resource="0"

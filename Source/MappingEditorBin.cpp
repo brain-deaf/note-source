@@ -9,8 +9,8 @@
 */
 #include <memory>
 #include "MappingEditorBin.h"
-MappingEditorBin::MappingEditorBin() : Component{},
-    mapping_editor{std::make_shared<InstrumentMappingEditor>("",this)}, 
+MappingEditorBin::MappingEditorBin(InstrumentComponent& instrument) : Component{},
+    mapping_editor{std::make_shared<InstrumentMappingEditor>("",instrument)}, 
     zone_info{mapping_editor}, mapping_editor_height{435} {
     addAndMakeVisible(*mapping_editor);
     addAndMakeVisible(zone_info);

@@ -11,11 +11,9 @@
 #include "InstrumentComponent.h"
 
 InstrumentComponent::InstrumentComponent(TabbedComponent* p)
-: Component{}, parent{p}, tabbed_component{new InstrumentTabWindow(TabbedButtonBar::TabsAtBottom)},
+: Component{}, parent{p}, tabbed_component{new InstrumentTabWindow(*this,TabbedButtonBar::TabsAtBottom)},
         instrument_master_component{new InstrumentMasterComponent(parent)}{
-    
-    instrument_master_component = new InstrumentMasterComponent(parent);
-    
+   
     addAndMakeVisible(tabbed_component);
     addAndMakeVisible(instrument_master_component);
 }
@@ -23,4 +21,7 @@ InstrumentComponent::InstrumentComponent(TabbedComponent* p)
 void InstrumentComponent::resized(){
     tabbed_component->setBounds(0, 80, getWidth(), getHeight() - 80);
     instrument_master_component->setBounds(0, 0, getWidth(), 80);
+}
+void InstrumentComponent::addFilePlayer(std::shared_ptr<FilePlayer> p) {
+    sources.add(p);
 }

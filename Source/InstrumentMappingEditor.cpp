@@ -7,14 +7,14 @@
 
   ==============================================================================
 */
-#include <stdexcept>
 #include <memory>
+#include "InstrumentComponent.h"
 #include "InstrumentMappingEditor.h"
 
-InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, Component* p)
-:   Viewport{componentName},graph{new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128)}
-    ,parent{p}
-  {
+InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, InstrumentComponent& i)
+:   Viewport{componentName},graph{new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128, i)},
+    instrument{i}
+{
     setViewedComponent(graph);
 
     graph->setBounds(0, 0, graph->width(), graph->height() + graph->keyboard_height());
@@ -23,10 +23,12 @@ InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, Co
 
 void InstrumentMappingEditor::MappingEditorGraph::buttonClicked(Button *){}
 
-InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h, float kh, int nc)
+InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h,
+    float kh, int nc, InstrumentComponent& i)
 : Component(), width_{w}, height_{h}, keyboard_height_{kh},
     num_columns_{nc}, dragged_zone{nullptr}, dragging_{false}, 
-    lasso{new LassoComponent<Zone*>},lasso_source{new MappingLasso<Zone*>(this)} {
+    lasso{new LassoComponent<Zone*>},lasso_source{new MappingLasso<Zone*>(this)},
+    instrument{i} {
 
     keyboard_state = new MidiKeyboardState();
     keyboard_state->addListener(this);
@@ -103,9 +105,8 @@ void InstrumentMappingEditor::MappingEditorGraph::filesDropped(const StringArray
     float grid_outline = 1.0f;
     float grid_width = width_ / num_columns_;
     for (int i=0; i<files.size(); i++){
-        Zone* new_zone = new Zone(this,files[i]);
+        Zone* new_zone = new Zone(this, files[i], instrument);
         zones.add(new_zone);
-        new_zone->changeState(Zone::Starting);
 
         new_zone->removeListener(this);
         new_zone->addListener(this);
@@ -288,84 +289,17 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     dragging_ = false;
 }
 
-class BadFormatException : public std::runtime_error{
-public: 
-    BadFormatException(String s) : std::runtime_error(s.toStdString()){}
-};
 
 typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
-Zone::Zone(MappingEditorGraph* p, const String& sample_name) 
-    : TextButton(""), name_{sample_name}, parent{p}, state{Stopped},
-    device_manager{} {
+Zone::Zone(MappingEditorGraph* p, const String& sample_name, InstrumentComponent& i) 
+    : TextButton{""}, parent{p}, instrument{i},
+    file_player{std::make_shared<FilePlayer>(sample_name)},
+    name_{sample_name}  {
+    instrument.addFilePlayer(file_player);
     setAlpha(0.5f);
     velocity.first = 0;
     velocity.second = 127;
-    format_manager.registerBasicFormats();
-    std::cout<<format_manager.getWildcardForAllFormats()<<std::endl;
-    source_player.setSource(&transport_source);
-    device_manager->addAudioCallback(&source_player);
-    device_manager->initialise(0,2,nullptr,true);
-    device_manager->addChangeListener(this);
-    transport_source.addChangeListener(this);
-    File f(sample_name);
-    auto r = format_manager.createReaderFor(f);
-    if( r == nullptr) {
-        throw BadFormatException("cannot play "+sample_name);
-    }
-    reader_source = new AudioFormatReaderSource(r,true);
-    transport_source.setSource(reader_source);
-}
-
-Zone::~Zone() { 
-    changeState(Stopping);
-    device_manager->removeAudioCallback(&source_player);
-}   
-void Zone::changeListenerCallback (ChangeBroadcaster* src) {
-    if (&*(device_manager) == src) {
-        AudioDeviceManager::AudioDeviceSetup setup;
-        device_manager->getAudioDeviceSetup (setup);
-        if (setup.outputChannels.isZero()) {
-            source_player.setSource (nullptr);
-        } else {
-            source_player.setSource (&transport_source);
-        }
-    } else if (&transport_source == src) {
-        if (transport_source.isPlaying()) {
-            changeState (Playing);
-        } else {
-            if ((Stopping == state) || (Playing == state)) {
-                changeState (Stopped);
-            }
-            else if (Pausing == state) {
-                changeState (Paused);
-            }
-        }
-    }
-}
-
-void Zone::changeState (TransportState newState) {
-    if (state != newState) {
-        state = newState;
-        switch (state) {
-        case Stopped:
-            transport_source.setPosition (0.0);
-            break;
-        case Starting:
-            transport_source.start();
-            break;
-        case Playing:
-            break;
-        case Pausing:
-            transport_source.stop();
-            break;
-        case Paused:
-            break;
-        case Stopping:
-            transport_source.stop();
-            break;
-        }
-    }
 }
 
 void Zone::mouseDown(const MouseEvent& e) {
@@ -388,10 +322,5 @@ void Zone::mouseMove(const MouseEvent& e) {
 }
 
 void Zone::mouseDoubleClick(const MouseEvent& e){
-    if(state == Stopped) {
-        changeState(Starting);
-    }
-    else {
-        changeState(Stopping);
-    }
+
 }
