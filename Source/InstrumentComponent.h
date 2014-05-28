@@ -22,15 +22,15 @@ public:
     InstrumentComponent(TabbedComponent* Parent);
     void resized();
     void addFilePlayer(std::shared_ptr<FilePlayer>);
-    StringArray& sampleNames() {return sample_names;}
+    StringArray& getSampleNames() {return sampleNames;}
 private:
-    SharedResourcePointer<AudioDeviceManager> device_manager;
-    AudioSourcePlayer source_player;
+    SharedResourcePointer<AudioDeviceManager> deviceManager;
+    AudioSourcePlayer sourcePlayer;
     MixerAudioSource mixer;
     Array<std::shared_ptr<FilePlayer>> sources;
-    StringArray sample_names;
-    ScopedPointer<InstrumentTabWindow> tabs;
-    ScopedPointer<InstrumentMasterComponent> master;
+    StringArray sampleNames;
+    InstrumentTabWindow tabs;
+    InstrumentMasterComponent master;
     TabbedComponent* parent;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentComponent)
 };

@@ -10,49 +10,51 @@
 #include <stdexcept>
 #include "FilePlayer.h"
 class BadFormatException : public std::runtime_error{
-public: 
+public:
     BadFormatException(String s) : std::runtime_error(s.toStdString()){}
 };
 
-FilePlayer::FilePlayer(const String& sample_name): ChangeListener{},sample_name_{sample_name},
-    device_manager{}, format_manager{}, transport_source{}, state_{Stopped} {
+FilePlayer::FilePlayer(const String& s): ChangeListener{},
+    sampleName{s}, deviceManager{}, formatManager{}, transportSource{},
+    filter{&transportSource,false}, sourcePlayer{}, state{Stopped} {
+    filter.setCoefficients (IIRCoefficients::makeHighPass (44100,1300));
 
-    format_manager.registerBasicFormats();
-    source_player.setSource(&transport_source);
-    device_manager->addAudioCallback(&source_player);
-    device_manager->addChangeListener(this);
-    transport_source.addChangeListener(this);
-    File f(sample_name);
-    auto r = format_manager.createReaderFor(f);
+    formatManager.registerBasicFormats();
+    sourcePlayer.setSource (&filter);
+    deviceManager->addAudioCallback (&sourcePlayer);
+    deviceManager->addChangeListener (this);
+    transportSource.addChangeListener (this);
+    File f (sampleName);
+    auto r = formatManager.createReaderFor(f);
     if( r == nullptr) {
-        throw BadFormatException("cannot play "+sample_name);
+        throw BadFormatException("cannot play "+sampleName);
     }
-    reader_source = new AudioFormatReaderSource(r,true);
-    transport_source.setSource(reader_source);
-    changeState(Starting);
+    readerSource = new AudioFormatReaderSource (r,true);
+    transportSource.setSource (readerSource);
+    changeState (Starting);
 }
 FilePlayer::~FilePlayer() {
     changeState(Stopping);
-    device_manager->removeAudioCallback(&source_player);
+    deviceManager->removeAudioCallback(&sourcePlayer);
 }
 
 void FilePlayer::changeListenerCallback (ChangeBroadcaster* src) {
-    if (&*(device_manager) == src) {
+    if (&*(deviceManager) == src) {
         AudioDeviceManager::AudioDeviceSetup setup;
-        device_manager->getAudioDeviceSetup (setup);
+        deviceManager->getAudioDeviceSetup (setup);
         if (setup.outputChannels.isZero()) {
-            source_player.setSource (nullptr);
+            sourcePlayer.setSource (nullptr);
         } else {
-            source_player.setSource (&transport_source);
+            sourcePlayer.setSource (&transportSource);
         }
-    } else if (&transport_source == src) {
-        if (transport_source.isPlaying()) {
+    } else if (&transportSource == src) {
+        if (transportSource.isPlaying()) {
             changeState (Playing);
         } else {
-            if ((Stopping == state_) || (Playing == state_)) {
+            if ((Stopping == state) || (Playing == state)) {
                 changeState (Stopped);
             }
-            else if (Pausing == state_) {
+            else if (Pausing == state) {
                 changeState (Paused);
             }
         }
@@ -60,34 +62,35 @@ void FilePlayer::changeListenerCallback (ChangeBroadcaster* src) {
 }
 
 void FilePlayer::changeState (TransportState newState) {
-    if (state_ != newState) {
-        state_ = newState;
-        switch (state_) {
+    if (state != newState) {
+        state = newState;
+        switch (state) {
         case Stopped:
-            transport_source.setPosition (0.0);
+            transportSource.setPosition (0.0);
             break;
         case Starting:
-            transport_source.start();
+            transportSource.start();
             break;
         case Playing:
             break;
         case Pausing:
-            transport_source.stop();
+            transportSource.stop();
             break;
         case Paused:
             break;
         case Stopping:
-            transport_source.stop();
+            transportSource.stop();
             break;
         }
     }
 }
 
 void FilePlayer::toggleState() {
-    if (state_ == Stopped) {
+    if (state == Stopped) {
         changeState(Starting);
     }
     else {
         changeState(Stopping);
     }
 }
+

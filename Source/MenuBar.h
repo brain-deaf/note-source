@@ -17,14 +17,12 @@
 class MenuBar : public MenuBarModel, public Component
 {
 public:
-    MenuBar();
-    ~MenuBar();
+    MenuBar(InstrumentBin * p);
     
     StringArray getMenuBarNames();
     PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
     void menuItemSelected(int menuItemID, int topLevelMenuIndex);
     void resized();
-    void set_parent_instrument_bin(InstrumentBin* parent_instrument_bin);
     
     class AudioSettingsWindow : public DocumentWindow
     {
@@ -43,13 +41,13 @@ public:
     };
 
 private:
-    SharedResourcePointer<AudioDeviceManager> device_manager_;
-    MenuBarComponent menu_bar_component;
-    PopupMenu menu_file;
-    PopupMenu menu_view;
-    PopupMenu menu_edit;
-    AudioSettingsWindow* audio_settings_window;
-    InstrumentBin* parent_instrument_bin;
+    SharedResourcePointer<AudioDeviceManager> deviceManager;
+    MenuBarComponent menuBar;
+    PopupMenu file;
+    PopupMenu view;
+    PopupMenu edit; 
+    ScopedPointer<AudioSettingsWindow> audioSettingsWindow;
+    InstrumentBin* parent;
 };
 
 

@@ -22,12 +22,11 @@ public:
     InstrumentTabWindow(InstrumentComponent& instrument, TabbedButtonBar::Orientation orientation);
     
 private:
-    ScopedPointer<MainPage> main_page;
-    ScopedPointer<MappingEditorBin> mapping_editor;
-    ScopedPointer<TextButton> zoom_button;
+    ScopedPointer<MainPage> mainPage;
+    ScopedPointer<MappingEditorBin> mappingEditor;
+    ScopedPointer<TextButton> zoomButton;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentTabWindow)
 };
 
-
-
 #endif  // INSTRUMENTTABWINDOW_H_INCLUDED
+

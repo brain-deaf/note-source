@@ -9,7 +9,7 @@ MainPage::~MainPage() {
 void MainPage::broughtToFront() {
     deleteAllChildren();
     int c = 0;
-    for(auto i : instrument.sampleNames()) {
+    for(auto i : instrument.getSampleNames()) {
         auto l = new Label("", i);
         l->setBounds(0,c,200,200);
         addAndMakeVisible(l);

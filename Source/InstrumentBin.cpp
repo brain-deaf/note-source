@@ -11,9 +11,9 @@
 #include "InstrumentBin.h"
 
 InstrumentBin::InstrumentBin(TabbedButtonBar::Orientation orientation)
-: TabbedComponent{orientation}, instrument_component{new InstrumentComponent(this)}{
-    addTab("New Instrument", Colour(100, 100, 100), instrument_component, false);
-    instruments.add(instrument_component);
+: TabbedComponent{orientation}, instrumentComponent{new InstrumentComponent(this)}{
+    addTab("New Instrument", Colour(100, 100, 100), instrumentComponent, false);
+    instruments.add(instrumentComponent);
 }
 
 InstrumentBin::~InstrumentBin(){
@@ -22,6 +22,6 @@ InstrumentBin::~InstrumentBin(){
     }
 }
 
-void InstrumentBin::register_tab(InstrumentComponent* c){
+void InstrumentBin::registerTab(InstrumentComponent* c){
     instruments.add(c);
 }

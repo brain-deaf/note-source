@@ -27,22 +27,20 @@ public:
     };
     virtual void changeListenerCallback (ChangeBroadcaster* source) override; 
     void changeState (TransportState newState);
-    TransportState state() {return state_;}
-    AudioTransportSource& transportSource() {return transport_source;}
-    String& sampleName() { return sample_name_;}
+    TransportState getState() {return state;}
+    AudioTransportSource& getTransportSource() {return transportSource;}
+    String& getSampleName() { return sampleName;}
     void toggleState();
 private:
-    String sample_name_;
-    SharedResourcePointer<AudioDeviceManager> device_manager;
-    ScopedPointer<AudioFormatReaderSource> reader_source;
-    AudioFormatManager format_manager;
-    AudioTransportSource transport_source;
-    AudioSourcePlayer source_player;
-    TransportState state_;
+    String sampleName;
+    SharedResourcePointer<AudioDeviceManager> deviceManager;
+    ScopedPointer<AudioFormatReaderSource> readerSource;
+    AudioFormatManager formatManager;
+    AudioTransportSource transportSource;
+    IIRFilterAudioSource filter;
+    AudioSourcePlayer sourcePlayer;
+    TransportState state;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FilePlayer)
 };
-
-
-
 
 #endif  // FILEPLAYER_H_INCLUDED

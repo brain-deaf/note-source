@@ -48,8 +48,8 @@ public:
     void buttonClicked(Button* button);
 private:
     TabbedComponent* parent;
-    ScopedPointer<Label> instrument_label;
-    ScopedPointer<ShapeButton> x_button;
+    Label instrumentLabel;
+    ShapeButton xButton;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMasterComponent)
 };
 

@@ -24,9 +24,9 @@ public:
     MainContentComponent();
     void resized();
 private:
-    SharedResourcePointer<AudioDeviceManager> device_manager;
-    MenuBar menu_bar;
-    InstrumentBin instrument_bin;
+    SharedResourcePointer<AudioDeviceManager> deviceManager;
+    MenuBar menuBar;
+    InstrumentBin instrumentBin;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 

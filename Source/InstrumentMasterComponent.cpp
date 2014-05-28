@@ -12,15 +12,15 @@
 
 
 InstrumentMasterComponent::InstrumentMasterComponent(TabbedComponent* p)
-: Component{}, parent{p}{
-    instrument_label = new InstrumentLabel("component name", "New Instrument", parent);
-    instrument_label->setEditable(false, true, true);
-    instrument_label->setJustificationType(Justification::centred);
-    addAndMakeVisible(instrument_label);
-
-    x_button = new InstrumentButton("close", Colour(50, 50, 50), Colour(60, 60, 60), Colour(0, 20, 90), parent);
-    x_button->addListener(this);
-    addAndMakeVisible(x_button);
+: Component{}, parent{p}, 
+    instrumentLabel{"component name", "New Instrument"},
+    xButton{"close", Colour(50, 50, 50), Colour(60, 60, 60), 
+        Colour(0, 20, 90)} {
+    instrumentLabel.setEditable(false, true, true);
+    instrumentLabel.setJustificationType(Justification::centred);
+    addAndMakeVisible(instrumentLabel);
+    xButton.addListener(this);
+    addAndMakeVisible(xButton);
 }
 
 void InstrumentMasterComponent::paint (Graphics& g){
@@ -28,12 +28,12 @@ void InstrumentMasterComponent::paint (Graphics& g){
 }
 
 void InstrumentMasterComponent::resized(){
-    instrument_label->setBounds(0, 0, getWidth(), getHeight());
-    x_button->setBounds(getWidth() - 16, 4, 12, 12);
+    instrumentLabel.setBounds(0, 0, getWidth(), getHeight());
+    xButton.setBounds(getWidth() - 16, 4, 12, 12);
 }
 
 void InstrumentMasterComponent::buttonClicked(Button* button){
-    if (button == x_button){
+    if (button == &xButton){
         parent->removeTab(parent->getCurrentTabIndex());
     }
 }

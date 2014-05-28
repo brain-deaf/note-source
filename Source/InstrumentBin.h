@@ -18,10 +18,10 @@ class InstrumentBin : public TabbedComponent {
 public:
     InstrumentBin(TabbedButtonBar::Orientation orientation);
     ~InstrumentBin();
-    void register_tab(InstrumentComponent* c);
+    void registerTab(InstrumentComponent* c);
 
 private:
-    InstrumentComponent* instrument_component;
+    InstrumentComponent* instrumentComponent;
     Array<InstrumentComponent*> instruments;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentBin)
 };

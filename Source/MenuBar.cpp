@@ -10,25 +10,21 @@
 #include <stdexcept>
 #include "MenuBar.h"
 
-MenuBar::MenuBar() : menu_bar_component{this}, menu_file{}, menu_view{}, menu_edit{},
-    audio_settings_window{nullptr},parent_instrument_bin{nullptr} {
-    addAndMakeVisible(menu_bar_component);
+MenuBar::MenuBar(InstrumentBin *) : menuBar{this}, file{}, view{}, edit{},
+    audioSettingsWindow{nullptr}, parent{nullptr} {
+    addAndMakeVisible(menuBar);
     
-    menu_file.addItem(ID_New, "New Instrument");
-    menu_file.addItem(ID_Save, "Save Instrument");
-    menu_file.addItem(ID_AudioSettings, "Audio and MIDI Settings");
-    menu_file.addItem(ID_Quit, "Quit");
-    menu_view.addItem(ID_View1, "Nothing Here");
-    menu_edit.addItem(ID_Edit1, "Nothing Here");
-}
-
-MenuBar::~MenuBar() {
-    delete audio_settings_window; // in case main window closes while it's up
+    file.addItem(ID_New, "New Instrument");
+    file.addItem(ID_Save, "Save Instrument");
+    file.addItem(ID_AudioSettings, "Audio and MIDI Settings");
+    file.addItem(ID_Quit, "Quit");
+    view.addItem(ID_View1, "Nothing Here");
+    edit.addItem(ID_Edit1, "Nothing Here");
 }
 
 MenuBar::AudioSettingsWindow::AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop=true)
 : DocumentWindow{name, backgroundColour, requiredButtons, addToDesktop}{}
-    
+ 
 StringArray MenuBar::getMenuBarNames(){
     StringArray s;
     s.add("File");
@@ -45,15 +41,15 @@ public:
 
 PopupMenu MenuBar::getMenuForIndex(int topLevelMenuIndex, const String& menuName){
     if (menuName == "File"){
-        return menu_file;
+        return file;
     }
     
     else if (menuName == "View"){
-        return menu_view;
+        return view;
     }
     
     else if (menuName == "Edit"){
-        return menu_edit;
+        return edit;
     }
     else {
         throw BadMenuException(menuName);
@@ -68,28 +64,25 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
         }
 
         case ID_New: {
-            InstrumentComponent* i = new InstrumentComponent(parent_instrument_bin);
-            parent_instrument_bin->addTab("New Instrument", Colour(100, 100, 100), i, false);
-            parent_instrument_bin->register_tab(i);
+            InstrumentComponent* i = new InstrumentComponent(parent);
+            parent->addTab("New Instrument", Colour(100, 100, 100), i, false);
+            parent->registerTab(i);
             break;
         }
 
         case ID_AudioSettings: {
-            audio_settings_window = new AudioSettingsWindow("Audio and MIDI Settings", Colours::grey,
+            audioSettingsWindow = new AudioSettingsWindow("Audio and MIDI Settings", Colours::grey,
             DocumentWindow::closeButton, true);
-            auto audio_settings = new AudioDeviceSelectorComponent(*device_manager_, 0, 2, 0, 2, true, true, true, false); 
-            audio_settings->setBounds(0, 0, 500, 400);
-            audio_settings_window->setContentOwned(audio_settings, true);
-            audio_settings_window->setVisible(true);
+            auto audioSettings = new AudioDeviceSelectorComponent(*deviceManager, 0, 2, 0, 2, true, true, true, false); 
+            audioSettings->setBounds(0, 0, 500, 400);
+            audioSettingsWindow->setContentOwned(audioSettings, true);
+            audioSettingsWindow->setVisible(true);
             break;
         }
     }
 }
 
 void MenuBar::resized(){
-    menu_bar_component.setBounds(0, 0, getWidth(), 20);
+    menuBar.setBounds(0, 0, getWidth(), 20);
 }
 
-void MenuBar::set_parent_instrument_bin(InstrumentBin* bin){
-    parent_instrument_bin = bin;
-}

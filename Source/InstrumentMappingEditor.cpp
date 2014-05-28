@@ -16,304 +16,304 @@ InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, In
     instrument{i}
 {
     setViewedComponent(graph);
-
-    graph->setBounds(0, 0, graph->width(), graph->height() + graph->keyboard_height());
-    graph->notes_held().addChangeListener(graph);
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::buttonClicked(Button *){}
+typedef InstrumentMappingEditor::MappingEditorGraph MappingEditorGraph;
 
-InstrumentMappingEditor::MappingEditorGraph::MappingEditorGraph(float w, float h,
+MappingEditorGraph::MappingEditorGraph(float w, float h,
     float kh, int nc, InstrumentComponent& i)
-: Component(), width_{w}, height_{h}, keyboard_height_{kh},
-    num_columns_{nc}, dragged_zone{nullptr}, dragging_{false}, 
-    lasso{new LassoComponent<Zone*>},lasso_source{new MappingLasso<Zone*>(this)},
-    instrument{i} {
+: Component(), width{w}, height{h}, keyboardHeight{kh},
+    numColumns{nc}, draggedZone{nullptr}, dragging{false}, 
+    lasso{},lassoSource{this}, instrument{i}, midiCallback{this}, 
+    keyboardState{}, 
+    keyboard{keyboardState, MidiKeyboardComponent::horizontalKeyboard} {
 
-    keyboard_state = new MidiKeyboardState();
-    keyboard_state->addListener(this);
-    keyboard = new MidiKeyboardComponent(*keyboard_state, MidiKeyboardComponent::horizontalKeyboard);
-    addAndMakeVisible(keyboard);
+    keyboardState.addListener(this);
+    addAndMakeVisible(&keyboard);
     SharedResourcePointer<AudioDeviceManager> dm;
-    midi_callback_ = new MidiDeviceCallback(this);
-    dm->addMidiInputCallback("",midi_callback_);
-    zone_info_set_ = new SelectedItemSet<Zone*>;
+    dm->addMidiInputCallback("",&midiCallback);
+    setBounds(0, 0, getWidth(), getHeight() + getKeyboardHeight());
+    notesHeld.addChangeListener(this);
 }
 
-InstrumentMappingEditor::MappingEditorGraph::~MappingEditorGraph(){
-    for (auto i : zones){
-        delete i;
-    }
-    delete lasso_source;
-    delete keyboard;
-    delete keyboard_state;
-    delete midi_callback_;
-    delete zone_info_set_;
-}
-
-void InstrumentMappingEditor::MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
+void MappingEditorGraph::buttonClicked(Button *){}
+void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
     (MidiInput* source, const MidiMessage& message) {
     if (message.isNoteOn()) {
-        parent->notes_held().addToSelection(message.getNoteNumber());
+        parent->getNotesHeld().addToSelection(message.getNoteNumber());
     }
     if (message.isNoteOff()) {
-        if (parent->notes_held().isSelected(message.getNoteNumber())){
-            parent->notes_held().deselect(message.getNoteNumber());
+        if (parent->getNotesHeld().isSelected(message.getNoteNumber())){
+            parent->getNotesHeld().deselect(message.getNoteNumber());
         }
     }
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::resized(){
-    keyboard->setBounds(0, getHeight() - keyboard_height_, getWidth(), keyboard_height_);
-    keyboard->setKeyWidth(getWidth() / num_columns_ * 1.7125f);
+void MappingEditorGraph::resized(){
+    keyboard.setBounds(
+        0, getHeight() - keyboardHeight, getWidth(), keyboardHeight);
+    keyboard.setKeyWidth(getWidth() / numColumns);
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
-    notes_held_.addToSelection(midiNoteNumber);
+void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
+    notesHeld.addToSelection(midiNoteNumber);
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){
-    if (notes_held_.isSelected(midiNoteNumber)){
-        notes_held_.deselect(midiNoteNumber);
+void MappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){
+    if (notesHeld.isSelected(midiNoteNumber)){
+        notesHeld.deselect(midiNoteNumber);
     }
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::paint(Graphics& g){
+void MappingEditorGraph::paint(Graphics& g){
     g.fillAll(Colours::antiquewhite);
-    float grid_outline = 1.0f;
-    float grid_width = width_ / num_columns_;
+    float gridOutline = 1.0f;
+    float gridWidth = width / numColumns;
     g.setColour(Colours::black);
     g.setOpacity(0.2f);
-    for (auto i : notes_held_) {
-        g.fillRect(Rectangle<int>(i*grid_width, 0, grid_width, height_));
+    for (auto i : notesHeld) {
+        g.fillRect(Rectangle<int>(i*gridWidth, 0, gridWidth, height));
     }
 
     g.setColour(Colours::black);
     g.setOpacity(1.0f);
     Path myPath;
-    for (int i=0; i < num_columns_; i++){
-        myPath.startNewSubPath (i*grid_width, 0.0f);
-        myPath.lineTo (i*grid_width, height_);
+    for (int i=0; i < numColumns; i++){
+        myPath.startNewSubPath (i*gridWidth, 0.0f);
+        myPath.lineTo (i*gridWidth, height);
     }
 
-    g.strokePath (myPath, PathStrokeType (grid_outline));
+    g.strokePath (myPath, PathStrokeType (gridOutline));
 }
 
 
 
-void InstrumentMappingEditor::MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
-    float grid_outline = 1.0f;
-    float grid_width = width_ / num_columns_;
+void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
+    float gridOutline = 1.0f;
+    float gridWidth = width / numColumns;
     for (int i=0; i<files.size(); i++){
-        Zone* new_zone = new Zone(this, files[i], instrument);
-        zones.add(new_zone);
+        auto newZone = new Zone(this, files[i], instrument);
+        zones.add(newZone);
 
-        new_zone->removeListener(this);
-        new_zone->addListener(this);
-        new_zone->removeMouseListener(new_zone);
-        new_zone->addMouseListener(this, true);
+        newZone->removeListener(this);
+        newZone->addListener(this);
+        newZone->removeMouseListener(newZone);
+        newZone->addMouseListener(this, true);
 
-        new_zone->x(static_cast<int>(x / grid_width) * grid_width + grid_outline + grid_width*i);
-        new_zone->y(0);
-        new_zone->height(height());
-        new_zone->setBounds(new_zone->x(), new_zone->y(), grid_width - grid_outline, new_zone->height());
-        addAndMakeVisible(new_zone);
-        lasso_source->zones().add(new_zone);
+        newZone->setX(static_cast<int>(x / gridWidth) * gridWidth +
+            gridOutline + gridWidth*i);
+        newZone->setY(0);
+        newZone->setHeight(getHeight());
+        newZone->setBounds(newZone->getX(), newZone->getY(), 
+            gridWidth - gridOutline, newZone->getHeight());
+        addAndMakeVisible(newZone);
+        lassoSource.getZones().add(newZone);
     }
 }
-
-void InstrumentMappingEditor::MappingEditorGraph::mouseDown(const MouseEvent& e){
+void MappingEditorGraph::mouseDown(const MouseEvent& e) {
     addAndMakeVisible(lasso);
-    lasso->beginLasso(e, lasso_source);
-    start_drag_y = getMouseXYRelative().getY();
-    dragging_ = true;
+    lasso.beginLasso(e, &lassoSource);
+    startDragY = getMouseXYRelative().getY();
+    dragging = true;
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::set_bounds_for_component(Zone* c, MouseCursor cursor, float grid_outline, float grid_width, int grid_x_offset){
+void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
+    float gridOutline, float gridWidth, int gridXOffset){
+    int y = getMouseXYRelative().getY();
+    int delY = y - startDragY;
     if (cursor == MouseCursor()){
-        int grid_x = static_cast<int>((c->x()) / grid_width);
-        int new_grid_x = grid_x_offset + grid_x;
-        int y = getMouseXYRelative().getY();
-        int new_y;
-        if (new_grid_x >= 0 && new_grid_x < num_columns_){
-            c->x(new_grid_x * grid_width + grid_outline);
+        int gridX = static_cast<int>((c.getX()) / gridWidth);
+        int newGridX = gridXOffset + gridX;
+        if (newGridX >= 0 && newGridX < numColumns){
+            c.setX(newGridX * gridWidth + gridOutline);
         }
-        else if (new_grid_x < 0){
-            c->x(0);
+        else if (newGridX < 0){
+            c.setX(0);
         }
-        else if (new_grid_x > num_columns_){
-            c->x(num_columns_ * grid_width + grid_outline);
+        else if (newGridX > numColumns){
+            c.setX(numColumns * gridWidth + gridOutline);
         }
          
-        if (c->y() + (y - start_drag_y) < 0){
-            new_y = 0;
+        int newY = 0;
+        if (c.getY() + delY < 0){
+            newY = 0;
         }
-        else if (c->y() + (y - start_drag_y) + c->height() > height_){
-            new_y = height_ - c->height();
+        else if (c.getY() + delY + c.getHeight() > height){
+            newY = height - c.getHeight();
         }
-        else if (c->y() + (y - start_drag_y) >= 0 && c->y() + (y - start_drag_y) + c->height() <= height_){
-            new_y = c->y() + (y - start_drag_y);
+        else if (c.getY() + delY >= 0 &&
+                c.getY() + delY + c.getHeight() <= height){
+            newY = c.getY() + delY;
         }
-        c->setBounds(c->x(), new_y, grid_width - grid_outline, c->height());
+        c.setBounds(c.getX(), newY, gridWidth - gridOutline, c.getHeight());
     }
 
-    if (cursor == MouseCursor(MouseCursor::TopEdgeResizeCursor)){
-        int y = getMouseXYRelative().getY();
-        int new_y = c->y() + (y - start_drag_y);
-        int new_height = c->height() - (y - start_drag_y);
+    else if (cursor == MouseCursor(MouseCursor::TopEdgeResizeCursor)) {
+        int newY = c.getY() + delY;
+        int newHeight = c.getHeight() - delY;
 
-        if (new_y < 0){
-            new_y = 0;
-            new_height = c->height() + c->y();
+        if (newY < 0){
+            newY = 0;
+            newHeight = c.getHeight() + c.getY();
         }
 
-        c->setBounds(c->x(), new_y, grid_width - grid_outline, new_height);
+        c.setBounds(c.getX(), newY, gridWidth - gridOutline, newHeight);
     }
-    if (cursor == MouseCursor(MouseCursor::BottomEdgeResizeCursor)){
+    else if (cursor == MouseCursor(MouseCursor::BottomEdgeResizeCursor)){
         int y = getMouseXYRelative().getY();
-        int new_height = c->height() + (y - start_drag_y);
-        if (new_height + c->y() > height_){
-            new_height = height_ - (c->y() + c->height()) + c->height();
+        int newHeight = c.getHeight() + delY;
+        if (newHeight + c.getY() > height){
+            newHeight = height - (c.getY() + c.getHeight()) + c.getHeight();
         }
-        c->setBounds(c->x(), c->y(), grid_width - grid_outline, new_height);
+        c.setBounds(c.getX(), c.getY(), 
+            gridWidth - gridOutline, newHeight);
     }
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e){
-    if (dragged_zone != nullptr){
-        lasso_source->dragging(true);
-        float grid_outline = 1.0f;
-        float grid_width = width_ / num_columns_;
+    if (draggedZone != nullptr){
+        float gridOutline = 1.0f;
+        float gridWidth = width / numColumns;
 
-        int grid_x_offset = e.x / grid_width;
+        int gridXOffset = e.x / gridWidth;
 
-        if (lasso_source->getLassoSelection().getItemArray().contains(dragged_zone)){
-            for (auto i : lasso_source->getLassoSelection()) {
-                set_bounds_for_component(i, dragged_zone->getMouseCursor(), grid_outline, grid_width, grid_x_offset);
+        if (lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
+            for (auto i : lassoSource.getLassoSelection()) {
+                setBoundsForComponent(*i, draggedZone->getMouseCursor(), 
+                    gridOutline, gridWidth, gridXOffset);
             }
         }else{
-            set_bounds_for_component(dragged_zone, dragged_zone->getMouseCursor(), grid_outline, grid_width, grid_x_offset);
+            setBoundsForComponent(*draggedZone, draggedZone->getMouseCursor(), gridOutline, gridWidth, gridXOffset);
         }
-    }else{
-        lasso->dragLasso(e);
+    }else {
+        lasso.dragLasso(e);
     }
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
-    auto set = lasso_source->getLassoSelection();
-    if (dragged_zone != nullptr){
-        auto cursor = dragged_zone -> getMouseCursor();
+    auto set = lassoSource.getLassoSelection();
+    if (draggedZone != nullptr){
+        auto cursor = draggedZone->getMouseCursor();
         if (cursor == MouseCursor::NormalCursor){
             if (set.getItemArray().size() > 0){
                 for (auto i : set){
-                    int new_y = getMouseXYRelative().getY() - start_drag_y;
-                    if (i->y() + new_y + i->height() > height()){
-                        new_y = height_ - i->height();
-                        i->y(new_y);
+                    int newY = getMouseXYRelative().getY() - startDragY;
+                    if (i->getY() + newY + i->getHeight() > height){
+                        newY = height - i->getHeight();
+                        i->setY(newY);
                     }
-                    else if (i->y() + new_y < 0){
-                        new_y = 0;
-                        i->y(new_y);
+                    else if (i->getY() + newY < 0){
+                        newY = 0;
+                        i->setY(newY);
                     }
-                    else if (i->y() + new_y >= 0 && i->y() + new_y + i->height() <= height()){
-                        i->y(new_y+i->y());
+                    else if (i->getY() + newY >= 0 && 
+                            i->getY() + newY + i->getHeight() <= height){
+                        i->setY(newY+i->getY());
                     }
                 }
             }else{
                 auto Y = getMouseXYRelative().getY();
-                auto y = dragged_zone->y();
-                int new_y = y + Y - start_drag_y;
-                if (new_y + dragged_zone->height() > height()){
-                    new_y = height() - dragged_zone->height();
+                auto y = draggedZone->getY();
+                int newY = y + Y - startDragY;
+                if (newY + draggedZone->getHeight() > height){
+                    newY = height - draggedZone->getHeight();
                 }
-                else if (new_y < 0){
-                    new_y = 0;
+                else if (newY < 0){
+                    newY = 0;
                 }
-                dragged_zone->y(new_y);
+                draggedZone->setY(newY);
             }
         }
         else if (cursor == MouseCursor::TopEdgeResizeCursor){
             if (set.getItemArray().size() > 0){
                 for (auto i : set){
-                    int new_y = i->y() + (getMouseXYRelative().getY() - start_drag_y);
-                    int new_height = i->height() - (getMouseXYRelative().getY() - start_drag_y);
-                    if (new_y < 0){
-                        new_y = 0;
-                        new_height = i->height() + i->y();
+                    int newY = i->getY() + (getMouseXYRelative().getY() - 
+                        startDragY);
+                    int newHeight = i->getHeight() - 
+                        (getMouseXYRelative().getY() - startDragY);
+                    if (newY < 0){
+                        newY = 0;
+                        newHeight = i->getHeight() + i->getY();
                     }
-                    i->height(new_height);
-                    i->y(new_y);
+                    i->setHeight(newHeight);
+                    i->setY(newY);
                 }
             } else {
-                int new_y = dragged_zone->y() + (getMouseXYRelative().getY() - start_drag_y);
-                int new_height = dragged_zone->height() - (getMouseXYRelative().getY() - start_drag_y);
+                int newY = draggedZone->getY() + 
+                    (getMouseXYRelative().getY() - startDragY);
+                int newHeight = draggedZone->getHeight() -
+                    (getMouseXYRelative().getY() - startDragY);
 
-                if (new_y < 0){
-                    new_y = 0;
-                    new_height = dragged_zone->height() +  dragged_zone->y();
+                if (newY < 0){
+                    newY = 0;
+                    newHeight = draggedZone->getHeight() + 
+                        draggedZone->getY();
                 }
-                dragged_zone->height(new_height);
-                dragged_zone->y(new_y);
+                draggedZone->setHeight(newHeight);
+                draggedZone->setY(newY);
             }
         }
         else if (cursor == MouseCursor::BottomEdgeResizeCursor){
             if (set.getItemArray().size() > 0){
                 for (auto i : set){
-                    int new_height = i->height() + (getMouseXYRelative().getY() - start_drag_y);
-                    if (new_height + i->y() > height_){
-                        new_height = height_ - (i->y() + i->height()) + i->height();
+                    int newHeight = i->getHeight() + 
+                        (getMouseXYRelative().getY() - startDragY);
+                    if (newHeight + i->getY() > height){
+                        newHeight = height - (i->getY() + i->getHeight()) + 
+                            i->getHeight();
                     }
-                    i->height(new_height);
+                    i->setHeight(newHeight);
                 }
             } else {
-                int new_height = dragged_zone->height() + (getMouseXYRelative().getY() - start_drag_y);
-                if (new_height + dragged_zone->y() > height_){
-                    new_height = height_ - (dragged_zone->y() + dragged_zone->height()) + dragged_zone->height();
+                int newHeight = draggedZone->getHeight() +
+                    (getMouseXYRelative().getY() - startDragY);
+                if (newHeight + draggedZone->getY() > height){
+                    newHeight = height - (draggedZone->getY() + 
+                        draggedZone->getHeight()) + draggedZone->getHeight();
                 }
-                dragged_zone->height(new_height);
+                draggedZone->setHeight(newHeight);
             }
         }
-        dragged_zone = nullptr;
+        draggedZone = nullptr;
     }
-    lasso->endLasso();
-    if (!lasso_source->dragging()){
+    lasso.endLasso();
+    if (! lassoSource.isDragging()){
         for (auto i : set){
             i->setToggleState(false, sendNotification);
             if (i->getMouseCursor() == MouseCursor::NormalCursor){
-                i->y(i->y()+getMouseXYRelative().getY() - start_drag_y);
+                i->setY(i->getY()+getMouseXYRelative().getY() - startDragY);
             }
         }
         set.deselectAll();
     }
-    lasso_source->dragging(false);
-    dragging_ = false;
+    dragging = false;
 }
 
 
 typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
-Zone::Zone(MappingEditorGraph* p, const String& sample_name, InstrumentComponent& i) 
+Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent& i) 
     : TextButton{""}, parent{p}, instrument{i},
-    file_player{std::make_shared<FilePlayer>(sample_name)},
-    name_{sample_name}  {
-    instrument.addFilePlayer(file_player);
+    filePlayer{std::make_shared<FilePlayer>(sampleName)},
+    name{sampleName}  {
+    instrument.addFilePlayer(filePlayer);
     setAlpha(0.5f);
     velocity.first = 0;
     velocity.second = 127;
 }
 
 void Zone::mouseDown(const MouseEvent& e) {
-    parent->dragged_zone = this;
-    parent->zone_info_set()->selectOnly(this);
+    parent->draggedZone = this;
+    parent->getZoneInfoSet().selectOnly(this);
 }
 
 void Zone::mouseMove(const MouseEvent& e) {
-    if (!parent->dragging()){
+    if (! parent->isDragging()){
         if (e.y < 5){
             setMouseCursor(MouseCursor::TopEdgeResizeCursor);
             return;
         }
-        else if (height_ - e.y < 5){
+        else if (height - e.y < 5){
             setMouseCursor(MouseCursor::BottomEdgeResizeCursor);
             return;
         }
@@ -322,5 +322,5 @@ void Zone::mouseMove(const MouseEvent& e) {
 }
 
 void Zone::mouseDoubleClick(const MouseEvent& e){
-    file_player->toggleState();
+    filePlayer->toggleState();
 }
