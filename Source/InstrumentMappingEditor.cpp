@@ -22,7 +22,7 @@ typedef InstrumentMappingEditor::MappingEditorGraph MappingEditorGraph;
 
 MappingEditorGraph::MappingEditorGraph(float w, float h,
     float kh, int nc, InstrumentComponent& i)
-: Component(), width{w}, height{h}, keyboardHeight{kh},
+: Component{}, width{w}, height{h}, keyboardHeight{kh},
     numColumns{nc}, draggedZone{nullptr}, dragging{false}, 
     lasso{},lassoSource{this}, instrument{i}, midiCallback{this}, 
     keyboardState{}, 
@@ -51,7 +51,7 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
 
 void MappingEditorGraph::resized(){
     keyboard.setBounds(
-        0, getHeight() - getKeyboardHeight(), getWidth(), getKeyboardHeight());
+        0, getHeight(), getWidth(), getKeyboardHeight());
     keyboard.setKeyWidth(getWidth() / numColumns * 1.715);
 }
 
