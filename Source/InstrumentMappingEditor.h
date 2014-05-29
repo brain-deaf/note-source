@@ -112,6 +112,7 @@ public:
         };
 
         MappingEditorGraph(float,float,float,int,InstrumentComponent&);
+        ~MappingEditorGraph(){for(auto i : zones) delete i;}
         void changeListenerCallback(ChangeBroadcaster* source){repaint();};
         void setBoundsForComponent(Zone& z, MouseCursor cursor, 
             float grid_outline, float gridWidth, int gridXOffset);

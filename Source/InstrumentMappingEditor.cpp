@@ -18,6 +18,7 @@ InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, In
     setViewedComponent(graph);
 }
 
+
 typedef InstrumentMappingEditor::MappingEditorGraph MappingEditorGraph;
 
 MappingEditorGraph::MappingEditorGraph(float w, float h,
