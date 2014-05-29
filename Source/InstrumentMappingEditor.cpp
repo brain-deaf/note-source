@@ -51,8 +51,8 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
 
 void MappingEditorGraph::resized(){
     keyboard.setBounds(
-        0, getHeight() - keyboardHeight, getWidth(), keyboardHeight);
-    keyboard.setKeyWidth(getWidth() / numColumns);
+        0, getHeight() - getKeyboardHeight(), getWidth(), getKeyboardHeight());
+    keyboard.setKeyWidth(getWidth() / numColumns * 1.715);
 }
 
 void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
