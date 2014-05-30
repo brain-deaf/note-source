@@ -7,23 +7,38 @@
     <GROUP id="{E7B5BC5B-0EE2-6069-3A31-101A9563FA74}" name="Source"/>
     <FILE id="FyGNFr" name="FilePlayer.cpp" compile="1" resource="0" file="Source/FilePlayer.cpp"/>
     <FILE id="WxDBZI" name="FilePlayer.h" compile="0" resource="0" file="Source/FilePlayer.h"/>
+    <FILE id="fHyPhe" name="MainPage.h" compile="0" resource="0" file="Source/MainPage.h"/>
     <FILE id="ZwQmOr" name="MainPage.cpp" compile="1" resource="0" file="Source/MainPage.cpp"/>
+    <FILE id="rYr79s" name="InstrumentBin.h" compile="0" resource="0" file="Source/InstrumentBin.h"/>
     <FILE id="zWAv9y" name="InstrumentBin.cpp" compile="1" resource="0"
           file="Source/InstrumentBin.cpp"/>
+    <FILE id="Fgkzw4" name="InstrumentComponent.h" compile="0" resource="0"
+          file="Source/InstrumentComponent.h"/>
     <FILE id="M0XrGO" name="InstrumentComponent.cpp" compile="1" resource="0"
           file="Source/InstrumentComponent.cpp"/>
+    <FILE id="jwuTYY" name="InstrumentMappingEditor.h" compile="0" resource="0"
+          file="Source/InstrumentMappingEditor.h"/>
     <FILE id="lZPkwD" name="InstrumentMappingEditor.cpp" compile="1" resource="0"
           file="Source/InstrumentMappingEditor.cpp"/>
+    <FILE id="yIVSEw" name="InstrumentMasterComponent.h" compile="0" resource="0"
+          file="Source/InstrumentMasterComponent.h"/>
     <FILE id="WiUzXN" name="InstrumentMasterComponent.cpp" compile="1"
           resource="0" file="Source/InstrumentMasterComponent.cpp"/>
+    <FILE id="RYCAOv" name="InstrumentTabWindow.h" compile="0" resource="0"
+          file="Source/InstrumentTabWindow.h"/>
     <FILE id="RAmgon" name="InstrumentTabWindow.cpp" compile="1" resource="0"
           file="Source/InstrumentTabWindow.cpp"/>
     <FILE id="KjKOXS" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    <FILE id="VmFzuz" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
     <FILE id="MAnRwS" name="MainComponent.cpp" compile="1" resource="0"
           file="Source/MainComponent.cpp"/>
+    <FILE id="SFQtAo" name="MappingEditorBin.h" compile="0" resource="0"
+          file="Source/MappingEditorBin.h"/>
     <FILE id="JmEM47" name="MappingEditorBin.cpp" compile="1" resource="0"
           file="Source/MappingEditorBin.cpp"/>
+    <FILE id="H3OXF4" name="MenuBar.h" compile="0" resource="0" file="Source/MenuBar.h"/>
     <FILE id="NYiBrA" name="MenuBar.cpp" compile="1" resource="0" file="Source/MenuBar.cpp"/>
+    <FILE id="cnkISP" name="ZoneInfo.h" compile="0" resource="0" file="Source/ZoneInfo.h"/>
     <FILE id="kq9689" name="ZoneInfo.cpp" compile="1" resource="0" file="Source/ZoneInfo.cpp"/>
   </MAINGROUP>
   <EXPORTFORMATS>
