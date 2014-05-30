@@ -16,6 +16,8 @@
           file="Source/InstrumentComponent.h"/>
     <FILE id="M0XrGO" name="InstrumentComponent.cpp" compile="1" resource="0"
           file="Source/InstrumentComponent.cpp"/>
+    <FILE id="jwuTYY" name="InstrumentMappingEditor.h" compile="0" resource="0"
+          file="Source/InstrumentMappingEditor.h"/>
     <FILE id="lZPkwD" name="InstrumentMappingEditor.cpp" compile="1" resource="0"
           file="Source/InstrumentMappingEditor.cpp"/>
     <FILE id="yIVSEw" name="InstrumentMasterComponent.h" compile="0" resource="0"
