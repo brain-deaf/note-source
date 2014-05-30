@@ -107,7 +107,7 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
         newZone->removeMouseListener(newZone);
         newZone->addMouseListener(this, true);
 
-        newZone->setX(static_cast<int>(x / gridWidth) * gridWidth +
+        newZone->setX(roundToInt(x / gridWidth) * gridWidth +
             gridOutline + gridWidth*i);
         newZone->setY(0);
         newZone->setHeight(getHeight());
@@ -128,18 +128,11 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
     float gridOutline, float gridWidth, int gridXOffset){
     int y = getMouseXYRelative().getY();
     int delY = y - startDragY;
-    if (cursor == MouseCursor()){
-        int gridX = static_cast<int>((c.getX()) / gridWidth);
-        int newGridX = gridXOffset + gridX;
-        if (newGridX >= 0 && newGridX < numColumns){
-            c.setX(newGridX * gridWidth + gridOutline);
-        }
-        else if (newGridX < 0){
-            c.setX(0);
-        }
-        else if (newGridX > numColumns){
-            c.setX(numColumns * gridWidth + gridOutline);
-        }
+    if (cursor == MouseCursor::NormalCursor){
+        int gridX = roundToInt((c.getX()) / gridWidth);
+        Range<int> r(0,numColumns-1);
+        int newGridX = r.clipValue(gridXOffset + gridX);
+        c.setX(newGridX * gridWidth + gridOutline);
          
         int newY = 0;
         if (c.getY() + delY < 0){
@@ -155,7 +148,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
         c.setBounds(c.getX(), newY, gridWidth - gridOutline, c.getHeight());
     }
 
-    else if (cursor == MouseCursor(MouseCursor::TopEdgeResizeCursor)) {
+    else if (cursor == MouseCursor::TopEdgeResizeCursor) {
         int newY = c.getY() + delY;
         int newHeight = c.getHeight() - delY;
 
@@ -166,7 +159,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
 
         c.setBounds(c.getX(), newY, gridWidth - gridOutline, newHeight);
     }
-    else if (cursor == MouseCursor(MouseCursor::BottomEdgeResizeCursor)){
+    else if (cursor == MouseCursor::BottomEdgeResizeCursor){
         int y = getMouseXYRelative().getY();
         int newHeight = c.getHeight() + delY;
         if (newHeight + c.getY() > height){
