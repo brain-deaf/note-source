@@ -1,7 +1,7 @@
 #include "MainPage.h"
 #include "InstrumentComponent.h"
 
-MainPage::MainPage(InstrumentComponent& i) : Component{}, instrument{i} {} 
+MainPage::MainPage(InstrumentComponent& i) : Component{}, instrument(i) {} 
 MainPage::~MainPage() {
     deleteAllChildren();
 }

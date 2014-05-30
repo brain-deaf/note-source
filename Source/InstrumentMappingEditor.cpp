@@ -13,7 +13,7 @@
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, InstrumentComponent& i)
 :   Viewport{componentName},graph{new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128, i)},
-    instrument{i}
+    instrument(i)
 {
     setViewedComponent(graph);
 }
@@ -25,9 +25,9 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     float kh, int nc, InstrumentComponent& i)
 : Component{}, width{w}, height{h}, keyboardHeight{kh},
     numColumns{nc}, draggedZone{nullptr}, dragging{false}, 
-    lasso{},lassoSource{this}, instrument{i}, midiCallback{this}, 
+    lasso{},lassoSource(this), instrument(i), midiCallback(this), 
     keyboardState{}, 
-    keyboard{keyboardState, MidiKeyboardComponent::horizontalKeyboard} 
+    keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard) 
 {
     keyboardState.addListener(this);
     addAndMakeVisible(&keyboard);
@@ -300,9 +300,9 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
 typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
 Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent& i) 
-    : TextButton{""}, parent{p}, instrument{i},
-    filePlayer{std::make_shared<FilePlayer>(sampleName)},
-    name{sampleName}  {
+    : TextButton{""}, parent{p}, instrument(i),
+    filePlayer(std::make_shared<FilePlayer>(sampleName)),
+    name(sampleName)  {
     instrument.addFilePlayer(filePlayer);
     setAlpha(0.5f);
     velocity.first = 0;
