@@ -128,7 +128,7 @@ public:
         void filesDropped(const StringArray& files, int x, int y);
         bool isInterestedInFileDrag(const StringArray& files){return true;}
 
-        SelectedItemSet<Zone *> getZoneInfoSet()
+        SelectedItemSet<Zone *>& getZoneInfoSet()
             { return zoneInfoSet;}
         void setWidth(float w){width=w;}
         float getWidth(){ return width;}

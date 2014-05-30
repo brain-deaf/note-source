@@ -10,16 +10,16 @@
 
 #include "ZoneInfo.h"
 
-ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{}, 
-    mappingEditor{m}, zone{m->graph->getZoneInfoSet()} {
-    zone.addChangeListener(this);
+ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
+    mappingEditor{m}, zone{&m->graph->getZoneInfoSet()} {
+    zone->addChangeListener(this);
     fileName = new Label("lolol");
     fileName->setBounds(5, 10, 600, 20);
     addAndMakeVisible(fileName);
 }
 
 void ZoneInfo::changeListenerCallback(ChangeBroadcaster* source){
-    fileName->setText((zone.getSelectedItem(0))->getName(), dontSendNotification);
+    fileName->setText((zone->getSelectedItem(0))->getName(), dontSendNotification);
 }
 
 void ZoneInfo::resize(){
