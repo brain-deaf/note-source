@@ -20,9 +20,12 @@ class InstrumentComponent;
 class InstrumentMappingEditor : public Viewport
 {
 public:
-    class MappingEditorGraph : public Component, public FileDragAndDropTarget, 
-    public ButtonListener, public MidiKeyboardStateListener, 
-    public ChangeListener {
+    class MappingEditorGraph : public Component,
+                               public FileDragAndDropTarget,
+                               public ButtonListener,
+                               public MidiKeyboardStateListener,
+                               public ChangeListener
+    {
     public:
         class MidiDeviceCallback : public MidiInputCallback
         {
@@ -51,7 +54,7 @@ public:
             MappingEditorGraph * parent;
             InstrumentComponent& instrument;
             std::shared_ptr<FilePlayer> filePlayer;
-            
+
             const String name;
             int x;
             int y;
@@ -65,7 +68,7 @@ public:
         {
             Array<Zone *> zones;
             MappingEditorGraph* parent;
-            SelectedItemSet<SelectableItemType> set; 
+            SelectedItemSet<SelectableItemType> set;
             bool dragging;
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MappingLasso<SelectableItemType>)
         public:
@@ -73,24 +76,15 @@ public:
             bool isDragging(){return dragging;}
             Array<Zone *>& getZones(){return zones;}
             void findLassoItemsInArea (Array <SelectableItemType>& itemsFound,
-                                           const Rectangle<int>& area){
+                const Rectangle<int>& area)
+            {
                 dragging = true;
-                int left  = area.getX();
-                int right = area.getRight();
-                int top   = area.getY();
-                int bottom= area.getBottom();
-                
-                ModifierKeys modifier_keys(0);
-                
+
                 for (auto i : zones){
-                    if (((i->getX() >= left && i->getX() <= right) ||
-                        (i->getX() + (parent->getWidth() / 
-                         parent->getNumColumns()) >= left &&
-                         i->getX() + (parent->getWidth() /
-                         parent->getNumColumns()) <= right)) && 
-                       ((i->getY() >= top && i->getY() <= bottom) ||
-                        (top >= i->getY() &&
-                         top <= i->getY() + i->getHeight()))){
+                    Rectangle<int> r{i->getX(),i->getY(),
+                        roundToInt(parent->getWidth()),
+                        roundToInt(parent->getHeight())};
+                    if (area.intersects(r)){
                         itemsFound.add(i);
                     } else {
                         itemsFound.removeFirstMatchingValue(i);
@@ -98,13 +92,18 @@ public:
                     }
                 }
             };
-            SelectedItemSet<SelectableItemType>& getLassoSelection(){
+
+            SelectedItemSet<SelectableItemType>& getLassoSelection()
+            {
                 return set;
             };
-            
-            void changeListenerCallback(ChangeBroadcaster* source){
-                if (source == &set){
-                    for (auto i : set){
+
+            void changeListenerCallback(ChangeBroadcaster* source)
+            {
+                if (source == &set)
+                {
+                    for (auto i : set)
+                    {
                         i->setToggleState(true, sendNotification);
                     }
                 }
@@ -114,12 +113,12 @@ public:
         MappingEditorGraph(float,float,float,int,InstrumentComponent&);
         ~MappingEditorGraph(){for(auto i : zones) delete i;}
         void changeListenerCallback(ChangeBroadcaster* source){repaint();};
-        void setBoundsForComponent(Zone& z, MouseCursor cursor, 
+        void setBoundsForComponent(Zone& z, MouseCursor cursor,
             float grid_outline, float gridWidth, int gridXOffset);
         void paint(Graphics& g);
         void resized();
         virtual void buttonClicked(Button* button) override;
-        void handleNoteOn(MidiKeyboardState* source, int midiChannel, 
+        void handleNoteOn(MidiKeyboardState* source, int midiChannel,
             int midiNoteNumber, float velocity);
         void handleNoteOff(MidiKeyboardState* source, int midiChannel,
             int midiNoteNumber);
@@ -162,13 +161,13 @@ public:
         SelectedItemSet<Zone *> zoneInfoSet;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingEditorGraph)
     };
-    InstrumentMappingEditor(const String& componentName, 
+    InstrumentMappingEditor(const String& componentName,
         InstrumentComponent& i);
     ScopedPointer<MappingEditorGraph> graph;
 private:
     InstrumentComponent& instrument;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMappingEditor)
 };
-    
+
 #endif  // INSTRUMENTMAPPINGEDITOR_H_INCLUDED
 
