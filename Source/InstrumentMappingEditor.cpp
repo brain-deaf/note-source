@@ -27,8 +27,8 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     numColumns{nc}, draggedZone{nullptr}, dragging{false}, 
     lasso{},lassoSource{this}, instrument{i}, midiCallback{this}, 
     keyboardState{}, 
-    keyboard{keyboardState, MidiKeyboardComponent::horizontalKeyboard} {
-
+    keyboard{keyboardState, MidiKeyboardComponent::horizontalKeyboard} 
+{
     keyboardState.addListener(this);
     addAndMakeVisible(&keyboard);
     SharedResourcePointer<AudioDeviceManager> dm;
@@ -39,18 +39,23 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
 
 void MappingEditorGraph::buttonClicked(Button *){}
 void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
-    (MidiInput* source, const MidiMessage& message) {
-    if (message.isNoteOn()) {
+    (MidiInput* source, const MidiMessage& message) 
+{
+    if (message.isNoteOn()) 
+    {
         parent->getNotesHeld().addToSelection(message.getNoteNumber());
     }
-    if (message.isNoteOff()) {
-        if (parent->getNotesHeld().isSelected(message.getNoteNumber())){
+    if (message.isNoteOff()) 
+    {
+        if (parent->getNotesHeld().isSelected(message.getNoteNumber()))
+        {
             parent->getNotesHeld().deselect(message.getNoteNumber());
         }
     }
 }
 
-void MappingEditorGraph::resized(){
+void MappingEditorGraph::resized()
+{
     keyboard.setBounds(
         0, getHeight(), getWidth(), getKeyboardHeight());
     keyboard.setKeyWidth(getWidth() / numColumns * 1.715);
@@ -66,7 +71,8 @@ void MappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChanne
     }
 }
 
-void MappingEditorGraph::paint(Graphics& g){
+void MappingEditorGraph::paint(Graphics& g)
+{
     g.fillAll(Colours::antiquewhite);
     float gridOutline = 1.0f;
     float gridWidth = width / numColumns;
@@ -314,7 +320,7 @@ void Zone::mouseMove(const MouseEvent& e) {
             setMouseCursor(MouseCursor::TopEdgeResizeCursor);
             return;
         }
-        else if (height - e.y < 5){
+        else if (getHeight() - e.y < 5){
             setMouseCursor(MouseCursor::BottomEdgeResizeCursor);
             return;
         }

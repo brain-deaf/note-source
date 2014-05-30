@@ -36,29 +36,26 @@ public:
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiDeviceCallback)
         };
 
-        class Zone : public TextButton{
+        class Zone : public TextButton,
+                     public ReferenceCountedObject
+        {
         public:
             Zone(MappingEditorGraph * p, const String& s,
                     InstrumentComponent& i);
             const String& getName(){return name;}
-            void setX(int xx){x = xx;}
-            int getX() { return x;}
-            void setY(int yy){y = yy;}
-            int setY() { return y;}
-            void setHeight(int h){height=h;}
-            int getHeight(){return height;}
+            void setX(int x){setTopLeftPosition(x,getY());}
+            void setY(int y){setTopLeftPosition(getX(),y);}
+            void setHeight(int h){setSize(getWidth(),h);}
             void mouseDown(const MouseEvent& event);
             void mouseMove(const MouseEvent& event);
             void mouseDoubleClick(const MouseEvent& event);
+            typedef ReferenceCountedObjectPtr<Zone> Ptr;
         private:
             MappingEditorGraph * parent;
             InstrumentComponent& instrument;
             std::shared_ptr<FilePlayer> filePlayer;
 
             const String name;
-            int x;
-            int y;
-            int height;
             std::pair<int, int> velocity;
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Zone)
         };
@@ -66,7 +63,7 @@ public:
         template <class SelectableItemType>
         class MappingLasso: public LassoSource<SelectableItemType>, public ChangeListener
         {
-            Array<Zone *> zones;
+            Array<Zone::Ptr> zones;
             MappingEditorGraph* parent;
             SelectedItemSet<SelectableItemType> set;
             bool dragging;
@@ -74,7 +71,7 @@ public:
         public:
             MappingLasso(MappingEditorGraph * p) : parent{p}, dragging{false} {}
             bool isDragging(){return dragging;}
-            Array<Zone *>& getZones(){return zones;}
+            Array<Zone::Ptr>& getZones(){return zones;}
             void findLassoItemsInArea (Array <SelectableItemType>& itemsFound,
                 const Rectangle<int>& area)
             {
@@ -111,7 +108,6 @@ public:
         };
 
         MappingEditorGraph(float,float,float,int,InstrumentComponent&);
-        ~MappingEditorGraph(){for(auto i : zones) delete i;}
         void changeListenerCallback(ChangeBroadcaster* source){repaint();};
         void setBoundsForComponent(Zone& z, MouseCursor cursor,
             float grid_outline, float gridWidth, int gridXOffset);
@@ -128,7 +124,7 @@ public:
         void filesDropped(const StringArray& files, int x, int y);
         bool isInterestedInFileDrag(const StringArray& files){return true;}
 
-        SelectedItemSet<Zone *>& getZoneInfoSet()
+        SelectedItemSet<Zone::Ptr>& getZoneInfoSet()
             { return zoneInfoSet;}
         void setWidth(float w){width=w;}
         float getWidth(){ return width;}
@@ -154,11 +150,11 @@ public:
         MidiKeyboardState keyboardState;
         MidiKeyboardComponent keyboard;
         SelectedItemSet<int> notesHeld;
-        Array<Zone *> zones;
-        LassoComponent<Zone *> lasso;
-        MappingLasso<Zone *> lassoSource;
-        Zone * draggedZone;
-        SelectedItemSet<Zone *> zoneInfoSet;
+        Array<Zone::Ptr> zones;
+        LassoComponent<Zone::Ptr> lasso;
+        MappingLasso<Zone::Ptr> lassoSource;
+        Zone::Ptr draggedZone;
+        SelectedItemSet<Zone::Ptr> zoneInfoSet;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingEditorGraph)
     };
     InstrumentMappingEditor(const String& componentName,

@@ -16,7 +16,7 @@
 
 class ZoneInfo : public Component, public ChangeListener {
     std::shared_ptr<InstrumentMappingEditor> mappingEditor;
-    SelectedItemSet<InstrumentMappingEditor::MappingEditorGraph::Zone*>* zone;
+    SelectedItemSet<InstrumentMappingEditor::MappingEditorGraph::Zone::Ptr>* zone;
     ScopedPointer<Label> fileName;
 
 public:
