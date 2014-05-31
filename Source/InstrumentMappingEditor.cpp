@@ -170,7 +170,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e){
-    if (!lassoSource.Dragging()){lassoSource.setDragging(true);std::cout<<"dragging = true"<<std::endl;}
+    if (!lassoSource.Dragging()){lassoSource.setDragging(true);}
     if (draggedZone != nullptr){
         float gridOutline = 1.0f;
         float gridWidth = width / numColumns;
@@ -195,7 +195,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     if (draggedZone != nullptr){
         auto cursor = draggedZone->getMouseCursor();
         if (cursor == MouseCursor::NormalCursor){
-            if (set.getItemArray().size() > 0){
+            if (/*set.getItemArray().size() > 0*/ lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
                 for (auto i : lassoSource.getLassoSelection()){
                     int newY = getMouseXYRelative().getY() - startDragY;
                     if (i->getY() + newY + i->getHeight() > height){
@@ -225,7 +225,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
             }
         }
         else if (cursor == MouseCursor::TopEdgeResizeCursor){
-            if (set.getItemArray().size() > 0){
+            if (lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
                 for (auto i : lassoSource.getLassoSelection()){
                     int newY = i->getY() + (getMouseXYRelative().getY() - 
                         startDragY);
@@ -254,7 +254,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
             }
         }
         else if (cursor == MouseCursor::BottomEdgeResizeCursor){
-            if (set.getItemArray().size() > 0){
+            if (lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
                 for (auto i : lassoSource.getLassoSelection()){
                     int newHeight = i->getHeight() + 
                         (getMouseXYRelative().getY() - startDragY);
@@ -306,6 +306,9 @@ Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent&
 
 void Zone::mouseDown(const MouseEvent& e) {
     parent->draggedZone = this;
+    /*if (!parent->lassoSource.getLassoSelection().isSelected(this)){
+        parent->lassoSource.getLassoSelection().selectOnly(this);
+    }*/
     parent->getZoneInfoSet().selectOnly(this);
 }
 

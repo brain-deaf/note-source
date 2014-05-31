@@ -105,10 +105,21 @@ public:
             {
                 if (source == &set)
                 {
-                    for (auto i : set)
+                    for (auto z : getZones())
+                    {
+                        if (set.isSelected(z))
+                        {
+                            z->setToggleState(true, sendNotification);
+                        }
+                        else
+                        {
+                            z->setToggleState(false, sendNotification);
+                        }
+                    }
+                    /*for (auto i : set)
                     {
                         i->setToggleState(true, sendNotification);
-                    }
+                    }*/
                 }
             }
         };
@@ -129,6 +140,7 @@ public:
         void mouseDown(const MouseEvent& event);
         void filesDropped(const StringArray& files, int x, int y);
         bool isInterestedInFileDrag(const StringArray& files){return true;}
+        Array<Zone::Ptr> getZones(){return zones;}
 
         SelectedItemSet<Zone::Ptr>& getZoneInfoSet()
             { return zoneInfoSet;}
