@@ -43,9 +43,12 @@ public:
             Zone(MappingEditorGraph * p, const String& s,
                     InstrumentComponent& i);
             const String& getName(){return name;}
-            void setX(int x){setTopLeftPosition(x,getY());}
-            void setY(int y){setTopLeftPosition(getX(),y);}
-            void setHeight(int h){setSize(getWidth(),h);}
+            void setX(int x){_x = x;}
+            void setY(int y){_y = y;}
+            int getX(){return _x;}
+            int getY(){return _y;}
+            void setHeight(int h){_height = h;}
+            int getHeight(){return _height;}
             void mouseDown(const MouseEvent& event);
             void mouseMove(const MouseEvent& event);
             void mouseDoubleClick(const MouseEvent& event);
@@ -54,6 +57,9 @@ public:
             MappingEditorGraph * parent;
             InstrumentComponent& instrument;
             std::shared_ptr<FilePlayer> filePlayer;
+            int _x;
+            int _y;
+            int _height;
 
             const String name;
             std::pair<int, int> velocity;
@@ -66,23 +72,23 @@ public:
             Array<Zone::Ptr> zones;
             MappingEditorGraph* parent;
             SelectedItemSet<SelectableItemType> set;
-            bool dragging;
+            bool _dragging;
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MappingLasso<SelectableItemType>)
         public:
-            MappingLasso(MappingEditorGraph * p) : parent{p}, dragging{false} {}
-            bool isDragging(){return dragging;}
+            MappingLasso(MappingEditorGraph * p) : parent{p}, _dragging{false} {}
+            bool Dragging(){return _dragging;}
+            void setDragging(bool d){_dragging = d;}
             Array<Zone::Ptr>& getZones(){return zones;}
             void findLassoItemsInArea (Array <SelectableItemType>& itemsFound,
                 const Rectangle<int>& area)
             {
-                dragging = true;
+                _dragging = true;
 
                 for (auto i : zones){
-                    Rectangle<int> r{i->getX(),i->getY(),
-                        roundToInt(parent->getWidth()),
-                        roundToInt(parent->getHeight())};
+                    Rectangle<int> r{i->getBounds()};
                     if (area.intersects(r)){
                         itemsFound.add(i);
+                        i->setToggleState(true, sendNotification);
                     } else {
                         itemsFound.removeFirstMatchingValue(i);
                         i->setToggleState(false, sendNotification);
