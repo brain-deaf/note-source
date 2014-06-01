@@ -28,10 +28,12 @@ FilePlayer::FilePlayer(const String& s): ChangeListener{},
     auto r = formatManager.createReaderFor(f);
     if( r == nullptr) {
         throw BadFormatException("cannot play "+sampleName);
+        delete this;
+    }else{
+        readerSource = new AudioFormatReaderSource (r,true);
+        transportSource.setSource (readerSource);
+        changeState (Starting);
     }
-    readerSource = new AudioFormatReaderSource (r,true);
-    transportSource.setSource (readerSource);
-    changeState (Starting);
 }
 FilePlayer::~FilePlayer() {
     changeState(Stopping);

@@ -11,6 +11,11 @@
 #include "InstrumentComponent.h"
 #include "InstrumentMappingEditor.h"
 
+class BadFormatException : public std::runtime_error{
+public:
+    BadFormatException(String s) : std::runtime_error(s.toStdString()){}
+};
+
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, InstrumentComponent& i)
 :   Viewport{componentName},graph{new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128, i)},
     instrument(i)
@@ -99,7 +104,16 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
     float gridOutline = 1.0f;
     float gridWidth = width / numColumns;
     for (int i=0; i<files.size(); i++){
-        auto newZone = new Zone(this, files[i], instrument);
+        
+        if (File(files[i]).isDirectory()){continue;}
+        
+        Zone* newZone;
+        try{
+            newZone = new Zone(this, files[i], instrument);
+        }catch (BadFormatException const & e){
+            //there's a crash here...why?
+            continue;
+        }  
         zones.add(newZone);
 
         newZone->removeListener(this);
@@ -275,7 +289,6 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
             }
         }
         draggedZone = nullptr;
-        std::cout<<"mouse up/dragged zone != nullptr"<<std::endl;
     }
     lasso.endLasso();
     if (! lassoSource.Dragging()){
@@ -286,8 +299,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
             }
         }
         lassoSource.getLassoSelection().deselectAll();
-        std::cout<<"deselect all zones"<<std::endl;
-    }else{std::cout<<"dragging: "<<lassoSource.Dragging()<<std::endl;}
+    }
     lassoSource.setDragging(false);
 }
 
@@ -306,9 +318,6 @@ Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent&
 
 void Zone::mouseDown(const MouseEvent& e) {
     parent->draggedZone = this;
-    /*if (!parent->lassoSource.getLassoSelection().isSelected(this)){
-        parent->lassoSource.getLassoSelection().selectOnly(this);
-    }*/
     parent->getZoneInfoSet().selectOnly(this);
 }
 

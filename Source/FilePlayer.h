@@ -30,6 +30,7 @@ public:
     TransportState getState() {return state;}
     AudioTransportSource& getTransportSource() {return transportSource;}
     String& getSampleName() { return sampleName;}
+    AudioFormatManager& getAudioFormatManager(){return formatManager;}
     void toggleState();
 private:
     String sampleName;
