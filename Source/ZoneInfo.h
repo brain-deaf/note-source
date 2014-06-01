@@ -14,13 +14,17 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentMappingEditor.h"
 
-class ZoneInfo : public Component, public ChangeListener {
+class ZoneInfo : public Component, public ChangeListener, public Label::Listener {
     std::shared_ptr<InstrumentMappingEditor> mappingEditor;
     SelectedItemSet<InstrumentMappingEditor::MappingEditorGraph::Zone::Ptr>* zone;
     ScopedPointer<Label> fileName;
+    ScopedPointer<Label> fileNameLabel;
+    ScopedPointer<Label> noteNumber;
+    ScopedPointer<Label> noteNumberLabel;
 
 public:
     ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m);
+    void labelTextChanged(Label* source);
 
     void changeListenerCallback(ChangeBroadcaster* source);
     void resize();

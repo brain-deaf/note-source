@@ -43,10 +43,12 @@ public:
             Zone(MappingEditorGraph * p, const String& s,
                     InstrumentComponent& i);
             const String& getName(){return name;}
-            void setX(int x){_x = x;}
+            void setNote(int n){_note = n;}
+            void setX(int x){_x = x; setNote((int)(x / (parent->getWidth() / parent->getNumColumns())));}
             void setY(int y){_y = y;}
             int getX(){return _x;}
             int getY(){return _y;}
+            int getNote(){return _note;}
             void setHeight(int h){_height = h;}
             int getHeight(){return _height;}
             void mouseDown(const MouseEvent& event);
@@ -61,6 +63,7 @@ public:
             int _x;
             int _y;
             int _height;
+            int _note;
 
             const String name;
             std::pair<int, int> velocity;

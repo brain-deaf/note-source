@@ -17,7 +17,7 @@ public:
 };
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, InstrumentComponent& i)
-:   Viewport{componentName},graph{new MappingEditorGraph(1800.0f, 335.0f, 100.0f, 128, i)},
+:   Viewport{componentName},graph{new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i)},
     instrument(i)
 {
     setViewedComponent(graph);
@@ -28,10 +28,10 @@ typedef InstrumentMappingEditor::MappingEditorGraph MappingEditorGraph;
 
 MappingEditorGraph::MappingEditorGraph(float w, float h,
     float kh, int nc, InstrumentComponent& i)
-: Component{}, width{w}, height{h}, keyboardHeight{kh},
-    numColumns{nc}, draggedZone{nullptr}, dragging{false}, 
-    lasso{},lassoSource(this), instrument(i), midiCallback(this), 
-    keyboardState{}, 
+: Component(), width(w), height(h), keyboardHeight(kh),
+    numColumns(nc), draggedZone(nullptr), dragging(false), 
+    lasso(),lassoSource(this), instrument(i), midiCallback(this), 
+    keyboardState(), 
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard) 
 {
     keyboardState.addListener(this);
@@ -94,6 +94,8 @@ void MappingEditorGraph::paint(Graphics& g)
         myPath.startNewSubPath (i*gridWidth, 0.0f);
         myPath.lineTo (i*gridWidth, height);
     }
+    myPath.startNewSubPath(0.0f, 0.0f);
+    myPath.lineTo(numColumns*gridWidth, 0.0f);
 
     g.strokePath (myPath, PathStrokeType (gridOutline));
 }
