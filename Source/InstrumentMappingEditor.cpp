@@ -105,11 +105,11 @@ void MappingEditorGraph::paint(Graphics& g)
 void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
     float gridOutline = 1.0f;
     float gridWidth = width / numColumns;
+    Zone* newZone;
     for (int i=0; i<files.size(); i++){
         
         if (File(files[i]).isDirectory()){continue;}
         
-        Zone* newZone;
         try{
             newZone = new Zone(this, files[i], instrument);
         }catch (BadFormatException const & e){
@@ -131,7 +131,9 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
             gridWidth - gridOutline, newZone->getHeight());
         addAndMakeVisible(newZone);
         lassoSource.getZones().add(newZone);
+        
     }
+    getZoneInfoSet().selectOnly(newZone);
 }
 void MappingEditorGraph::mouseDown(const MouseEvent& e) {
     addAndMakeVisible(lasso);
@@ -201,6 +203,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e)
         }else{
             setBoundsForComponent(*draggedZone, draggedZone->getMouseCursor(), gridOutline, gridWidth, gridXOffset);
         }
+        getZoneInfoSet().selectOnly(draggedZone);
+        getZoneInfoSet().changed();
     }else {
         lasso.dragLasso(e);
     }

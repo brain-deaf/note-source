@@ -21,6 +21,8 @@ class ZoneInfo : public Component, public ChangeListener, public Label::Listener
     ScopedPointer<Label> fileNameLabel;
     ScopedPointer<Label> noteNumber;
     ScopedPointer<Label> noteNumberLabel;
+    ScopedPointer<Label> noteName;
+    Array<String> noteNames;
 
 public:
     ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m);
