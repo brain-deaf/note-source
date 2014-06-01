@@ -38,6 +38,22 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
     noteName->setBounds(110, 30, 40, 20);
     addAndMakeVisible(noteName);
     
+    velocityLabel = new Label("Velocity: ");
+    velocityLabel->setBounds(5, 50, 70, 20);
+    addAndMakeVisible(velocityLabel);
+    
+    velocityMin = new Label("");
+    velocityMin->setBounds(80, 50, 30, 20);
+    velocityMin->setEditable(false, true, true);
+    velocityMin->addListener(this);
+    addAndMakeVisible(velocityMin);
+    
+    velocityMax= new Label("");
+    velocityMax->setBounds(110, 50, 30, 20);
+    velocityMax->setEditable(false, true, true);
+    velocityMax->addListener(this);
+    addAndMakeVisible(velocityMax);
+    
     
     Array<String> noteLetters;
     noteLetters.add("C");
@@ -64,6 +80,9 @@ void ZoneInfo::changeListenerCallback(ChangeBroadcaster* source){
     noteNumber->setText(String((zone->getSelectedItem(0))->getNote()), dontSendNotification);
     noteNumberLabel->setText("Note: ", dontSendNotification);
     noteName->setText(noteNames[(zone->getSelectedItem(0))->getNote()], dontSendNotification);
+    velocityLabel->setText("Velocity: ", dontSendNotification);
+    velocityMin->setText(String(zone->getSelectedItem(0)->getVelocity().first), dontSendNotification);
+    velocityMax->setText(String(zone->getSelectedItem(0)->getVelocity().second), dontSendNotification);
 }
 
 void ZoneInfo::resize(){

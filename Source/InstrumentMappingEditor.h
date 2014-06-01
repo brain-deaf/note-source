@@ -48,6 +48,7 @@ public:
             void setY(int y){_y = y;}
             int getX(){return _x;}
             int getY(){return _y;}
+            std::pair<int, int>& getVelocity(){return velocity;}
             int getNote(){return _note;}
             void setHeight(int h){_height = h;}
             int getHeight(){return _height;}

@@ -22,6 +22,9 @@ class ZoneInfo : public Component, public ChangeListener, public Label::Listener
     ScopedPointer<Label> noteNumber;
     ScopedPointer<Label> noteNumberLabel;
     ScopedPointer<Label> noteName;
+    ScopedPointer<Label> velocityLabel;
+    ScopedPointer<Label> velocityMin;
+    ScopedPointer<Label> velocityMax;
     Array<String> noteNames;
 
 public:
