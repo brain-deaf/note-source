@@ -118,6 +118,29 @@ void ZoneInfo::labelTextChanged(Label* source){
     }
     
     if (source == velocityMax){
+        if (velocityMax->getText().containsOnly("1234567890")){
+            int velocity_min = velocityMin->getText().getIntValue();
+            int new_velocity_max = velocityMax->getText().getIntValue();
         
+            if (new_velocity_max > 127){
+                new_velocity_max = 127;
+                velocityMax->setText("127", dontSendNotification);
+            }
+        
+            if (new_velocity_max <= velocity_min){
+                new_velocity_max = velocity_min + 1;
+                velocityMax->setText(String(new_velocity_max), dontSendNotification);
+            }
+            z->getVelocity().second = new_velocity_max;
+        
+            float y_per_velocity = mappingEditor->graph->getHeight() / 128;
+            int new_y = (128 - new_velocity_max) * y_per_velocity;
+        
+            z->setHeight((new_velocity_max - velocity_min) * y_per_velocity);
+            z->setY(new_y);
+            z->setBounds(z->getX(), new_y, mappingEditor->graph->getWidth() / 128 - 1, z->getHeight());
+        }else{
+            velocityMax->setText(String(z->getVelocity().second), dontSendNotification);
+        }
     }
 }
