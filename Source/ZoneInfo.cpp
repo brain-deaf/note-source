@@ -98,6 +98,26 @@ void ZoneInfo::paint(Graphics& g){
 }
 
 void ZoneInfo::labelTextChanged(Label* source){
-
-}
+    auto z = zone->getSelectedItem(0);
     
+    if (source == noteNumber){
+        int new_note = noteNumber->getText().getIntValue();
+        int grid_outline = 1;
+        z->setNote(new_note);
+        z->setX(new_note * mappingEditor->graph->getWidth() / mappingEditor->graph->getNumColumns() + grid_outline);
+        z->setTopLeftPosition(z->getX(), z->getY());
+        mappingEditor->graph->getZoneInfoSet().changed();
+    }
+    
+    if (source == velocityMin){
+        int new_velocity_min = velocityMin->getText().getIntValue();
+        int y = mappingEditor->graph->getHeight() / 128 * (128 - new_velocity_min);
+        int new_height = y - z->getY();
+        z->setHeight(new_height);
+        z->setSize(mappingEditor->graph->getWidth() / 128 - 1, z->getHeight());
+    }
+    
+    if (source == velocityMax){
+        
+    }
+}

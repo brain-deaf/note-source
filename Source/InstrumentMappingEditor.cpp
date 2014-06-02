@@ -219,7 +219,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     if (draggedZone != nullptr){
         auto cursor = draggedZone->getMouseCursor();
         if (cursor == MouseCursor::NormalCursor){
-            if (/*set.getItemArray().size() > 0*/ lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
+            if (lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
                 for (auto i : lassoSource.getLassoSelection()){
                     int newY = getMouseXYRelative().getY() - startDragY;
                     if (i->getY() + newY + i->getHeight() > height){
