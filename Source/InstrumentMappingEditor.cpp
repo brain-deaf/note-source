@@ -166,6 +166,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
         c.setBounds(c.getX(), newY, gridWidth - gridOutline, c.getHeight());
         c.getVelocity().first = (int)((getHeight() - (newY + c.getHeight())) / (getHeight() / 128));
         c.getVelocity().second = (int)((getHeight() - newY) / (getHeight() / 128));
+        if (c.getVelocity().second > 127){c.getVelocity().second = 127;}
     }
 
     else if (cursor == MouseCursor::TopEdgeResizeCursor) {
@@ -178,6 +179,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
         }
         c.setBounds(c.getX(), newY, gridWidth - gridOutline, newHeight);
         c.getVelocity().second = (int)((getHeight() - newY) / (getHeight() / 128));
+        if (c.getVelocity().second > 127){c.getVelocity().second = 127;}
     }
     else if (cursor == MouseCursor::BottomEdgeResizeCursor){
         int y = getMouseXYRelative().getY();
