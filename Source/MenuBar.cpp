@@ -10,8 +10,8 @@
 #include <stdexcept>
 #include "MenuBar.h"
 
-MenuBar::MenuBar(InstrumentBin *) : menuBar{this}, file{}, view{}, edit{},
-    audioSettingsWindow{nullptr}, parent{nullptr} {
+MenuBar::MenuBar(InstrumentBin * i) : menuBar{this}, file{}, view{}, edit{},
+    audioSettingsWindow{nullptr}, parent{i} {
     addAndMakeVisible(menuBar);
     
     file.addItem(ID_New, "New Instrument");
