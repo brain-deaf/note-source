@@ -101,20 +101,44 @@ void ZoneInfo::labelTextChanged(Label* source){
     auto z = zone->getSelectedItem(0);
     
     if (source == noteNumber){
-        int new_note = noteNumber->getText().getIntValue();
-        int grid_outline = 1;
-        z->setNote(new_note);
-        z->setX(new_note * mappingEditor->graph->getWidth() / mappingEditor->graph->getNumColumns() + grid_outline);
-        z->setTopLeftPosition(z->getX(), z->getY());
-        mappingEditor->graph->getZoneInfoSet().changed();
+        if (noteNumber->getText().containsOnly("1234567890")){
+            int new_note = noteNumber->getText().getIntValue();
+            int grid_outline = 1;
+            
+            if (new_note > 127){new_note = 127;}
+            if (new_note < 0){new_note = 0;}
+            
+            z->setNote(new_note);
+            z->setX(new_note * mappingEditor->graph->getWidth() / mappingEditor->graph->getNumColumns() + grid_outline);
+            z->setTopLeftPosition(z->getX(), z->getY());
+            mappingEditor->graph->getZoneInfoSet().changed();
+        }else{
+            noteNumber->setText(String(z->getNote()), dontSendNotification);
+        }
     }
     
     if (source == velocityMin){
-        int new_velocity_min = velocityMin->getText().getIntValue();
-        int y = mappingEditor->graph->getHeight() / 128 * (128 - new_velocity_min);
-        int new_height = y - z->getY();
-        z->setHeight(new_height);
-        z->setSize(mappingEditor->graph->getWidth() / 128 - 1, z->getHeight());
+        if (velocityMax->getText().containsOnly("1234567890")){
+            int new_velocity_min = velocityMin->getText().getIntValue();
+            int velocity_max = velocityMax->getText().getIntValue();
+            
+            if (new_velocity_min < 0){
+                new_velocity_min = 0;
+                velocityMin->setText("0", dontSendNotification);
+            }
+            else if (new_velocity_min >= velocity_max){
+                new_velocity_min = velocity_max - 1;
+                velocityMin->setText(String(new_velocity_min), dontSendNotification);
+            }
+            z->getVelocity().first = new_velocity_min;
+            
+            int y = mappingEditor->graph->getHeight() / 128 * (128 - new_velocity_min);
+            int new_height = y - z->getY();
+            z->setHeight(new_height);
+            z->setSize(mappingEditor->graph->getWidth() / 128 - 1, z->getHeight());
+        }else{
+            velocityMin->setText(String(z->getVelocity().first), dontSendNotification);
+        }
     }
     
     if (source == velocityMax){
@@ -127,7 +151,7 @@ void ZoneInfo::labelTextChanged(Label* source){
                 velocityMax->setText("127", dontSendNotification);
             }
         
-            if (new_velocity_max <= velocity_min){
+            else if (new_velocity_max <= velocity_min){
                 new_velocity_max = velocity_min + 1;
                 velocityMax->setText(String(new_velocity_max), dontSendNotification);
             }
