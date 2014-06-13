@@ -20,7 +20,7 @@ InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, In
 :   Viewport{componentName},graph{new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i)},
     instrument(i)
 {
-    setViewedComponent(graph);
+    setViewedComponent(graph); 
 }
 
 
@@ -32,7 +32,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     numColumns(nc), draggedZone(nullptr), dragging(false), 
     lasso(),lassoSource(this), instrument(i), midiCallback(this), 
     keyboardState(), 
-    keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard) 
+    keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
     keyboardState.addListener(this);
     addAndMakeVisible(&keyboard);
@@ -40,6 +40,9 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     dm->addMidiInputCallback("",&midiCallback);
     setBounds(0, 0, getWidth(), getHeight() + getKeyboardHeight());
     notesHeld.addChangeListener(this);
+    
+    groups.add(new Group());
+    groups[0]->setZones(&zones);
 }
 
 void MappingEditorGraph::buttonClicked(Button *){}

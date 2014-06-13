@@ -70,6 +70,21 @@ public:
             std::pair<int, int> velocity;
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Zone)
         };
+        
+        class Group
+        {
+            public:
+                Group(){name = "New Group";}
+                Array<Zone::Ptr>* getZones(){return zones;}
+                void setZones(Array<Zone::Ptr>* _zones){zones = _zones;}
+                String getName(){return name;}
+                void setName(String s){name = s;}
+            private:
+                Array<Zone::Ptr>* zones;
+                String name;
+        };
+        
+        //class GroupViewItem : public TreeViewItem
 
         template <class SelectableItemType>
         class MappingLasso: public LassoSource<SelectableItemType>, public ChangeListener
@@ -146,6 +161,7 @@ public:
         void filesDropped(const StringArray& files, int x, int y);
         bool isInterestedInFileDrag(const StringArray& files){return true;}
         Array<Zone::Ptr> getZones(){return zones;}
+        Array<Group*> getGroups(){return groups;}
 
         SelectedItemSet<Zone::Ptr>& getZoneInfoSet()
             { return zoneInfoSet;}
@@ -174,6 +190,7 @@ public:
         MidiKeyboardComponent keyboard;
         SelectedItemSet<int> notesHeld;
         Array<Zone::Ptr> zones;
+        Array<Group*> groups;
         LassoComponent<Zone::Ptr> lasso;
         MappingLasso<Zone::Ptr> lassoSource;
         Zone::Ptr draggedZone;
