@@ -16,17 +16,21 @@
 class GroupBoxModel : public ListBoxModel
 {
 public:
-    int getNumRows(){std::cout<<"get num rows"<<std::endl;return 20;}
+    int getNumRows(){return 1;}
     void paintListBoxItem(int rowNumber, Graphics& g, int w, int h, bool rowIsSelected);
+    String* _group_names;
+private:
+    
 };
 
-class GroupEditor : public Component
+class GroupEditor : public Component, public Label::Listener
 {
 public:
     GroupEditor(int w, int h);
-    ~GroupEditor(){delete model; model = nullptr; delete list_box; list_box = nullptr;}
+    ~GroupEditor();
     void paint(Graphics& g);
     void resized();
+    void labelTextChanged(Label* source);
     
     int getWidth(){return width;}
     int getHeight(){return height;}
@@ -37,9 +41,14 @@ private:
     int width;
     int height;
     int row_height;
+    int header_height;
+    Label* group_name_lbl;
+    Label* group_number_lbl;
+    Label* group_name;
+    Label* group_number;
     GroupBoxModel* model;
     ListBox* list_box;
-    
+    StringArray group_names;
 };
 
 
