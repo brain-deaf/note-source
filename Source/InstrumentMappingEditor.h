@@ -14,10 +14,11 @@
 #include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FilePlayer.h"
+#include "GroupEditor.h"
 
 class InstrumentComponent;
 
-class InstrumentMappingEditor : public Viewport
+class InstrumentMappingEditor : public Component
 {
 public:
     class MappingEditorGraph : public Component,
@@ -199,7 +200,10 @@ public:
     };
     InstrumentMappingEditor(const String& componentName,
         InstrumentComponent& i);
+    ~InstrumentMappingEditor();
     ScopedPointer<MappingEditorGraph> graph;
+    Viewport* view_port;
+    GroupEditor* group_editor;
 private:
     InstrumentComponent& instrument;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMappingEditor)

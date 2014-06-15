@@ -5,8 +5,10 @@
               jucerVersion="3.1.0">
   <MAINGROUP id="mDmDtX" name="Note">
     <GROUP id="{E7B5BC5B-0EE2-6069-3A31-101A9563FA74}" name="Source"/>
-    <FILE id="FyGNFr" name="FilePlayer.cpp" compile="1" resource="0" file="Source/FilePlayer.cpp"/>
     <FILE id="WxDBZI" name="FilePlayer.h" compile="0" resource="0" file="Source/FilePlayer.h"/>
+    <FILE id="FyGNFr" name="FilePlayer.cpp" compile="1" resource="0" file="Source/FilePlayer.cpp"/>
+    <FILE id="svnQ4F" name="GroupEditor.h" compile="0" resource="0" file="Source/GroupEditor.h"/>
+    <FILE id="JQUHE4" name="GroupEditor.cpp" compile="1" resource="0" file="Source/GroupEditor.cpp"/>
     <FILE id="fHyPhe" name="MainPage.h" compile="0" resource="0" file="Source/MainPage.h"/>
     <FILE id="ZwQmOr" name="MainPage.cpp" compile="1" resource="0" file="Source/MainPage.cpp"/>
     <FILE id="rYr79s" name="InstrumentBin.h" compile="0" resource="0" file="Source/InstrumentBin.h"/>

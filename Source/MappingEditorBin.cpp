@@ -13,6 +13,7 @@ MappingEditorBin::MappingEditorBin(InstrumentComponent& instrument) : Component{
     mapping_editor{std::make_shared<InstrumentMappingEditor>("",instrument)}, 
     zone_info{mapping_editor}, mapping_editor_height{435} {
     addAndMakeVisible(*mapping_editor);
+    mapping_editor->setBounds(0, getHeight() - mapping_editor_height, getWidth(), mapping_editor_height);
     addAndMakeVisible(zone_info);
 }
 

@@ -11,16 +11,31 @@
 #include "InstrumentComponent.h"
 #include "InstrumentMappingEditor.h"
 
+
 class BadFormatException : public std::runtime_error{
 public:
     BadFormatException(String s) : std::runtime_error(s.toStdString()){}
 };
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, InstrumentComponent& i)
-:   Viewport{componentName},graph{new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i)},
-    instrument(i)
+:   Component(), graph{new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i)},
+    instrument(i), view_port(new Viewport(componentName))
 {
-    setViewedComponent(graph); 
+    view_port->setViewedComponent(graph);
+    int group_editor_width = 200;
+    view_port->setBounds(group_editor_width, 0, 1000 - group_editor_width, 333 + 100);
+    
+    group_editor = new GroupEditor(group_editor_width, 333 + 100);
+    group_editor->setBounds(0, 0, group_editor_width, 333 + 100);
+    addAndMakeVisible(view_port);
+    addAndMakeVisible(group_editor);
+}
+
+InstrumentMappingEditor::~InstrumentMappingEditor(){
+    delete view_port;
+    view_port = nullptr;
+    delete group_editor;
+    group_editor = nullptr;
 }
 
 
