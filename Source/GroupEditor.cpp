@@ -11,13 +11,14 @@
 #include "GroupEditor.h"
 
 GroupEditor::GroupEditor(int w, int h) : Component(), width(w), height(h), row_height(30),
-    header_height(50), model(new GroupBoxModel()), list_box(new ListBox("list box", nullptr)),
+    header_height(50), footer_height(25), model(new GroupBoxModel()), list_box(new ListBox("list box", nullptr)),
     group_name_lbl(new Label("")), group_number_lbl(new Label("")),
-    group_name(new Label("")), group_number(new Label("")){
+    group_name(new Label("")), group_number(new Label("")),
+    create_group_button(new TextButton("Create Group")), delete_group_button(new TextButton("Delete Group")){
     setBounds(0, 0, w, h);
     
     addAndMakeVisible(list_box);
-    list_box->setBounds(0, header_height, w, h-header_height);
+    list_box->setBounds(0, header_height, w, h-header_height - footer_height);
     list_box->setModel(model);
     list_box->setMultipleSelectionEnabled(true);
     
@@ -32,7 +33,7 @@ GroupEditor::GroupEditor(int w, int h) : Component(), width(w), height(h), row_h
     addAndMakeVisible(group_number_lbl);
     
     group_name->setBounds(72, 3, 125, 20);
-    group_name->setText("Master Group", dontSendNotification);
+    group_name->setText("New Group", dontSendNotification);
     group_name->setFont(Font(12.0f));
     group_name->setEditable(false, true, true);
     group_name->addListener(this);
@@ -43,9 +44,16 @@ GroupEditor::GroupEditor(int w, int h) : Component(), width(w), height(h), row_h
     group_number->setFont(Font(12.0f));
     addAndMakeVisible(group_number);
     
-    group_names.add(group_name->getText());
+    model->addGroupName(group_name->getText());
+    model->setListBox(list_box);
+    model->setParent(this);
     
-    model->_group_names = group_names.begin();
+    addAndMakeVisible(create_group_button);
+    create_group_button->addListener(this);
+    create_group_button->setBounds(3, height - footer_height + 3, 80, 20);
+    addAndMakeVisible(delete_group_button);
+    delete_group_button->addListener(this);
+    delete_group_button->setBounds(86, height - footer_height + 3, 80, 20);
 }
 
 GroupEditor::~GroupEditor(){
@@ -57,12 +65,17 @@ GroupEditor::~GroupEditor(){
     group_name_lbl = nullptr;
     delete group_number_lbl;
     group_number_lbl = nullptr;
+    delete create_group_button;
+    create_group_button = nullptr;
+    delete delete_group_button;
+    delete_group_button = nullptr;
 }
 
 void GroupEditor::paint(Graphics& g){
     g.fillAll(Colours::white);
     g.setColour(Colours::lightgrey);
     g.fillRect(0, 1, width, header_height);
+    g.fillRect(0, height - footer_height, width, height);
     g.setColour(Colours::black);
     g.setOpacity(1.0f);
     Path myPath;
@@ -70,15 +83,32 @@ void GroupEditor::paint(Graphics& g){
     myPath.lineTo(width, 0);
     myPath.startNewSubPath(0.0f, header_height);
     myPath.lineTo(width, header_height);
+    myPath.startNewSubPath(0.0f, height - footer_height);
+    myPath.lineTo(width, height - footer_height);
 
     g.strokePath(myPath, PathStrokeType(1.0f));
 }
 
 void GroupEditor::labelTextChanged(Label* source){
     if (source == group_name){
-        group_names.set(group_number->getText().getIntValue(), source->getText());
+        model->getGroupNames().set(group_number->getText().getIntValue(), source->getText());
         list_box->repaintRow(group_number->getText().getIntValue());
     }
+}
+
+void GroupEditor::updateLabels(String name, int index){
+    group_name->setText(name, dontSendNotification);
+    group_number->setText(String(index), dontSendNotification);
+}
+
+void GroupEditor::buttonClicked(Button* source){
+    if (source == create_group_button){
+        model->incNumRows();
+        list_box->updateContent();
+        list_box->repaintRow(model->getNumRows());
+        model->addGroupName("New Group");
+    }
+    else if (source == delete_group_button){}
 }
 
 void GroupBoxModel::paintListBoxItem(int rowNumber, Graphics& g, int w, int h, bool rowIsSelected){
@@ -87,7 +117,11 @@ void GroupBoxModel::paintListBoxItem(int rowNumber, Graphics& g, int w, int h, b
     }else{
         g.fillAll(Colours::white);
     }
-    g.drawText(*(_group_names + rowNumber), 5, 0, w, h, Justification::centredLeft, true);
+    g.drawText(group_names[rowNumber], 5, 0, w, h, Justification::centredLeft, true);
+}
+
+void GroupBoxModel::selectedRowsChanged(int row){
+    parent->updateLabels(group_names[row], row);
 }
 
 void GroupEditor::resized(){
