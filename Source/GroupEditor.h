@@ -20,6 +20,7 @@ public:
     GroupBoxModel(){num_rows = 1;}
     int getNumRows(){return num_rows;}
     void incNumRows(){num_rows++;}
+    void decNumRows(){num_rows--;}
     void paintListBoxItem(int rowNumber, Graphics& g, int w, int h, bool rowIsSelected);
     void selectedRowsChanged(int row);
     
@@ -64,6 +65,7 @@ private:
     ListBox* list_box;
     TextButton* create_group_button;
     TextButton* delete_group_button;
+    String temp;
 };
 
 

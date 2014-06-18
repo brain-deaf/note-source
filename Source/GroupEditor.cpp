@@ -13,7 +13,7 @@
 GroupEditor::GroupEditor(int w, int h) : Component(), width(w), height(h), row_height(30),
     header_height(50), footer_height(25), model(new GroupBoxModel()), list_box(new ListBox("list box", nullptr)),
     group_name_lbl(new Label("")), group_number_lbl(new Label("")),
-    group_name(new Label("")), group_number(new Label("")),
+    group_name(new Label("")), group_number(new Label("")), temp("123lkj"),
     create_group_button(new TextButton("Create Group")), delete_group_button(new TextButton("Delete Group")){
     setBounds(0, 0, w, h);
     
@@ -108,7 +108,20 @@ void GroupEditor::buttonClicked(Button* source){
         list_box->repaintRow(model->getNumRows());
         model->addGroupName("New Group");
     }
-    else if (source == delete_group_button){}
+    else if (source == delete_group_button){
+        SparseSet<int> s = list_box->getSelectedRows();
+        for (int i=0; i<s.size(); i++){
+            model->getGroupNames().set(s[i], temp);
+        }
+        for (int i=s.size()-1; i>=0; i--){
+            model->getGroupNames().remove(s[i]);
+            model->decNumRows();
+        }
+        list_box->updateContent();
+        for (int i=0; i<model->getNumRows(); i++){
+            list_box->repaintRow(i);
+        }
+    }
 }
 
 void GroupBoxModel::paintListBoxItem(int rowNumber, Graphics& g, int w, int h, bool rowIsSelected){
