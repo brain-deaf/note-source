@@ -75,7 +75,10 @@ public:
         class Group
         {
             public:
-                Group(){name = "New Group";}
+                Group(){
+                    name = "New Group"; 
+                    zones = new Array<Zone::Ptr>();
+                }
                 Array<Zone::Ptr>* getZones(){return zones;}
                 void setZones(Array<Zone::Ptr>* _zones){zones = _zones;}
                 String getName(){return name;}
@@ -160,7 +163,7 @@ public:
         void mouseUp(const MouseEvent& event);
         void mouseDown(const MouseEvent& event);
         void filesDropped(const StringArray& files, int x, int y);
-        void updateZones(){std::cout<<"updating zones"<<std::endl;}
+        void updateZones();
         bool isInterestedInFileDrag(const StringArray& files){return true;}
         Array<Zone::Ptr> getZones(){return zones;}
         Array<Group*> getGroups(){return groups;}

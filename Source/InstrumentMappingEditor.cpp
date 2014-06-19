@@ -60,7 +60,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     notesHeld.addChangeListener(this);
     
     groups.add(new Group());
-    groups[0]->setZones(&zones);
+    //groups[0]->setZones(&zones);
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
@@ -71,10 +71,28 @@ void MappingEditorGraph::buttonClicked(Button* source){
         SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
         for (int i=s.size()-1; i>=0; i--){
             std::cout<<"remove selected groups!"<<std::endl;
+            delete groups[s[i]];
             groups.remove(s[i]);
         }
     }
 }
+
+void MappingEditorGraph::updateZones(){
+    for (int i=0; i<groups.size(); i++){
+        for (int j=0; j<zones.size(); j++){
+            zones[j]->setVisible(false);
+        }
+    }
+    SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+    for (int i=0; i<s.size(); i++){
+        if (groups[s[i]]->getZones() != nullptr && groups[s[i]]->getZones()->size() > 0){
+            for (int j=0; j<groups[s[i]]->getZones()->size(); j++){
+                (*(groups[s[i]]->getZones()))[j]->setVisible(true);
+            }
+        }
+    }
+}
+    
 void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
     (MidiInput* source, const MidiMessage& message) 
 {
@@ -152,7 +170,7 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
         
         SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
         for (int i=0; i<s.size(); i++){
-            std::cout<<"add zone to selected group!"<<std::endl;
+            groups[s[i]]->getZones()->add(newZone);
         }
 
         newZone->removeListener(this);
