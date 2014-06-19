@@ -12,6 +12,8 @@
 #define GROUPEDITOR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+
+class InstrumentMappingEditor;
 class GroupEditor;
 
 class GroupBoxModel : public ListBoxModel
@@ -27,6 +29,7 @@ public:
     void addGroupName(String s){group_names.add(s);}
     StringArray& getGroupNames(){return group_names;}
     void setListBox(ListBox* l){_list_box = l;}
+    ListBox* getListBox(){return _list_box;}
     void setParent(GroupEditor* g){parent = g;}
 private:
     int num_rows;
@@ -38,7 +41,7 @@ private:
 class GroupEditor : public Component, public Label::Listener, public Button::Listener
 {
 public:
-    GroupEditor(int w, int h);
+    GroupEditor(int w, int h, InstrumentMappingEditor* m);
     ~GroupEditor();
     void paint(Graphics& g);
     void resized();
@@ -50,6 +53,10 @@ public:
     int getHeight(){return height;}
     int getRowHeight(){return row_height;}
     GroupBoxModel* getModel(){return model;}
+    ListBox* getListBox(){return list_box;}
+    TextButton* getCreateGroupButton(){return create_group_button;}
+    TextButton* getDeleteGroupButton(){return delete_group_button;}
+    InstrumentMappingEditor* getMappingEditor(){return mapping_editor;}
     
 private:
     int width;
@@ -65,6 +72,7 @@ private:
     ListBox* list_box;
     TextButton* create_group_button;
     TextButton* delete_group_button;
+    InstrumentMappingEditor* mapping_editor;
     String temp;
 };
 

@@ -145,7 +145,7 @@ public:
             }
         };
 
-        MappingEditorGraph(float,float,float,int,InstrumentComponent&);
+        MappingEditorGraph(float,float,float,int,InstrumentComponent&, GroupEditor*);
         void changeListenerCallback(ChangeBroadcaster* source){repaint();};
         void setBoundsForComponent(Zone& z, MouseCursor cursor,
             float grid_outline, float gridWidth, int gridXOffset);
@@ -160,6 +160,7 @@ public:
         void mouseUp(const MouseEvent& event);
         void mouseDown(const MouseEvent& event);
         void filesDropped(const StringArray& files, int x, int y);
+        void updateZones(){std::cout<<"updating zones"<<std::endl;}
         bool isInterestedInFileDrag(const StringArray& files){return true;}
         Array<Zone::Ptr> getZones(){return zones;}
         Array<Group*> getGroups(){return groups;}
@@ -177,6 +178,7 @@ public:
         bool isDragging(){return dragging;}
         SelectedItemSet<int>& getNotesHeld() { return notesHeld;}
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
+        GroupEditor* getGroupEditor(){return group_editor;}
 
     private:
         float width;
@@ -196,6 +198,7 @@ public:
         MappingLasso<Zone::Ptr> lassoSource;
         Zone::Ptr draggedZone;
         SelectedItemSet<Zone::Ptr> zoneInfoSet;
+        GroupEditor* group_editor;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingEditorGraph)
     };
     InstrumentMappingEditor(const String& componentName,

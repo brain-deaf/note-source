@@ -18,15 +18,18 @@ public:
 };
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, InstrumentComponent& i)
-:   Component(), graph{new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i)},
+:   Component(), group_editor(new GroupEditor(200, 333 + 100, this)), 
     instrument(i), view_port(new Viewport(componentName))
 {
+    graph = new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i, group_editor);
     view_port->setViewedComponent(graph);
     int group_editor_width = 200;
     view_port->setBounds(group_editor_width, 0, 1000 - group_editor_width, 333 + 100);
     
-    group_editor = new GroupEditor(group_editor_width, 333 + 100);
+    group_editor->getCreateGroupButton()->addListener(graph);
+    group_editor->getDeleteGroupButton()->addListener(graph);
     group_editor->setBounds(0, 0, group_editor_width, 333 + 100);
+    group_editor->getModel();
     addAndMakeVisible(view_port);
     addAndMakeVisible(group_editor);
 }
@@ -42,8 +45,8 @@ InstrumentMappingEditor::~InstrumentMappingEditor(){
 typedef InstrumentMappingEditor::MappingEditorGraph MappingEditorGraph;
 
 MappingEditorGraph::MappingEditorGraph(float w, float h,
-    float kh, int nc, InstrumentComponent& i)
-: Component(), width(w), height(h), keyboardHeight(kh),
+    float kh, int nc, InstrumentComponent& i, GroupEditor* g)
+: Component(), width(w), height(h), keyboardHeight(kh), group_editor(g),
     numColumns(nc), draggedZone(nullptr), dragging(false), 
     lasso(),lassoSource(this), instrument(i), midiCallback(this), 
     keyboardState(), 
@@ -60,7 +63,18 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     groups[0]->setZones(&zones);
 }
 
-void MappingEditorGraph::buttonClicked(Button *){}
+void MappingEditorGraph::buttonClicked(Button* source){
+    if (source == group_editor->getCreateGroupButton()){
+        groups.add(new Group());
+    }
+    else if (source == group_editor->getDeleteGroupButton()){
+        SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+        for (int i=s.size()-1; i>=0; i--){
+            std::cout<<"remove selected groups!"<<std::endl;
+            groups.remove(s[i]);
+        }
+    }
+}
 void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
     (MidiInput* source, const MidiMessage& message) 
 {
@@ -135,6 +149,11 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
             continue;
         }  
         zones.add(newZone);
+        
+        SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+        for (int i=0; i<s.size(); i++){
+            std::cout<<"add zone to selected group!"<<std::endl;
+        }
 
         newZone->removeListener(this);
         newZone->addListener(this);
