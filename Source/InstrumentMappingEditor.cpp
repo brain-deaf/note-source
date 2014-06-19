@@ -60,7 +60,6 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     notesHeld.addChangeListener(this);
     
     groups.add(new Group());
-    //groups[0]->setZones(&zones);
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
@@ -83,11 +82,13 @@ void MappingEditorGraph::updateZones(){
             zones[j]->setVisible(false);
         }
     }
+    lassoSource.getZones().clear();
     SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
     for (int i=0; i<s.size(); i++){
         if (groups[s[i]]->getZones() != nullptr && groups[s[i]]->getZones()->size() > 0){
             for (int j=0; j<groups[s[i]]->getZones()->size(); j++){
                 (*(groups[s[i]]->getZones()))[j]->setVisible(true);
+                lassoSource.getZones().add((*(groups[s[i]]->getZones()))[j]);
             }
         }
     }
