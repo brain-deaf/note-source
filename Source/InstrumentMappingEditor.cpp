@@ -119,6 +119,13 @@ void MappingEditorGraph::resized()
 
 void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
     notesHeld.addToSelection(midiNoteNumber);
+    
+    for (auto zone : zones){
+        if (zone->getNote() == midiNoteNumber){
+            FilePlayer* f = new FilePlayer(zone->getName());
+            f->changeState(FilePlayer::TransportState::Starting);
+        }
+    }
 }
 
 void MappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){
@@ -376,7 +383,7 @@ typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
 Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent& i) 
     : TextButton{""}, parent{p}, instrument(i),
-    filePlayer(std::make_shared<FilePlayer>(sampleName)),
+    filePlayer(new FilePlayer(sampleName)),
     name(sampleName)  {
     instrument.addFilePlayer(filePlayer);
     setAlpha(0.5f);

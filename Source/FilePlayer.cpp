@@ -32,7 +32,7 @@ FilePlayer::FilePlayer(const String& s): ChangeListener{},
     }else{
         readerSource = new AudioFormatReaderSource (r,true);
         transportSource.setSource (readerSource);
-        changeState (Starting);
+        //changeState (Starting);
     }
 }
 FilePlayer::~FilePlayer() {
@@ -55,6 +55,7 @@ void FilePlayer::changeListenerCallback (ChangeBroadcaster* src) {
         } else {
             if ((Stopping == state) || (Playing == state)) {
                 changeState (Stopped);
+                delete this;
             }
             else if (Pausing == state) {
                 changeState (Paused);
