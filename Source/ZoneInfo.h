@@ -14,6 +14,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentMappingEditor.h"
 
+class WaveformView;
+
 class ZoneInfo : public Component, public ChangeListener, public Label::Listener {
     std::shared_ptr<InstrumentMappingEditor> mappingEditor;
     SelectedItemSet<InstrumentMappingEditor::MappingEditorGraph::Zone::Ptr>* zone;
@@ -26,11 +28,12 @@ class ZoneInfo : public Component, public ChangeListener, public Label::Listener
     ScopedPointer<Label> velocityMin;
     ScopedPointer<Label> velocityMax;
     Array<String> noteNames;
+    WaveformView* audio_thumbnail;
 
 public:
     ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m);
     void labelTextChanged(Label* source);
-
+    WaveformView* getAudioThumbnai(){return audio_thumbnail;}
     void changeListenerCallback(ChangeBroadcaster* source);
     void resize();
     void paint(Graphics& g);

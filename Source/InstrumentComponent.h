@@ -21,13 +21,13 @@ class InstrumentComponent : public Component
 public:
     InstrumentComponent(TabbedComponent* Parent);
     void resized();
-    void addFilePlayer(std::shared_ptr<FilePlayer>);
+    void addFilePlayer(FilePlayer*);
     StringArray& getSampleNames() {return sampleNames;}
 private:
     SharedResourcePointer<AudioDeviceManager> deviceManager;
     AudioSourcePlayer sourcePlayer;
     MixerAudioSource mixer;
-    Array<std::shared_ptr<FilePlayer>> sources;
+    Array<FilePlayer*> sources;
     StringArray sampleNames;
     InstrumentTabWindow tabs;
     InstrumentMasterComponent master;

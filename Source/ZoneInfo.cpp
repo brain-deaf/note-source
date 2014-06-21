@@ -9,11 +9,13 @@
 */
 
 #include "ZoneInfo.h"
+#include "WaveformView.h"
 
 
 
 ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
-    mappingEditor{m}, zone{&m->graph->getZoneInfoSet()} {
+    mappingEditor{m}, zone{&m->graph->getZoneInfoSet()},
+    audio_thumbnail(new WaveformView(400, 100)){
     zone->addChangeListener(this);
     
     fileName = new Label("");
@@ -54,6 +56,9 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
     velocityMax->addListener(this);
     addAndMakeVisible(velocityMax);
     
+    audio_thumbnail->setBounds(500, 25, audio_thumbnail->get_width(), audio_thumbnail->get_height());
+    addAndMakeVisible(audio_thumbnail);
+    
     
     Array<String> noteLetters;
     noteLetters.add("C");
@@ -75,6 +80,7 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
 }
 
 void ZoneInfo::changeListenerCallback(ChangeBroadcaster* source){
+    audio_thumbnail->updateWaveformForFilePlayer((zone->getSelectedItem(0)->getFilePlayer()));
     fileName->setText((zone->getSelectedItem(0))->getName(), dontSendNotification);
     fileNameLabel->setText("Sample: ", dontSendNotification);
     noteNumber->setText(String((zone->getSelectedItem(0))->getNote()), dontSendNotification);
@@ -91,6 +97,7 @@ void ZoneInfo::resize(){
     noteNumber->setBounds(80, 30, 30, 20);
     noteNumberLabel->setBounds(5, 30, 70, 20);
     noteName->setBounds(110, 30, 40, 20);
+    audio_thumbnail->setBounds(300, 50, audio_thumbnail->getWidth(), audio_thumbnail->getHeight());
 }
 
 void ZoneInfo::paint(Graphics& g){

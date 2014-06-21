@@ -411,5 +411,5 @@ void Zone::mouseMove(const MouseEvent& e) {
 }
 
 void Zone::mouseDoubleClick(const MouseEvent& e){
-    filePlayer->toggleState();
+    //filePlayer->toggleState();
 }

@@ -23,7 +23,7 @@ void InstrumentComponent::resized(){
     tabs.setBounds(0, 80, getWidth(), getHeight() - 80);
     master.setBounds(0, 0, getWidth(), 80);
 }
-void InstrumentComponent::addFilePlayer(std::shared_ptr<FilePlayer> p) {
+void InstrumentComponent::addFilePlayer(FilePlayer* p) {
     sources.add(p);
     sampleNames.add(p->getSampleName());
 }

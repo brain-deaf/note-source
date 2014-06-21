@@ -56,12 +56,12 @@ public:
             void mouseDown(const MouseEvent& event);
             void mouseMove(const MouseEvent& event);
             void mouseDoubleClick(const MouseEvent& event);
-            std::shared_ptr<FilePlayer> getFilePlayer(){return filePlayer;}
+            FilePlayer* getFilePlayer(){return filePlayer;}
             typedef ReferenceCountedObjectPtr<Zone> Ptr;
         private:
             MappingEditorGraph * parent;
             InstrumentComponent& instrument;
-            std::shared_ptr<FilePlayer> filePlayer;
+            FilePlayer* filePlayer;
             int _x;
             int _y;
             int _height;
