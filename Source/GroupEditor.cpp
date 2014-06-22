@@ -24,6 +24,7 @@ GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component()
     list_box->setModel(model);
     list_box->setMultipleSelectionEnabled(true);
     
+    
     group_name_lbl->setBounds(2, 3, 80, 20);
     group_name_lbl->setText("Group Name ", dontSendNotification);
     group_name_lbl->setFont(Font(12.0f));
@@ -56,6 +57,8 @@ GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component()
     addAndMakeVisible(delete_group_button);
     delete_group_button->addListener(this);
     delete_group_button->setBounds(86, height - footer_height + 3, 80, 20);
+    
+    list_box->selectRow(0);
 }
 
 GroupEditor::~GroupEditor(){

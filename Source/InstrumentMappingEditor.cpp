@@ -18,10 +18,11 @@ public:
 };
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, InstrumentComponent& i)
-:   Component(), group_editor(new GroupEditor(200, 333 + 100, this)), 
-    instrument(i), view_port(new Viewport(componentName))
+:   Component(), instrument(i), view_port(new Viewport(componentName)),
+    graph(new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i, group_editor)),
+    group_editor(new GroupEditor(200, 333 + 100, this))
 {
-    graph = new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i, group_editor);
+    graph->getGroupEditor() = group_editor;
     view_port->setViewedComponent(graph);
     int group_editor_width = 200;
     view_port->setBounds(group_editor_width, 0, 1000 - group_editor_width, 333 + 100);
@@ -49,7 +50,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
 : Component(), width(w), height(h), keyboardHeight(kh), group_editor(g),
     numColumns(nc), draggedZone(nullptr), dragging(false), 
     lasso(),lassoSource(this), instrument(i), midiCallback(this), 
-    keyboardState(), 
+    keyboardState(), zones(),
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
     keyboardState.addListener(this);
@@ -63,13 +64,13 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
+    std::cout<<group_editor<<std::endl;
     if (source == group_editor->getCreateGroupButton()){
         groups.add(new Group());
     }
     else if (source == group_editor->getDeleteGroupButton()){
         SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
         for (int i=s.size()-1; i>=0; i--){
-            std::cout<<"remove selected groups!"<<std::endl;
             delete groups[s[i]];
             groups.remove(s[i]);
         }
@@ -77,18 +78,20 @@ void MappingEditorGraph::buttonClicked(Button* source){
 }
 
 void MappingEditorGraph::updateZones(){
-    for (int i=0; i<groups.size(); i++){
-        for (int j=0; j<zones.size(); j++){
-            zones[j]->setVisible(false);
+    if (zones.size() > 0){
+        for (int i=0; i<groups.size(); i++){
+            for (int j=0; j<zones.size(); j++){
+                zones[j]->setVisible(false);
+            }
         }
-    }
-    lassoSource.getZones().clear();
-    SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
-    for (int i=0; i<s.size(); i++){
-        if (groups[s[i]]->getZones() != nullptr && groups[s[i]]->getZones()->size() > 0){
-            for (int j=0; j<groups[s[i]]->getZones()->size(); j++){
-                (*(groups[s[i]]->getZones()))[j]->setVisible(true);
-                lassoSource.getZones().add((*(groups[s[i]]->getZones()))[j]);
+        lassoSource.getZones().clear();
+        SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+        for (int i=0; i<s.size(); i++){
+            if (groups[s[i]]->getZones() != nullptr && groups[s[i]]->getZones()->size() > 0){
+                for (int j=0; j<groups[s[i]]->getZones()->size(); j++){
+                    (*(groups[s[i]]->getZones()))[j]->setVisible(true);
+                    lassoSource.getZones().add((*(groups[s[i]]->getZones()))[j]);
+                }
             }
         }
     }
@@ -100,6 +103,16 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
     if (message.isNoteOn()) 
     {
         parent->getNotesHeld().addToSelection(message.getNoteNumber());
+        for (auto zone : parent->zones){
+            if (zone->getNote() == message.getNoteNumber()){
+                if (zone->getFilePlayer()->getState() != FilePlayer::TransportState::Stopped){
+                    zone->getFilePlayer()->changeState(FilePlayer::TransportState::Stopped);
+                }
+                zone->getFilePlayer()->changeState(FilePlayer::TransportState::Starting);
+                //FilePlayer* f = new FilePlayer(zone->getName());
+                //f->changeState(FilePlayer::TransportState::Starting);
+            }
+        }
     }
     if (message.isNoteOff()) 
     {
@@ -119,7 +132,6 @@ void MappingEditorGraph::resized()
 
 void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
     notesHeld.addToSelection(midiNoteNumber);
-    
     for (auto zone : zones){
         if (zone->getNote() == midiNoteNumber){
             FilePlayer* f = new FilePlayer(zone->getName());

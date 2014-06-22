@@ -55,7 +55,7 @@ void FilePlayer::changeListenerCallback (ChangeBroadcaster* src) {
         } else {
             if ((Stopping == state) || (Playing == state)) {
                 changeState (Stopped);
-                delete this;
+                //delete this;
             }
             else if (Pausing == state) {
                 changeState (Paused);

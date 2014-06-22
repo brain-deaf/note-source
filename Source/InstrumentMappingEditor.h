@@ -140,10 +140,6 @@ public:
                             z->setToggleState(false, sendNotification);
                         }
                     }
-                    /*for (auto i : set)
-                    {
-                        i->setToggleState(true, sendNotification);
-                    }*/
                 }
             }
         };
@@ -181,7 +177,7 @@ public:
         bool isDragging(){return dragging;}
         SelectedItemSet<int>& getNotesHeld() { return notesHeld;}
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
-        GroupEditor* getGroupEditor(){return group_editor;}
+        GroupEditor*& getGroupEditor(){return group_editor;}
 
     private:
         float width;
