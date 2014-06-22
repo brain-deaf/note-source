@@ -109,8 +109,6 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
                     zone->getFilePlayer()->changeState(FilePlayer::TransportState::Stopped);
                 }
                 zone->getFilePlayer()->changeState(FilePlayer::TransportState::Starting);
-                //FilePlayer* f = new FilePlayer(zone->getName());
-                //f->changeState(FilePlayer::TransportState::Starting);
             }
         }
     }
