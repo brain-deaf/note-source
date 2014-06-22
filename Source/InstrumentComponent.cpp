@@ -13,7 +13,7 @@
 InstrumentComponent::InstrumentComponent(TabbedComponent* p)
 : Component{}, deviceManager{}, mixer{}, 
     sourcePlayer{}, tabs{*this,TabbedButtonBar::TabsAtBottom},
-        master{parent},parent{p}{
+    parent{p}, master{p}{
    
     addAndMakeVisible(tabs);
     addAndMakeVisible(master);

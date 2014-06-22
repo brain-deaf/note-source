@@ -40,6 +40,9 @@
           file="Source/MappingEditorBin.cpp"/>
     <FILE id="H3OXF4" name="MenuBar.h" compile="0" resource="0" file="Source/MenuBar.h"/>
     <FILE id="NYiBrA" name="MenuBar.cpp" compile="1" resource="0" file="Source/MenuBar.cpp"/>
+    <FILE id="m8jQtt" name="WaveformView.h" compile="0" resource="0" file="Source/WaveformView.h"/>
+    <FILE id="vVHGZO" name="WaveformView.cpp" compile="1" resource="0"
+          file="Source/WaveformView.cpp"/>
     <FILE id="cnkISP" name="ZoneInfo.h" compile="0" resource="0" file="Source/ZoneInfo.h"/>
     <FILE id="kq9689" name="ZoneInfo.cpp" compile="1" resource="0" file="Source/ZoneInfo.cpp"/>
   </MAINGROUP>

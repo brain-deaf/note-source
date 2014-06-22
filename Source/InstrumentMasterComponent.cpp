@@ -13,14 +13,15 @@
 
 InstrumentMasterComponent::InstrumentMasterComponent(TabbedComponent* p)
 : Component{}, parent{p}, 
-    instrumentLabel{"component name", "New Instrument"},
+    instrumentLabel{"component name", "New Instrument", p},
     xButton{"close", Colour(50, 50, 50), Colour(60, 60, 60), 
-        Colour(0, 20, 90)} {
+        Colour(0, 20, 90), parent} {
     instrumentLabel.setEditable(false, true, true);
     instrumentLabel.setJustificationType(Justification::centred);
     addAndMakeVisible(instrumentLabel);
     xButton.addListener(this);
     addAndMakeVisible(xButton);
+    xButton.repaint();
 }
 
 void InstrumentMasterComponent::paint (Graphics& g){
