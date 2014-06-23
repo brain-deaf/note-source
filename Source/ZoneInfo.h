@@ -10,7 +10,7 @@
 
 #ifndef ZONEINFO_H_INCLUDED
 #define ZONEINFO_H_INCLUDED
-
+#include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentMappingEditor.h"
 

@@ -11,7 +11,6 @@
 #ifndef INSTRUMENTMAPPINGEDITOR_H_INCLUDED
 #define INSTRUMENTMAPPINGEDITOR_H_INCLUDED
 
-#include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FilePlayer.h"
 #include "GroupEditor.h"
@@ -203,6 +202,7 @@ public:
     InstrumentMappingEditor(const String& componentName,
         InstrumentComponent& i);
     ~InstrumentMappingEditor();
+    virtual void resized() override;
     ScopedPointer<MappingEditorGraph> graph;
     Viewport* view_port;
     GroupEditor* group_editor;

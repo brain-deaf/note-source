@@ -35,6 +35,12 @@ InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, In
     addAndMakeVisible(group_editor);
 }
 
+void InstrumentMappingEditor::resized() 
+{
+    auto group_editor_width = group_editor->getWidth();
+    view_port->setBounds(group_editor_width,0,getWidth()-group_editor_width, 333+100);
+}
+
 InstrumentMappingEditor::~InstrumentMappingEditor(){
     delete view_port;
     view_port = nullptr;
@@ -49,7 +55,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     float kh, int nc, InstrumentComponent& i, GroupEditor* g)
 : Component(), width(w), height(h), keyboardHeight(kh), group_editor(g),
     numColumns(nc), draggedZone(nullptr), dragging(false), 
-    lasso(),lassoSource(this), instrument(i), midiCallback(this), 
+    lasso(), lassoSource(this), instrument(i), midiCallback(this), 
     keyboardState(), zones(),
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
