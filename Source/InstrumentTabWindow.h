@@ -20,7 +20,7 @@ class InstrumentTabWindow : public TabbedComponent
 {
 public:
     InstrumentTabWindow(InstrumentComponent& instrument, TabbedButtonBar::Orientation orientation);
-    
+    MappingEditorBin* getMappingEditorBin(){return mappingEditor;}
 private:
     ScopedPointer<MainPage> mainPage;
     ScopedPointer<MappingEditorBin> mappingEditor;

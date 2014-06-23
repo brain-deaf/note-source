@@ -30,10 +30,12 @@ public:
         class MidiDeviceCallback : public MidiInputCallback
         {
             MappingEditorGraph* parent;
+            int midi_input_id;
         public:
-            MidiDeviceCallback(MappingEditorGraph * p): parent{p}{}
+            MidiDeviceCallback(MappingEditorGraph * p): parent{p},midi_input_id(-1){}
             void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message);
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiDeviceCallback)
+            void setMidiChannel(int i){midi_input_id = i;}
         };
 
         class Zone : public TextButton,
@@ -177,6 +179,7 @@ public:
         SelectedItemSet<int>& getNotesHeld() { return notesHeld;}
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
         GroupEditor*& getGroupEditor(){return group_editor;}
+        
 
     private:
         float width;
@@ -185,6 +188,7 @@ public:
         int numColumns;
         bool dragging;
         int startDragY;
+        
         InstrumentComponent& instrument;
         MidiDeviceCallback midiCallback;
         MidiKeyboardState keyboardState;

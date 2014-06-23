@@ -21,6 +21,7 @@ class MappingEditorBin : public Component
     int mapping_editor_height;
 public:
     MappingEditorBin(InstrumentComponent& instrument);
+    std::shared_ptr<InstrumentMappingEditor> getMappingEditor(){return mapping_editor;}
     void resized();
 };
 

@@ -23,6 +23,7 @@ public:
     void resized();
     void addFilePlayer(FilePlayer*);
     StringArray& getSampleNames() {return sampleNames;}
+    InstrumentTabWindow& getTabWindow(){return tabs;}
 private:
     SharedResourcePointer<AudioDeviceManager> deviceManager;
     AudioSourcePlayer sourcePlayer;
