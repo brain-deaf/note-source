@@ -50,7 +50,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
 : Component(), width(w), height(h), keyboardHeight(kh), group_editor(g),
     numColumns(nc), draggedZone(nullptr), dragging(false), 
     lasso(),lassoSource(this), instrument(i), midiCallback(this), 
-    keyboardState(), zones(),
+    keyboardState(), zones(), 
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
     keyboardState.addListener(this);
@@ -64,7 +64,6 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
-    std::cout<<group_editor<<std::endl;
     if (source == group_editor->getCreateGroupButton()){
         groups.add(new Group());
     }
@@ -100,23 +99,25 @@ void MappingEditorGraph::updateZones(){
 void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
     (MidiInput* source, const MidiMessage& message) 
 {
-    if (message.isNoteOn()) 
-    {
-        parent->getNotesHeld().addToSelection(message.getNoteNumber());
-        for (auto zone : parent->zones){
-            if (zone->getNote() == message.getNoteNumber()){
-                if (zone->getFilePlayer()->getState() != FilePlayer::TransportState::Stopped){
-                    zone->getFilePlayer()->changeState(FilePlayer::TransportState::Stopped);
+    if (message.getChannel() == midi_input_id || midi_input_id== -1){
+        if (message.isNoteOn()) 
+        {
+            parent->getNotesHeld().addToSelection(message.getNoteNumber());
+            for (auto zone : parent->zones){
+                if (zone->getNote() == message.getNoteNumber()){
+                    if (zone->getFilePlayer()->getState() != FilePlayer::TransportState::Stopped){
+                        zone->getFilePlayer()->changeState(FilePlayer::TransportState::Stopped);
+                    }
+                    zone->getFilePlayer()->changeState(FilePlayer::TransportState::Starting);
                 }
-                zone->getFilePlayer()->changeState(FilePlayer::TransportState::Starting);
             }
         }
-    }
-    if (message.isNoteOff()) 
-    {
-        if (parent->getNotesHeld().isSelected(message.getNoteNumber()))
+        if (message.isNoteOff()) 
         {
-            parent->getNotesHeld().deselect(message.getNoteNumber());
+            if (parent->getNotesHeld().isSelected(message.getNoteNumber()))
+            {
+                parent->getNotesHeld().deselect(message.getNoteNumber());
+            }
         }
     }
 }
