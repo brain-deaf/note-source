@@ -74,7 +74,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     
     source_player.setSource(&sampler);
     sampler.prepareToPlay(0, 48000.00);
-    sampler.setSample();
+    sampler.addSample("/home/patrick/Juce/projects/test.ogg", 74, 0, 128);
     sampler.getSynth()->noteOn(0, 74, 74.0);
 }
 
@@ -152,6 +152,7 @@ void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel
             f->changeState(FilePlayer::TransportState::Starting);
         }
     }
+    sampler.getSynth()->noteOn(midiChannel, midiNoteNumber, velocity);
 }
 
 void MappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){
