@@ -74,8 +74,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     
     source_player.setSource(&sampler);
     sampler.prepareToPlay(0, 48000.00);
-    sampler.addSample("/home/patrick/Juce/projects/test.ogg", 74, 0, 128);
-    sampler.getSynth()->noteOn(0, 74, 74.0);
+    
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
@@ -119,12 +118,7 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
         {
             parent->getNotesHeld().addToSelection(message.getNoteNumber());
             for (auto zone : parent->zones){
-                if (zone->getNote() == message.getNoteNumber()){
-                    if (zone->getFilePlayer()->getState() != FilePlayer::TransportState::Stopped){
-                        zone->getFilePlayer()->changeState(FilePlayer::TransportState::Stopped);
-                    }
-                    zone->getFilePlayer()->changeState(FilePlayer::TransportState::Starting);
-                }
+                if (zone->getNote() == message.getNoteNumber()){}
             }
         }
         if (message.isNoteOff()) 
@@ -146,12 +140,6 @@ void MappingEditorGraph::resized()
 
 void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
     notesHeld.addToSelection(midiNoteNumber);
-    for (auto zone : zones){
-        if (zone->getNote() == midiNoteNumber){
-            FilePlayer* f = new FilePlayer(zone->getName());
-            f->changeState(FilePlayer::TransportState::Starting);
-        }
-    }
     sampler.getSynth()->noteOn(midiChannel, midiNoteNumber, velocity);
 }
 
@@ -222,6 +210,8 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
         addAndMakeVisible(newZone);
         lassoSource.getZones().add(newZone);
         
+        sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1);
+        
     }
     getZoneInfoSet().selectOnly(newZone);
 }
@@ -241,6 +231,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
         Range<int> r(0,numColumns-1);
         int newGridX = r.clipValue(gridXOffset + gridX);
         c.setX(newGridX * gridWidth + gridOutline);
+        
          
         int newY = 0;
         if (c.getY() + delY < 0){
@@ -326,6 +317,11 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                             i->getY() + newY + i->getHeight() <= height){
                         i->setY(newY+i->getY());
                     }
+                    int zone_index = zones.indexOf(i);
+                    zones.remove(zone_index);
+                    sampler.getSynth()->removeSound(zone_index);
+                    zones.add(i);
+                    sampler.addSample(i->getName(), i->getNote(), i->getNote(), i->getNote());
                 }
             }else{
                 auto Y = getMouseXYRelative().getY();
@@ -338,6 +334,14 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                     newY = 0;
                 }
                 draggedZone->setY(newY);
+                int zone_index = zones.indexOf(draggedZone);
+                zones.remove(zone_index);
+                sampler.getSynth()->removeSound(zone_index);
+                zones.add(draggedZone);
+                sampler.addSample(draggedZone->getName(), 
+                                  draggedZone->getNote(), 
+                                  draggedZone->getNote(), 
+                                  draggedZone->getNote());
             }
         }
         else if (cursor == MouseCursor::TopEdgeResizeCursor){
@@ -412,7 +416,6 @@ Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent&
     : TextButton{""}, parent{p}, instrument(i),
     filePlayer(new FilePlayer(sampleName)),
     name(sampleName)  {
-    instrument.addFilePlayer(filePlayer);
     setAlpha(0.5f);
     velocity.first = 0;
     velocity.second = 127;
@@ -437,6 +440,4 @@ void Zone::mouseMove(const MouseEvent& e) {
     }
 }
 
-void Zone::mouseDoubleClick(const MouseEvent& e){
-    //filePlayer->toggleState();
-}
+void Zone::mouseDoubleClick(const MouseEvent& e){}

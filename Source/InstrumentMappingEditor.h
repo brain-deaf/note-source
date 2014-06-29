@@ -12,9 +12,9 @@
 #define INSTRUMENTMAPPINGEDITOR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "FilePlayer.h"
 #include "GroupEditor.h"
 #include "Sampler.h"
+#include "FilePlayer.h"
 
 class InstrumentComponent;
 
