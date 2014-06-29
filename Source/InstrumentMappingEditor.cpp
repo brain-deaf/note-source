@@ -66,7 +66,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     SharedResourcePointer<AudioDeviceManager> dm;
     dm->addAudioCallback(&source_player);
     dm->addMidiInputCallback("",&midiCallback);
-    dm->addMidiInputCallback("", &(sampler.getMidiCollector()));
+
     setBounds(0, 0, getWidth(), getHeight() + getKeyboardHeight());
     notesHeld.addChangeListener(this);
     
@@ -129,6 +129,7 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
                 }
             }
         }
+        parent->getSampler().getMidiCollector().addMessageToQueue(message);
     }
 }
 
@@ -141,8 +142,6 @@ void MappingEditorGraph::resized()
 
 void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
     notesHeld.addToSelection(std::pair<int, int>(midiNoteNumber, velocity*128));
-    
-    //velocity/1 = x/128
     sampler.getSynth()->noteOn(midiChannel, midiNoteNumber, velocity/**128*/);
 }
 

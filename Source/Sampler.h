@@ -21,6 +21,7 @@ public:
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
     void releaseResources() override;
     void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override;
+    void setMidiChannel(int i){midi_input_id = i;}
     
     Synthesiser* getSynth(){return &synth;}
     MidiMessageCollector& getMidiCollector(){return midiCollector;}
@@ -28,6 +29,7 @@ private:
     MidiMessageCollector midiCollector;
     Synthesiser synth;
     AudioFormatManager formatManager;
+    int midi_input_id;
     //Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
 };
 

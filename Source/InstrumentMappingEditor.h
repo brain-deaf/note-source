@@ -177,6 +177,7 @@ public:
         void setNumColumns(int nc){numColumns=nc;}
         int getNumColumns(){return numColumns;}
         bool isDragging(){return dragging;}
+        Sampler& getSampler(){return sampler;}
         SelectedItemSet<std::pair<int, int> >& getNotesHeld() { return notesHeld;}
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
         GroupEditor*& getGroupEditor(){return group_editor;}

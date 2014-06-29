@@ -72,7 +72,10 @@ void InstrumentMasterComponent::buttonClicked(Button* button){
 void InstrumentMasterComponent::comboBoxChanged(ComboBox* source){
     if (source == midi_input_menu){
         instrument_parent->getTabWindow().getMappingEditorBin()->
-        getMappingEditor()->graph->getMidiCallback().setMidiChannel(midi_input_menu->getSelectedId());
+            getMappingEditor()->graph->getMidiCallback().setMidiChannel(midi_input_menu->getSelectedId());
+        
+        instrument_parent->getTabWindow().getMappingEditorBin()->
+            getMappingEditor()->graph->getSampler().setMidiChannel(midi_input_menu->getSelectedId());
     }
 }
 
