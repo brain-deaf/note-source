@@ -116,16 +116,17 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
     if (message.getChannel() == midi_input_id || midi_input_id== -1){
         if (message.isNoteOn()) 
         {
-            parent->getNotesHeld().addToSelection(message.getNoteNumber());
+            parent->getNotesHeld().addToSelection(std::pair<int, int>(message.getNoteNumber(), message.getVelocity()));
             for (auto zone : parent->zones){
                 if (zone->getNote() == message.getNoteNumber()){}
             }
         }
         if (message.isNoteOff()) 
         {
-            if (parent->getNotesHeld().isSelected(message.getNoteNumber()))
-            {
-                parent->getNotesHeld().deselect(message.getNoteNumber());
+            for (auto pair : parent->getNotesHeld()){
+                if (pair.first == message.getNoteNumber()){
+                    parent->getNotesHeld().deselect(pair);
+                }
             }
         }
     }
@@ -139,13 +140,17 @@ void MappingEditorGraph::resized()
 }
 
 void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
-    notesHeld.addToSelection(midiNoteNumber);
-    sampler.getSynth()->noteOn(midiChannel, midiNoteNumber, velocity);
+    notesHeld.addToSelection(std::pair<int, int>(midiNoteNumber, velocity*128));
+    
+    //velocity/1 = x/128
+    sampler.getSynth()->noteOn(midiChannel, midiNoteNumber, velocity/**128*/);
 }
 
 void MappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){
-    if (notesHeld.isSelected(midiNoteNumber)){
-        notesHeld.deselect(midiNoteNumber);
+    for (auto pair : notesHeld){
+        if (pair.first == midiNoteNumber){
+            notesHeld.deselect(pair);
+        }
     }
 }
 
@@ -156,8 +161,15 @@ void MappingEditorGraph::paint(Graphics& g)
     float gridWidth = width / numColumns;
     g.setColour(Colours::black);
     g.setOpacity(0.2f);
+    
     for (auto i : notesHeld) {
-        g.fillRect(Rectangle<int>(i*gridWidth, 0, gridWidth, height));
+        g.fillRect(Rectangle<int>((i.first)*gridWidth, 0, gridWidth, height));
+    }
+    
+    g.setColour(Colours::yellow);
+    g.setOpacity(0.8f);
+    for (auto i : notesHeld) {
+        g.fillRect(Rectangle<int>((i.first)*gridWidth, (127 - i.second) * height/128, gridWidth, height/128));
     }
 
     g.setColour(Colours::black);

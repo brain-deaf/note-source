@@ -177,7 +177,7 @@ public:
         void setNumColumns(int nc){numColumns=nc;}
         int getNumColumns(){return numColumns;}
         bool isDragging(){return dragging;}
-        SelectedItemSet<int>& getNotesHeld() { return notesHeld;}
+        SelectedItemSet<std::pair<int, int> >& getNotesHeld() { return notesHeld;}
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
         GroupEditor*& getGroupEditor(){return group_editor;}
         
@@ -194,7 +194,7 @@ public:
         MidiDeviceCallback midiCallback;
         MidiKeyboardState keyboardState;
         MidiKeyboardComponent keyboard;
-        SelectedItemSet<int> notesHeld;
+        SelectedItemSet<std::pair<int, int> > notesHeld;
         Array<Zone::Ptr> zones;
         Array<Group*> groups;
         LassoComponent<Zone::Ptr> lasso;
