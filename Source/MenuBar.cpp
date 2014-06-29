@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include "MenuBar.h"
 
-MenuBar::MenuBar(InstrumentBin * i) : menuBar{this}, file{}, view{}, edit{},
+MenuBar::MenuBar(InstrumentBin * i) : menuBar{this}, deviceManager(), file{}, view{}, edit{},
     audioSettingsWindow{nullptr}, parent{i} {
     addAndMakeVisible(menuBar);
     
@@ -22,8 +22,15 @@ MenuBar::MenuBar(InstrumentBin * i) : menuBar{this}, file{}, view{}, edit{},
     edit.addItem(ID_Edit1, "Nothing Here");
 }
 
-MenuBar::AudioSettingsWindow::AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop=true)
-: DocumentWindow{name, backgroundColour, requiredButtons, addToDesktop}{}
+MenuBar::AudioSettingsWindow::AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop=true, MenuBar* parent=nullptr)
+: DocumentWindow{name, backgroundColour, requiredButtons, addToDesktop}, _parent(parent){}
+
+void MenuBar::AudioSettingsWindow::closeButtonPressed(){
+    XmlElement* state = _parent->getDeviceManager()->createStateXml();
+    File p(File::getCurrentWorkingDirectory().getChildFile("audio_settings.xml"));
+    state->writeToFile(p, StringRef(""));
+    delete this;
+}
  
 StringArray MenuBar::getMenuBarNames(){
     StringArray s;
@@ -71,8 +78,9 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
         }
 
         case ID_AudioSettings: {
+            audioSettingsWindow = nullptr;
             audioSettingsWindow = new AudioSettingsWindow("Audio and MIDI Settings", Colours::grey,
-            DocumentWindow::closeButton, true);
+            DocumentWindow::closeButton, true, this);
             auto audioSettings = new AudioDeviceSelectorComponent(*deviceManager, 0, 2, 0, 2, true, true, true, false); 
             audioSettings->setBounds(0, 0, 500, 400);
             audioSettingsWindow->setContentOwned(audioSettings, true);
@@ -85,4 +93,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
 void MenuBar::resized(){
     menuBar.setBounds(0, 0, getWidth(), 20);
 }
+
+    
+
 

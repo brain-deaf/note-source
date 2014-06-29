@@ -13,7 +13,10 @@
 MainContentComponent::MainContentComponent() : deviceManager{},
     instrumentBin{TabbedButtonBar::TabsAtTop},
     menuBar{&instrumentBin} {
-    deviceManager->initialise (0,2,nullptr,true);
+
+    XmlDocument xml_file(File::getCurrentWorkingDirectory().getChildFile("audio_settings.xml"));
+    deviceManager->initialise (0,2,xml_file.getDocumentElement(),true);
+    
     addAndMakeVisible (instrumentBin);
     setSize (1000, 730);
     addAndMakeVisible (menuBar);

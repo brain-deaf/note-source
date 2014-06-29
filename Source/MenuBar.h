@@ -23,12 +23,15 @@ public:
     PopupMenu getMenuForIndex(int topLevelMenuIndex, const String& menuName);
     void menuItemSelected(int menuItemID, int topLevelMenuIndex);
     void resized();
+    AudioDeviceManager* getDeviceManager(){return deviceManager;}
     
     class AudioSettingsWindow : public DocumentWindow
     {
     public:
-        AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop);
-        void closeButtonPressed(){delete this;}
+        AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop, MenuBar* parent);
+        void closeButtonPressed();
+    private:
+        MenuBar* _parent;
     };
 
     enum menuIDs{
@@ -46,7 +49,7 @@ private:
     PopupMenu file;
     PopupMenu view;
     PopupMenu edit; 
-    ScopedPointer<AudioSettingsWindow> audioSettingsWindow;
+    AudioSettingsWindow* audioSettingsWindow;
     InstrumentBin* parent;
 };
 
