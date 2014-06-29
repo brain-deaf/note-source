@@ -33,6 +33,8 @@ InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, In
     group_editor->getModel();
     addAndMakeVisible(view_port);
     addAndMakeVisible(group_editor);
+    
+    
 }
 
 void InstrumentMappingEditor::resized() 
@@ -56,17 +58,24 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
 : Component(), width(w), height(h), keyboardHeight(kh), group_editor(g),
     numColumns(nc), draggedZone(nullptr), dragging(false), 
     lasso(), lassoSource(this), instrument(i), midiCallback(this), 
-    keyboardState(), zones(),
+    keyboardState(), zones(), sampler(), source_player(),
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
     keyboardState.addListener(this);
     addAndMakeVisible(&keyboard);
     SharedResourcePointer<AudioDeviceManager> dm;
+    dm->addAudioCallback(&source_player);
     dm->addMidiInputCallback("",&midiCallback);
+    dm->addMidiInputCallback("", &(sampler.getMidiCollector()));
     setBounds(0, 0, getWidth(), getHeight() + getKeyboardHeight());
     notesHeld.addChangeListener(this);
     
     groups.add(new Group());
+    
+    source_player.setSource(&sampler);
+    sampler.prepareToPlay(0, 48000.00);
+    sampler.setSample();
+    sampler.getSynth()->noteOn(0, 74, 74.0);
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){

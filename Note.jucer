@@ -40,6 +40,8 @@
           file="Source/MappingEditorBin.cpp"/>
     <FILE id="H3OXF4" name="MenuBar.h" compile="0" resource="0" file="Source/MenuBar.h"/>
     <FILE id="NYiBrA" name="MenuBar.cpp" compile="1" resource="0" file="Source/MenuBar.cpp"/>
+    <FILE id="gmMdRS" name="Sampler.h" compile="0" resource="0" file="Source/Sampler.h"/>
+    <FILE id="h7Ax0F" name="Sampler.cpp" compile="1" resource="0" file="Source/Sampler.cpp"/>
     <FILE id="m8jQtt" name="WaveformView.h" compile="0" resource="0" file="Source/WaveformView.h"/>
     <FILE id="vVHGZO" name="WaveformView.cpp" compile="1" resource="0"
           file="Source/WaveformView.cpp"/>

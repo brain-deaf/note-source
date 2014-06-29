@@ -14,6 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FilePlayer.h"
 #include "GroupEditor.h"
+#include "Sampler.h"
 
 class InstrumentComponent;
 
@@ -202,6 +203,8 @@ public:
         SelectedItemSet<Zone::Ptr> zoneInfoSet;
         GroupEditor* group_editor;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingEditorGraph)
+        Sampler sampler;
+        AudioSourcePlayer source_player;
     };
     InstrumentMappingEditor(const String& componentName,
         InstrumentComponent& i);
@@ -210,6 +213,7 @@ public:
     ScopedPointer<MappingEditorGraph> graph;
     Viewport* view_port;
     GroupEditor* group_editor;
+    
 private:
     InstrumentComponent& instrument;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMappingEditor)
