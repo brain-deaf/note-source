@@ -13,7 +13,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-
 class Sampler : public AudioSource
 {
 public:
@@ -29,6 +28,7 @@ private:
     MidiMessageCollector midiCollector;
     Synthesiser synth;
     AudioFormatManager formatManager;
+    //Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
 };
 
 

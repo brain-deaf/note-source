@@ -27,7 +27,7 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high)
     synth.clearSounds();
     synth.addSound(new SamplerSound("demo sound", *audioReader,
                                     allNotes, root_note,
-                                    0.1, 0.1, 10.0));
+                                    0.0, 0.0, 10.0));
 }
     
 void Sampler::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
