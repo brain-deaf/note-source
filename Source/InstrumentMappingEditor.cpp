@@ -214,6 +214,7 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
 
         newZone->setX(roundToInt(x / gridWidth) * gridWidth +
             gridOutline + gridWidth*i);
+        newZone->setNote(round(newZone->getX()/gridWidth));
         newZone->setY(0);
         newZone->setHeight(getHeight());
         newZone->setRangeLow(newZone->getNote());
@@ -246,9 +247,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
     if (cursor == MouseCursor::NormalCursor){
         int gridX = roundToInt((c.getX()) / gridWidth);
         Range<int> r(0,numColumns-1);
-        int newGridX = r.clipValue(gridXOffset + gridX);
-        //c.setX(newGridX * gridWidth + gridOutline);
-        
+        int newGridX = r.clipValue(gridXOffset + gridX); 
         int delX_grid_units = (int)(delX / gridWidth);
         
         int newY = 0;
@@ -263,10 +262,11 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
             newY = c.getY() + delY;
         }
         
-        if ((c.getNote() + delX_grid_units) * gridWidth + gridOutline <= 128*gridWidth && (c.getNote() + delX_grid_units) * gridWidth + gridOutline >=0){
-            c.setBounds((c.getNote() + delX_grid_units) * gridWidth + gridOutline, newY, gridWidth * c.get_width() - gridOutline, c.getHeight());
+        if ((c.getX()/gridWidth + delX_grid_units) * gridWidth + gridOutline <= 128*gridWidth && (c.getX()/gridWidth + delX_grid_units) * gridWidth + gridOutline >=0){
+            c.setBounds((round(c.getX()/gridWidth) + delX_grid_units) * gridWidth + gridOutline, newY, gridWidth * c.get_width() - gridOutline, c.getHeight());
             c.getVelocity().first = (int)((getHeight() - (newY + c.getHeight())) / (getHeight() / 128));
             c.getVelocity().second = (int)((getHeight() - newY) / (getHeight() / 128));
+            //c.setNote(c.getX()/gridWidth + delX_grid_units);
         }
         if (c.getVelocity().second > 127){c.getVelocity().second = 127;}
     }
@@ -279,7 +279,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
             newY = 0;
             newHeight = c.getHeight() + c.getY();
         }
-        c.setBounds(c.getX(), newY, gridWidth - gridOutline, newHeight);
+        c.setBounds(c.getX(), newY, c.get_width() * gridWidth - gridOutline, newHeight);
         c.getVelocity().second = (int)((getHeight() - newY) / (getHeight() / 128));
         if (c.getVelocity().second > 127){c.getVelocity().second = 127;}
     }
@@ -290,7 +290,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
             newHeight = height - (c.getY() + c.getHeight()) + c.getHeight();
         }
         c.setBounds(c.getX(), c.getY(), 
-            gridWidth - gridOutline, newHeight);
+            c.get_width() * gridWidth - gridOutline, newHeight);
         c.getVelocity().first = (int)((getHeight() - (c.getY() + newHeight)) / (getHeight() / 128));
     }
     else if (cursor == MouseCursor::RightEdgeResizeCursor){
@@ -332,14 +332,20 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e)
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
+    getZoneInfoSet().changed();
     auto set = lassoSource.getLassoSelection();
+    int x = getMouseXYRelative().getX();
+    int gridWidth = round(width/128);
+    int delX = x - startDragX;
     if (draggedZone != nullptr){
         auto cursor = draggedZone->getMouseCursor();
         if (cursor == MouseCursor::NormalCursor){
             if (lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
                 for (auto i : lassoSource.getLassoSelection()){
                     int newY = getMouseXYRelative().getY() - startDragY;
+                    int old_x = i->getX();
                     i->setX(i->getBounds().getX());
+                    i->setNote(i->getNote() + round((i->getX()-old_x) / gridWidth));
                     if (i->getY() + newY + i->getHeight() > height){
                         newY = height - i->getHeight();
                         i->setY(newY);
@@ -368,7 +374,10 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                 else if (newY < 0){
                     newY = 0;
                 }
+                
+                int old_x = draggedZone->getX();
                 draggedZone->setX(draggedZone->getBounds().getX());
+                draggedZone->setNote(draggedZone->getNote() + round((draggedZone->getX()-old_x) / gridWidth));
                 draggedZone->setY(newY);
                 int zone_index = zones.indexOf(draggedZone);
                 zones.remove(zone_index);
@@ -454,6 +463,9 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                     if (newWidth >= 1){
                         i->set_width(newWidth);
                         i->setX(i->getBounds().getX());
+                        if (round(i->getX()/gridWidth) > i->getNote()){
+                            i->setNote(round(i->getX()/gridWidth));
+                        }
                     }
                 }
             } else {
@@ -461,6 +473,9 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                 if (newWidth >= 1){
                     draggedZone->set_width(newWidth);
                     draggedZone->setX(draggedZone->getBounds().getX());
+                    if (round(draggedZone->getX()/gridWidth) > draggedZone->getNote()){
+                        draggedZone->setNote(round(draggedZone->getX()/gridWidth));
+                    }
                 }
             }
         }

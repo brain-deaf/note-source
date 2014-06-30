@@ -47,7 +47,7 @@ public:
                     InstrumentComponent& i);
             const String& getName(){return name;}
             void setNote(int n){_note = n;}
-            void setX(int x){_x = x; setNote((int)(x / (parent->getWidth() / parent->getNumColumns())));}
+            void setX(int x){_x = x; /*setNote((int)(x / (parent->getWidth() / parent->getNumColumns())))*/;}
             void setY(int y){_y = y;}
             int getX(){return _x;}
             int getY(){return _y;}
