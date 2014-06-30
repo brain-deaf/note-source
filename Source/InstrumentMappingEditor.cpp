@@ -216,9 +216,12 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
             gridOutline + gridWidth*i);
         newZone->setY(0);
         newZone->setHeight(getHeight());
+        newZone->setRangeLow(newZone->getNote());
+        newZone->setRangeHigh(newZone->getNote());
         newZone->setBounds(newZone->getX(), newZone->getY(), 
             gridWidth - gridOutline, newZone->getHeight());
         addAndMakeVisible(newZone);
+        newZone->set_width(1);
         lassoSource.getZones().add(newZone);
         
         sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1);
@@ -230,6 +233,7 @@ void MappingEditorGraph::mouseDown(const MouseEvent& e) {
     addAndMakeVisible(lasso);
     lasso.beginLasso(e, &lassoSource);
     startDragY = getMouseXYRelative().getY();
+    startDragX = getMouseXYRelative().getX();
     
 }
 
@@ -237,13 +241,16 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
     float gridOutline, float gridWidth, int gridXOffset){
     int y = getMouseXYRelative().getY();
     int delY = y - startDragY;
+    int x = getMouseXYRelative().getX();
+    int delX = x - startDragX;
     if (cursor == MouseCursor::NormalCursor){
         int gridX = roundToInt((c.getX()) / gridWidth);
         Range<int> r(0,numColumns-1);
         int newGridX = r.clipValue(gridXOffset + gridX);
-        c.setX(newGridX * gridWidth + gridOutline);
+        //c.setX(newGridX * gridWidth + gridOutline);
         
-         
+        int delX_grid_units = (int)(delX / gridWidth);
+        
         int newY = 0;
         if (c.getY() + delY < 0){
             newY = 0;
@@ -255,9 +262,12 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
                 c.getY() + delY + c.getHeight() <= height){
             newY = c.getY() + delY;
         }
-        c.setBounds(c.getX(), newY, gridWidth - gridOutline, c.getHeight());
-        c.getVelocity().first = (int)((getHeight() - (newY + c.getHeight())) / (getHeight() / 128));
-        c.getVelocity().second = (int)((getHeight() - newY) / (getHeight() / 128));
+        
+        if ((c.getNote() + delX_grid_units) * gridWidth + gridOutline <= 128*gridWidth && (c.getNote() + delX_grid_units) * gridWidth + gridOutline >=0){
+            c.setBounds((c.getNote() + delX_grid_units) * gridWidth + gridOutline, newY, gridWidth * c.get_width() - gridOutline, c.getHeight());
+            c.getVelocity().first = (int)((getHeight() - (newY + c.getHeight())) / (getHeight() / 128));
+            c.getVelocity().second = (int)((getHeight() - newY) / (getHeight() / 128));
+        }
         if (c.getVelocity().second > 127){c.getVelocity().second = 127;}
     }
 
@@ -282,6 +292,19 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
         c.setBounds(c.getX(), c.getY(), 
             gridWidth - gridOutline, newHeight);
         c.getVelocity().first = (int)((getHeight() - (c.getY() + newHeight)) / (getHeight() / 128));
+    }
+    else if (cursor == MouseCursor::RightEdgeResizeCursor){
+        int new_grid_width = (int)((c.get_width() + delX) / gridWidth);
+        if (new_grid_width + c.get_width() >= 1 && c.getX() + c.get_width() + new_grid_width * gridWidth <= 128*gridWidth){
+            c.setSize(c.get_width() * gridWidth + (new_grid_width * gridWidth) - gridOutline, c.getHeight());
+        }
+    }
+    else if (cursor == MouseCursor::LeftEdgeResizeCursor){
+        int added_grid_width = (int)((c.get_width() + (-1*delX)) / gridWidth);
+        int new_grid_x = (int)(c.getX() / gridWidth) - added_grid_width;
+        if (added_grid_width + c.get_width() >= 1 && new_grid_x*gridWidth + gridOutline >=0){
+            c.setBounds(new_grid_x * gridWidth + gridOutline, c.getY(), c.get_width() * gridWidth + (added_grid_width * gridWidth) - gridOutline, c.getHeight());
+        }
     }
 }
 
@@ -316,6 +339,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
             if (lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
                 for (auto i : lassoSource.getLassoSelection()){
                     int newY = getMouseXYRelative().getY() - startDragY;
+                    i->setX(i->getBounds().getX());
                     if (i->getY() + newY + i->getHeight() > height){
                         newY = height - i->getHeight();
                         i->setY(newY);
@@ -344,6 +368,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                 else if (newY < 0){
                     newY = 0;
                 }
+                draggedZone->setX(draggedZone->getBounds().getX());
                 draggedZone->setY(newY);
                 int zone_index = zones.indexOf(draggedZone);
                 zones.remove(zone_index);
@@ -405,6 +430,40 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                 draggedZone->setHeight(newHeight);
             }
         }
+        else if (cursor == MouseCursor::RightEdgeResizeCursor){
+            float gridWidth = width / numColumns;
+            if (lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
+                for (auto i : lassoSource.getLassoSelection()){
+                    int newWidth= round(i->getWidth() / gridWidth);
+                    if (newWidth >= 1){
+                        i->set_width(newWidth);
+                    }
+                }
+            } else {
+                int newWidth= round(draggedZone->getWidth() / gridWidth);
+                if (newWidth >= 1){
+                    draggedZone->set_width(newWidth);
+                }
+            }
+        }
+        else if (cursor == MouseCursor::LeftEdgeResizeCursor){
+            float gridWidth = width / numColumns;
+            if (lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
+                for (auto i : lassoSource.getLassoSelection()){
+                    int newWidth= round(i->getWidth() / gridWidth);
+                    if (newWidth >= 1){
+                        i->set_width(newWidth);
+                        i->setX(i->getBounds().getX());
+                    }
+                }
+            } else {
+                int newWidth= round(draggedZone->getWidth() / gridWidth);
+                if (newWidth >= 1){
+                    draggedZone->set_width(newWidth);
+                    draggedZone->setX(draggedZone->getBounds().getX());
+                }
+            }
+        }
         draggedZone = nullptr;
     }
     lasso.endLasso();
@@ -445,6 +504,14 @@ void Zone::mouseMove(const MouseEvent& e) {
         }
         else if (getHeight() - e.y < 5){
             setMouseCursor(MouseCursor::BottomEdgeResizeCursor);
+            return;
+        }
+        else if (e.x < 5){
+            setMouseCursor(MouseCursor::LeftEdgeResizeCursor);
+            return;
+        }
+        else if (getWidth() - e.x < 5){
+            setMouseCursor(MouseCursor::RightEdgeResizeCursor);
             return;
         }
         setMouseCursor(MouseCursor());

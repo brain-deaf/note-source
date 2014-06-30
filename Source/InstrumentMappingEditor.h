@@ -55,6 +55,12 @@ public:
             int getNote(){return _note;}
             void setHeight(int h){_height = h;}
             int getHeight(){return _height;}
+            int getRangeLow(){return range_low;}
+            int getRangeHigh(){return range_high;}
+            int get_width(){return width;}
+            void set_width(int w){width = w;}
+            void setRangeLow(int n){range_low = n;}
+            void setRangeHigh(int n){range_high = n;}
             void mouseDown(const MouseEvent& event);
             void mouseMove(const MouseEvent& event);
             void mouseDoubleClick(const MouseEvent& event);
@@ -68,6 +74,9 @@ public:
             int _y;
             int _height;
             int _note;
+            int range_low;
+            int range_high;
+            int width;
 
             const String name;
             std::pair<int, int> velocity;
@@ -190,6 +199,7 @@ public:
         int numColumns;
         bool dragging;
         int startDragY;
+        int startDragX;
         
         InstrumentComponent& instrument;
         MidiDeviceCallback midiCallback;
