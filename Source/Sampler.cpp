@@ -22,7 +22,9 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high)
     ScopedPointer<AudioFormatReader> audioReader(formatManager.createReaderFor(File(path)));
         
     BigInteger allNotes;
-    allNotes.setBit(root_note);
+    for (int i=note_low; i<note_high; i++){
+        allNotes.setBit(i);
+    }
         
     synth.addSound(new SamplerSound("demo sound", *audioReader,
                                     allNotes, root_note,

@@ -362,7 +362,10 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                     zones.remove(zone_index);
                     sampler.getSynth()->removeSound(zone_index);
                     zones.add(i);
-                    sampler.addSample(i->getName(), i->getNote(), i->getNote(), i->getNote());
+                    sampler.addSample(i->getName(), 
+                                      i->getNote(), 
+                                      round(i->getX()/gridWidth), 
+                                      round(i->getX()/gridWidth) + i->get_width());
                 }
             }else{
                 auto Y = getMouseXYRelative().getY();
@@ -385,8 +388,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                 zones.add(draggedZone);
                 sampler.addSample(draggedZone->getName(), 
                                   draggedZone->getNote(), 
-                                  draggedZone->getNote(), 
-                                  draggedZone->getNote());
+                                  round(draggedZone->getX()/gridWidth), 
+                                  round(draggedZone->getX()/gridWidth) + draggedZone->get_width());
             }
         }
         else if (cursor == MouseCursor::TopEdgeResizeCursor){
@@ -446,12 +449,28 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                     int newWidth= round(i->getWidth() / gridWidth);
                     if (newWidth >= 1){
                         i->set_width(newWidth);
+                        int zone_index = zones.indexOf(i);
+                        zones.remove(zone_index);
+                        sampler.getSynth()->removeSound(zone_index);
+                        zones.add(i);
+                        sampler.addSample(i->getName(), 
+                                          i->getNote(), 
+                                          round(i->getX()/gridWidth), 
+                                          round(i->getX()/gridWidth) + i->get_width());
                     }
                 }
             } else {
                 int newWidth= round(draggedZone->getWidth() / gridWidth);
                 if (newWidth >= 1){
                     draggedZone->set_width(newWidth);
+                    int zone_index = zones.indexOf(draggedZone);
+                    zones.remove(zone_index);
+                    sampler.getSynth()->removeSound(zone_index);
+                    zones.add(draggedZone);
+                    sampler.addSample(draggedZone->getName(), 
+                                      draggedZone->getNote(), 
+                                      round(draggedZone->getX()/gridWidth), 
+                                      round(draggedZone->getX()/gridWidth) + draggedZone->get_width());
                 }
             }
         }
@@ -465,6 +484,14 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                         i->setX(i->getBounds().getX());
                         if (round(i->getX()/gridWidth) > i->getNote()){
                             i->setNote(round(i->getX()/gridWidth));
+                            int zone_index = zones.indexOf(i);
+                            zones.remove(zone_index);
+                            sampler.getSynth()->removeSound(zone_index);
+                            zones.add(i);
+                            sampler.addSample(i->getName(), 
+                                              i->getNote(), 
+                                              round(i->getX()/gridWidth), 
+                                              round(i->getX()/gridWidth) + i->get_width());
                         }
                     }
                 }
@@ -476,6 +503,14 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                     if (round(draggedZone->getX()/gridWidth) > draggedZone->getNote()){
                         draggedZone->setNote(round(draggedZone->getX()/gridWidth));
                     }
+                    int zone_index = zones.indexOf(draggedZone);
+                    zones.remove(zone_index);
+                    sampler.getSynth()->removeSound(zone_index);
+                    zones.add(draggedZone);
+                    sampler.addSample(draggedZone->getName(), 
+                                      draggedZone->getNote(), 
+                                      round(draggedZone->getX()/gridWidth), 
+                                      round(draggedZone->getX()/gridWidth) + draggedZone->get_width());
                 }
             }
         }
