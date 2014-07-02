@@ -19,6 +19,7 @@ public:
     InstrumentBin(TabbedButtonBar::Orientation orientation);
     ~InstrumentBin();
     void registerTab(InstrumentComponent* c);
+    InstrumentComponent* getInstrumentComponent(){return instrumentComponent;}
 
 private:
     InstrumentComponent* instrumentComponent;
