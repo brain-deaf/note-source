@@ -14,6 +14,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentBin.h"
 
+class InstrumentMappingEditor;
+
 class MenuBar : public MenuBarModel, public Component
 {
 public:
@@ -37,7 +39,8 @@ public:
     enum menuIDs{
         ID_New = 1000,
         ID_Save,  
-        ID_Quit,  
+        ID_Quit,
+        ID_Open,
         ID_View1, 
         ID_Edit1,
         ID_AudioSettings,
@@ -51,6 +54,7 @@ private:
     PopupMenu edit; 
     AudioSettingsWindow* audioSettingsWindow;
     InstrumentBin* parent;
+    std::shared_ptr<InstrumentMappingEditor> mapping_editor;
 };
 
 

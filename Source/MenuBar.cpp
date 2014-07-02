@@ -9,17 +9,22 @@
 */
 #include <stdexcept>
 #include "MenuBar.h"
+#include "InstrumentMappingEditor.h"
 
 MenuBar::MenuBar(InstrumentBin * i) : menuBar{this}, deviceManager(), file{}, view{}, edit{},
     audioSettingsWindow{nullptr}, parent{i} {
     addAndMakeVisible(menuBar);
     
     file.addItem(ID_New, "New Instrument");
+    file.addItem(ID_Open, "Open Instrument");
     file.addItem(ID_Save, "Save Instrument");
     file.addItem(ID_AudioSettings, "Audio and MIDI Settings");
     file.addItem(ID_Quit, "Quit");
     view.addItem(ID_View1, "Nothing Here");
     edit.addItem(ID_Edit1, "Nothing Here");
+    
+    mapping_editor = nullptr;
+    //instrumentBin, instrumentComponent, instrumentTabWindow, mappingeditorbin, instrumentmappingeditor, mappingeditorgraph
 }
 
 MenuBar::AudioSettingsWindow::AudioSettingsWindow(const String& name, Colour backgroundColour, int requiredButtons, bool addToDesktop=true, MenuBar* parent=nullptr)
@@ -74,6 +79,45 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             InstrumentComponent* i = new InstrumentComponent(parent);
             parent->addTab("New Instrument", Colour(100, 100, 100), i, false);
             parent->registerTab(i);
+            break;
+        }
+        
+        case ID_Open: {
+            std::cout<<"open instrument!"<<std::endl;
+            mapping_editor = parent->getInstrumentComponent()
+            ->getTabWindow().getMappingEditorBin()->getMappingEditor();
+        }
+        
+        case ID_Save: {
+            mapping_editor = parent->getInstrumentComponent()
+            ->getTabWindow().getMappingEditorBin()->getMappingEditor();
+            
+            XmlElement instrument("INSTRUMENT");
+            for (int i=0; i<mapping_editor->graph->getGroups().size(); i++){
+                XmlElement* group = new XmlElement("GROUP");
+                group->setAttribute("name", mapping_editor->graph->getGroupEditor()->getModel()->getGroupNames()[i]);
+                for (int j=0; j<mapping_editor->graph->getGroups()[i]->getZones()->size(); j++){
+                    XmlElement* zone = new XmlElement("ZONE");
+                    
+                    String path(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getName());
+                    int    x(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getX());
+                    int    y(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getY());
+                    int    width(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->get_width());
+                    int    height(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getHeight());
+                    int    note(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getNote());
+
+                    
+                    zone->setAttribute("file", path);
+                    zone->setAttribute("x", x);
+                    zone->setAttribute("y", y);
+                    zone->setAttribute("width", width);
+                    zone->setAttribute("height", height);
+                    zone->setAttribute("note", note);
+                    group->addChildElement(zone);
+                }
+                instrument.addChildElement(group);
+            }
+            instrument.writeToFile(File::getCurrentWorkingDirectory().getChildFile("instrument.xml"), "");
             break;
         }
 
