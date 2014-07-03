@@ -93,7 +93,6 @@ void MappingEditorGraph::buttonClicked(Button* source){
 void MappingEditorGraph::updateZones(){
     if (zones.size() > 0){
         for (int i=0; i<groups.size(); i++){
-            std::cout<<i<<std::endl;
             for (int j=0; j<zones.size(); j++){
                 zones[j]->setVisible(false);
             }
@@ -191,6 +190,8 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
     
    group_editor->removeGroups();    
    groups.clear();
+   zones.clear();
+   
    getSampler().getSynth()->clearSounds();
             
    forEachXmlChildElement(*i, group){
@@ -229,7 +230,8 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
             }
         }
      }
-   }  
+   } 
+   group_editor->getListBox()->selectRow(0);
 }
 
 void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
