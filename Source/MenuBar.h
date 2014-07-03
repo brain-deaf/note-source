@@ -38,12 +38,12 @@ public:
 
     enum menuIDs{
         ID_New = 1000,
-        ID_Save,  
-        ID_Quit,
-        ID_Open,
-        ID_View1, 
-        ID_Edit1,
-        ID_AudioSettings,
+        ID_Save = 1001,  
+        ID_Quit = 1002,
+        ID_Open = 1003,
+        ID_View1 = 1004, 
+        ID_Edit1 = 1005,
+        ID_AudioSettings = 1006,
     };
 
 private:

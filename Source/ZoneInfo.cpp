@@ -80,15 +80,17 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
 }
 
 void ZoneInfo::changeListenerCallback(ChangeBroadcaster* source){
-    audio_thumbnail->updateWaveformForFilePlayer((zone->getSelectedItem(0)->getFilePlayer()));
-    fileName->setText((zone->getSelectedItem(0))->getName(), dontSendNotification);
-    fileNameLabel->setText("Sample: ", dontSendNotification);
-    noteNumber->setText(String((zone->getSelectedItem(0))->getNote()), dontSendNotification);
-    noteNumberLabel->setText("Note: ", dontSendNotification);
-    noteName->setText(noteNames[(zone->getSelectedItem(0))->getNote()], dontSendNotification);
-    velocityLabel->setText("Velocity: ", dontSendNotification);
-    velocityMin->setText(String(zone->getSelectedItem(0)->getVelocity().first), dontSendNotification);
-    velocityMax->setText(String(zone->getSelectedItem(0)->getVelocity().second), dontSendNotification);
+    if (zone->getSelectedItem(0) != nullptr){
+        audio_thumbnail->updateWaveformForFilePlayer((zone->getSelectedItem(0)->getFilePlayer()));
+        fileName->setText((zone->getSelectedItem(0))->getName(), dontSendNotification);
+        fileNameLabel->setText("Sample: ", dontSendNotification);
+        noteNumber->setText(String((zone->getSelectedItem(0))->getNote()), dontSendNotification);
+        noteNumberLabel->setText("Note: ", dontSendNotification);
+        noteName->setText(noteNames[(zone->getSelectedItem(0))->getNote()], dontSendNotification);
+        velocityLabel->setText("Velocity: ", dontSendNotification);
+        velocityMin->setText(String(zone->getSelectedItem(0)->getVelocity().first), dontSendNotification);
+        velocityMax->setText(String(zone->getSelectedItem(0)->getVelocity().second), dontSendNotification);
+    }
 }
 
 void ZoneInfo::resize(){

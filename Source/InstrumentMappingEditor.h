@@ -91,7 +91,7 @@ public:
                     zones = new Array<Zone::Ptr>();
                 }
                 Array<Zone::Ptr>* getZones(){return zones;}
-                void setZones(Array<Zone::Ptr>* _zones){zones = _zones;}
+                //void setZones(Array<Zone::Ptr>* _zones){zones = _zones;}
                 String getName(){return name;}
                 void setName(String s){name = s;}
             private:
@@ -172,6 +172,7 @@ public:
         void filesDropped(const StringArray& files, int x, int y);
         void updateZones();
         bool isInterestedInFileDrag(const StringArray& files){return true;}
+        void loadPatch(XmlElement* i);
         Array<Zone::Ptr> getZones(){return zones;}
         Array<Group*> getGroups(){return groups;}
 
@@ -185,7 +186,9 @@ public:
         float getKeyboardHeight(){return keyboardHeight;}
         void setNumColumns(int nc){numColumns=nc;}
         int getNumColumns(){return numColumns;}
+        int get_width(){return width;}
         bool isDragging(){return dragging;}
+        InstrumentComponent& getInstrument(){return instrument;}
         Sampler& getSampler(){return sampler;}
         SelectedItemSet<std::pair<int, int> >& getNotesHeld() { return notesHeld;}
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
@@ -224,6 +227,7 @@ public:
     ScopedPointer<MappingEditorGraph> graph;
     Viewport* view_port;
     GroupEditor* group_editor;
+    InstrumentComponent& getInstrument(){return instrument;}
     
 private:
     InstrumentComponent& instrument;

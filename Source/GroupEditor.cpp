@@ -129,6 +129,14 @@ void GroupEditor::buttonClicked(Button* source){
     }
 }
 
+void GroupEditor::addGroup(){
+    buttonClicked(create_group_button);
+}
+
+void GroupEditor::removeGroup(){
+    buttonClicked(delete_group_button);
+}
+
 void GroupBoxModel::paintListBoxItem(int rowNumber, Graphics& g, int w, int h, bool rowIsSelected){
     if (rowIsSelected){ 
         g.fillAll(Colours::lightblue);

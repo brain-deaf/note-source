@@ -93,6 +93,7 @@ void MappingEditorGraph::buttonClicked(Button* source){
 void MappingEditorGraph::updateZones(){
     if (zones.size() > 0){
         for (int i=0; i<groups.size(); i++){
+            std::cout<<i<<std::endl;
             for (int j=0; j<zones.size(); j++){
                 zones[j]->setVisible(false);
             }
@@ -100,6 +101,8 @@ void MappingEditorGraph::updateZones(){
         lassoSource.getZones().clear();
         SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
         for (int i=0; i<s.size(); i++){
+            std::cout<<s[i]<<std::endl;
+            groups[s[i]]->getZones();
             if (groups[s[i]]->getZones() != nullptr && groups[s[i]]->getZones()->size() > 0){
                 for (int j=0; j<groups[s[i]]->getZones()->size(); j++){
                     (*(groups[s[i]]->getZones()))[j]->setVisible(true);
@@ -184,7 +187,52 @@ void MappingEditorGraph::paint(Graphics& g)
     g.strokePath (myPath, PathStrokeType (gridOutline));
 }
 
+void MappingEditorGraph::loadPatch(XmlElement* i){
+    
+   for (int i=0; i<groups.size(); i++){
+       group_editor->removeGroup();
+       delete groups[i];
+   }     
+   groups.clear();
+            
+   forEachXmlChildElement(*i, group){
+     if (group->hasTagName("GROUP")){
+        Group* new_group = new Group();
+        new_group->setName(group->getStringAttribute("name"));
+        
+        group_editor->addGroup();
+        groups.add(new_group);
+                                
+        forEachXmlChildElement(*group, zone){
+            if (zone->hasTagName("ZONE")){
+                Zone* new_zone;
+                new_zone = new Zone(this, zone->getStringAttribute("file"), instrument);
+                zones.add(new_zone);
+                new_group->getZones()->add(new_zone);
 
+                new_zone->removeListener(this);
+                new_zone->addListener(this);
+                new_zone->removeMouseListener(new_zone);
+                new_zone->addMouseListener(this, true);
+
+                new_zone->setX(zone->getIntAttribute("x"));
+                new_zone->setNote(zone->getIntAttribute("note"));
+                new_zone->setY(zone->getIntAttribute("y"));
+                new_zone->setHeight(zone->getIntAttribute("height"));
+                new_zone->set_width(zone->getIntAttribute("width"));
+
+                float gridWidth = get_width() / getNumColumns();
+                new_zone->setBounds(new_zone->getX(), new_zone->getY(), 
+                new_zone->get_width() * gridWidth - 1, new_zone->getHeight());
+                                                
+                addAndMakeVisible(new_zone);
+        
+                getSampler().addSample(new_zone->getName(), new_zone->getNote(), round(new_zone->getX()/gridWidth), round(new_zone->getX()/gridWidth) + new_zone->get_width());
+            }
+        }
+     }
+   }  
+}
 
 void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
     float gridOutline = 1.0f;
@@ -337,7 +385,9 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     int x = getMouseXYRelative().getX();
     int gridWidth = round(width/128);
     int delX = x - startDragX;
+    
     if (draggedZone != nullptr){
+        
         auto cursor = draggedZone->getMouseCursor();
         if (cursor == MouseCursor::NormalCursor){
             if (lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
@@ -517,6 +567,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
         draggedZone = nullptr;
     }
     lasso.endLasso();
+    
     if (! lassoSource.Dragging()){
         for (auto i : lassoSource.getLassoSelection()){
             i->setToggleState(false, sendNotification);

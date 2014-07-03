@@ -83,12 +83,19 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
         }
         
         case ID_Open: {
-            std::cout<<"open instrument!"<<std::endl;
             mapping_editor = parent->getInstrumentComponent()
             ->getTabWindow().getMappingEditorBin()->getMappingEditor();
+            
+            File xml = File::getCurrentWorkingDirectory().getChildFile("instrument.xml");
+            XmlDocument xml_doc(xml);
+            XmlElement* instrument = xml_doc.getDocumentElement();
+            
+            mapping_editor->graph->loadPatch(instrument);
+            break;
         }
         
         case ID_Save: {
+            std::cout<<"xml saved"<<std::endl;
             mapping_editor = parent->getInstrumentComponent()
             ->getTabWindow().getMappingEditorBin()->getMappingEditor();
             

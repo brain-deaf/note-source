@@ -23,6 +23,7 @@ public:
     int getNumRows(){return num_rows;}
     void incNumRows(){num_rows++;}
     void decNumRows(){num_rows--;}
+    void clearNumRows(){num_rows=0;group_names.clear();}
     void paintListBoxItem(int rowNumber, Graphics& g, int w, int h, bool rowIsSelected);
     void selectedRowsChanged(int row);
     
@@ -48,6 +49,8 @@ public:
     void labelTextChanged(Label* source);
     void buttonClicked(Button* button);
     void updateLabels(String group_name, int index);
+    void addGroup();
+    void removeGroup();
     
     int getWidth(){return width;}
     int getHeight(){return height;}
