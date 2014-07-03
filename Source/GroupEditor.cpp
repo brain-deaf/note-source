@@ -133,8 +133,10 @@ void GroupEditor::addGroup(){
     buttonClicked(create_group_button);
 }
 
-void GroupEditor::removeGroup(){
-    buttonClicked(delete_group_button);
+void GroupEditor::removeGroups(){
+    model->clearNumRows();
+    model->getGroupNames().clear();
+    list_box->updateContent();
 }
 
 void GroupBoxModel::paintListBoxItem(int rowNumber, Graphics& g, int w, int h, bool rowIsSelected){

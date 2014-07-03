@@ -189,11 +189,9 @@ void MappingEditorGraph::paint(Graphics& g)
 
 void MappingEditorGraph::loadPatch(XmlElement* i){
     
-   for (int i=0; i<groups.size(); i++){
-       group_editor->removeGroup();
-       delete groups[i];
-   }     
+   group_editor->removeGroups();    
    groups.clear();
+   getSampler().getSynth()->clearSounds();
             
    forEachXmlChildElement(*i, group){
      if (group->hasTagName("GROUP")){

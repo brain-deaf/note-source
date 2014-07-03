@@ -50,7 +50,7 @@ public:
     void buttonClicked(Button* button);
     void updateLabels(String group_name, int index);
     void addGroup();
-    void removeGroup();
+    void removeGroups();
     
     int getWidth(){return width;}
     int getHeight(){return height;}

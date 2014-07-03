@@ -86,16 +86,21 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             mapping_editor = parent->getInstrumentComponent()
             ->getTabWindow().getMappingEditorBin()->getMappingEditor();
             
-            File xml = File::getCurrentWorkingDirectory().getChildFile("instrument.xml");
-            XmlDocument xml_doc(xml);
-            XmlElement* instrument = xml_doc.getDocumentElement();
+            FileChooser patch_loader("Please select the patch you want to load",
+                                     File::getCurrentWorkingDirectory(),
+                                     "*.xml");
             
-            mapping_editor->graph->loadPatch(instrument);
+            if (patch_loader.browseForFileToOpen()){
+                File xml = patch_loader.getResult();
+                XmlDocument xml_doc(xml);
+                XmlElement* instrument = xml_doc.getDocumentElement();
+            
+                mapping_editor->graph->loadPatch(instrument);
+            }
             break;
         }
         
         case ID_Save: {
-            std::cout<<"xml saved"<<std::endl;
             mapping_editor = parent->getInstrumentComponent()
             ->getTabWindow().getMappingEditorBin()->getMappingEditor();
             
@@ -124,7 +129,14 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                 }
                 instrument.addChildElement(group);
             }
-            instrument.writeToFile(File::getCurrentWorkingDirectory().getChildFile("instrument.xml"), "");
+            FileChooser patch_saver("Please select the patch destination.",
+                                     File::getCurrentWorkingDirectory(),
+                                     "*.xml");
+            
+            if (patch_saver.browseForFileToOpen()){
+                File xml = patch_saver.getResult();
+                instrument.writeToFile(xml, "");
+            }
             break;
         }
 
