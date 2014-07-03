@@ -73,8 +73,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     groups.add(new Group());
     
     source_player.setSource(&sampler);
-    sampler.prepareToPlay(0, 48000.00);
-    
+    sampler.prepareToPlay(0, 44100.0);
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
@@ -190,16 +189,19 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
    group_editor->removeGroups();    
    groups.clear();
    zones.clear();
-   
    getSampler().getSynth()->clearSounds();
             
+   int j=0;
    forEachXmlChildElement(*i, group){
      if (group->hasTagName("GROUP")){
         Group* new_group = new Group();
         new_group->setName(group->getStringAttribute("name"));
         
         group_editor->addGroup();
+        group_editor->getModel()->getGroupNames().set(j, new_group->getName());
         groups.add(new_group);
+        
+        j++;
                                 
         forEachXmlChildElement(*group, zone){
             if (zone->hasTagName("ZONE")){
