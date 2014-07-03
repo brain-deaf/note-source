@@ -100,7 +100,6 @@ void MappingEditorGraph::updateZones(){
         lassoSource.getZones().clear();
         SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
         for (int i=0; i<s.size(); i++){
-            std::cout<<s[i]<<std::endl;
             groups[s[i]]->getZones();
             if (groups[s[i]]->getZones() != nullptr && groups[s[i]]->getZones()->size() > 0){
                 for (int j=0; j<groups[s[i]]->getZones()->size(); j++){

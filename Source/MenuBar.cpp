@@ -83,7 +83,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
         }
         
         case ID_Open: {
-            mapping_editor = parent->getInstrumentComponent()
+            mapping_editor = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getMappingEditorBin()->getMappingEditor();
             
             FileChooser patch_loader("Please select the patch you want to load",
@@ -101,7 +101,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
         }
         
         case ID_Save: {
-            mapping_editor = parent->getInstrumentComponent()
+            mapping_editor = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getMappingEditorBin()->getMappingEditor();
             
             XmlElement instrument("INSTRUMENT");

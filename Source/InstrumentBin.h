@@ -20,6 +20,7 @@ public:
     ~InstrumentBin();
     void registerTab(InstrumentComponent* c);
     InstrumentComponent* getInstrumentComponent(){return instrumentComponent;}
+    Array<InstrumentComponent*> getInstruments(){return instruments;}
 
 private:
     InstrumentComponent* instrumentComponent;
