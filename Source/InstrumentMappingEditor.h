@@ -218,7 +218,7 @@ public:
         GroupEditor* group_editor;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingEditorGraph)
         Sampler sampler;
-        AudioPlayer source_player;
+        AudioSourcePlayer source_player;
     };
     InstrumentMappingEditor(const String& componentName,
         InstrumentComponent& i);

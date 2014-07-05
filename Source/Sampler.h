@@ -30,7 +30,8 @@ private:
     Synthesiser synth;
     AudioFormatManager formatManager;
     int midi_input_id;
-    IIRFilter filter;
+    IIRFilter filter1;
+    IIRFilter filter2;
     //Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
 };
 
@@ -40,17 +41,8 @@ public:
     SampleVoice();
     void renderNextBlock(AudioSampleBuffer&, int startSample, int numSamples) override;
 private:
-    IIRFilter filter;
-};
-
-class AudioPlayer : public AudioSourcePlayer
-{
-public:
-    AudioPlayer();
-    void audioDeviceIOCallback(const float** inputChannelData, int totalNumInputChannels, 
-                          float** outputChannelData, int totalNumOutputChannels, int numSamples);
-private:
-    IIRFilter filter;
+    IIRFilter filter1;
+    IIRFilter filter2;
 };
     
     

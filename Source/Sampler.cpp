@@ -11,12 +11,13 @@
 #include "Sampler.h"
 
 
-Sampler::Sampler() : AudioSource(), synth(), formatManager(), filter() {
+Sampler::Sampler() : AudioSource(), synth(), formatManager(), filter1(), filter2() {
     for (int i=0; i<16; i++){
         synth.addVoice(new SampleVoice());
     }
     formatManager.registerBasicFormats();
-    filter.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 1000.0));
+    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
+    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
 }
     
 void Sampler::addSample(String path, int root_note, int note_low, int note_high){
@@ -46,47 +47,16 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 
     synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, 0, bufferToFill.numSamples);
     
-    /*for (int i=0; i<bufferToFill.buffer->getNumChannels(); i++){
-        filter.processSamples(bufferToFill.buffer->getWritePointer(i), bufferToFill.buffer->getNumSamples());
-    }*/
-    
+    //add filter processing to the output channels 1 and 2
+    filter1.processSamples(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getNumSamples());
+    filter2.processSamples(bufferToFill.buffer->getWritePointer(1), bufferToFill.buffer->getNumSamples());
 }
 
-SampleVoice::SampleVoice() : SamplerVoice(), filter(){
-    filter.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
+SampleVoice::SampleVoice() : SamplerVoice(), filter1(), filter2(){
+    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 50.0));
+    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 50.0));
 }
 
 void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, int numSamples){
     SamplerVoice::renderNextBlock(buffer, startSample, numSamples);
-    
-    //filter.processSamples(buffer.getWritePointer(0), numSamples);
-    //filter.processSamples(buffer.getWritePointer(1), numSamples);
-    
-    /*for (int i=0; i<buffer.getNumChannels(); i++){
-        for (int j=startSample; j<numSamples; j++){
-            //filter.processSingleSampleRaw(buffer.getWritePointer(i)[j]);
-        }
-    }*/
-}
-
-AudioPlayer::AudioPlayer(){
-    filter.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
-}
-
-void AudioPlayer::audioDeviceIOCallback(const float** inputChannelData, int totalNumInputChannels, 
-                                        float** outputChannelData, int totalNumOutputChannels, int numSamples)
-{
-    AudioSourcePlayer::audioDeviceIOCallback(inputChannelData, totalNumInputChannels, outputChannelData, totalNumOutputChannels, numSamples);
-    /*for (int i=0; i<totalNumOutputChannels; i++){
-        for (int j=0; j<numSamples; j++){
-            filter.processSingleSampleRaw(outputChannelData[i][j]);
-        }
-    }*/
-    AudioSampleBuffer buffer(outputChannelData, totalNumOutputChannels, numSamples);
-    filter.processSamples(buffer.getWritePointer(0), numSamples);
-    filter.processSamples(buffer.getWritePointer(1), numSamples);
-    filter.processSamples(buffer.getWritePointer(2), numSamples);
-    filter.processSamples(buffer.getWritePointer(3), numSamples);
-    filter.processSamples(buffer.getWritePointer(4), numSamples);
-    filter.processSamples(buffer.getWritePointer(5), numSamples);
 }
