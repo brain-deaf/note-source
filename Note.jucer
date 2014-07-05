@@ -5,6 +5,8 @@
               jucerVersion="3.1.0">
   <MAINGROUP id="mDmDtX" name="Note">
     <GROUP id="{E7B5BC5B-0EE2-6069-3A31-101A9563FA74}" name="Source"/>
+    <FILE id="X1D6h9" name="Adsr.h" compile="0" resource="0" file="Source/Adsr.h"/>
+    <FILE id="YxNjWw" name="Adsr.cpp" compile="1" resource="0" file="Source/Adsr.cpp"/>
     <FILE id="WxDBZI" name="FilePlayer.h" compile="0" resource="0" file="Source/FilePlayer.h"/>
     <FILE id="FyGNFr" name="FilePlayer.cpp" compile="1" resource="0" file="Source/FilePlayer.cpp"/>
     <FILE id="svnQ4F" name="GroupEditor.h" compile="0" resource="0" file="Source/GroupEditor.h"/>

@@ -13,6 +13,7 @@
 #include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentMappingEditor.h"
+#include "Adsr.h"
 
 class WaveformView;
 
@@ -38,6 +39,7 @@ public:
     void resize();
     void paint(Graphics& g);
     void mouseMove(const MouseEvent& e){}
+    Adsr adsr;
 };
 
 #endif  // ZONEINFO_H_INCLUDED
