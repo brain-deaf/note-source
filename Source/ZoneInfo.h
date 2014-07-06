@@ -39,7 +39,7 @@ public:
     void resize();
     void paint(Graphics& g);
     void mouseMove(const MouseEvent& e){}
-    Adsr adsr;
+    //Adsr adsr;
 };
 
 #endif  // ZONEINFO_H_INCLUDED

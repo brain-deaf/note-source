@@ -14,7 +14,7 @@
 
 
 ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
-    mappingEditor{m}, zone{&m->graph->getZoneInfoSet()}, adsr(),
+    mappingEditor{m}, zone{&m->graph->getZoneInfoSet()}, /*adsr(),*/
     audio_thumbnail(new WaveformView(400, 100)){
     zone->addChangeListener(this);
     
@@ -78,8 +78,8 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
         noteNames.add(noteLetters[i % 12] + String((int)(i / 12) - 2));
     }
     
-    addAndMakeVisible(&adsr);
-    adsr.setBounds(100, 20, 100, 100);
+    /*addAndMakeVisible(&adsr);
+    adsr.setBounds(100, 5, 400, 150);*/
 }
 
 void ZoneInfo::changeListenerCallback(ChangeBroadcaster* source){
