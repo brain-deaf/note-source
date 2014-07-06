@@ -15,6 +15,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainPage.h"
 #include "MappingEditorBin.h"
+#include "FxBin.h"
 
 class InstrumentTabWindow : public TabbedComponent
 {
@@ -24,6 +25,7 @@ public:
 private:
     ScopedPointer<MainPage> mainPage;
     ScopedPointer<MappingEditorBin> mappingEditor;
+    ScopedPointer<FxBin> fxbin;
     ScopedPointer<TextButton> zoomButton;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentTabWindow)
 };

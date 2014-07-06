@@ -18,7 +18,7 @@ Adsr::Adsr() : Component(), adsr_plot(this), attack_time(), attack_curve(),
     attack_time.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     attack_time.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    attack_time.setRange(0.0, 600.0, 0.1);
+    attack_time.setRange(1.0, 600.0, 0.1);
     attack_time.setValue(180.0);
     attack_time.addListener(this);
     addAndMakeVisible(&attack_time);
@@ -34,7 +34,7 @@ Adsr::Adsr() : Component(), adsr_plot(this), attack_time(), attack_curve(),
     decay_time.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     decay_time.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    decay_time.setRange(0.0, 600.0, 0.1);
+    decay_time.setRange(1.0, 600.0, 0.1);
     decay_time.setValue(100.0);
     decay_time.addListener(this);
     addAndMakeVisible(&decay_time);
@@ -58,7 +58,7 @@ Adsr::Adsr() : Component(), adsr_plot(this), attack_time(), attack_curve(),
     release_time.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     release_time.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    release_time.setRange(0.0, 600.0, 0.1);
+    release_time.setRange(1.0, 600.0, 0.1);
     release_time.setValue(100.0);
     release_time.addListener(this);
     addAndMakeVisible(&release_time);
@@ -92,6 +92,12 @@ void Adsr::sliderValueChanged(Slider* slider){
     adsr_plot.repaint();
     if (slider == &attack_curve && attack_curve.getValue() == 0){
         attack_curve.setValue(0.00001);
+    }
+    if (slider == &decay_curve && decay_curve.getValue() == 0){
+        decay_curve.setValue(0.00001);
+    }
+    if (slider == &release_curve && release_curve.getValue() == 0){
+        release_curve.setValue(0.00001);
     }
 }
 
@@ -147,6 +153,23 @@ void Adsr::Graph::paint(Graphics& g){
         myPath.lineTo (i + atk_time + dec_time + sustain_time, getHeight() - plotAdsr(0, rel_time, sustain_level, 0, rel_curve_width, i));
     }
     g.strokePath (myPath, PathStrokeType (1.0f));
+    
+    Path myPath2;
+    myPath2.startNewSubPath(atk_time, 0);
+    myPath2.lineTo(atk_time, getHeight());
+    myPath2.startNewSubPath(dec_time+atk_time, 0);
+    myPath2.lineTo(dec_time+atk_time, getHeight());
+    myPath2.startNewSubPath(dec_time+atk_time+sustain_time, 0);
+    myPath2.lineTo(dec_time+atk_time+sustain_time, getHeight());
+    
+    //PathStrokeType(1.0f).createDashedStroke(myPath, myPath, 3.0f, 10);
+    
+    float* dashed_lengths;
+    dashed_lengths[0] = 2.0f;
+    dashed_lengths[1] = 4.0f;
+    
+    PathStrokeType(1.0f).createDashedStroke(myPath2, myPath2, dashed_lengths, 2);
+    g.strokePath (myPath2, PathStrokeType(1.0f));
 }
 
 
