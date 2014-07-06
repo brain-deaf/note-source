@@ -11,30 +11,77 @@
 #include "Adsr.h"
 #include <math.h>
 
-Adsr::Adsr() : Component(), adsr_plot(this), attack_time(), curve(){
+Adsr::Adsr() : Component(), adsr_plot(this), attack_time(), attack_curve(),
+    decay_time(), decay_curve(), sustain(), release_time(), release_curve(){
     addAndMakeVisible(&adsr_plot);
     
     attack_time.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     attack_time.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
     attack_time.setRange(0.0, 600.0, 0.1);
-    attack_time.setValue(5.0);
+    attack_time.setValue(180.0);
     attack_time.addListener(this);
     addAndMakeVisible(&attack_time);
     
-    curve.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    curve.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+    attack_curve.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    attack_curve.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    curve.setRange(-0.1, 0.1);
-    curve.setValue(0.0001);
-    curve.addListener(this);
-    addAndMakeVisible(&curve);
+    attack_curve.setRange(-0.1, 0.1);
+    attack_curve.setValue(-0.05);
+    attack_curve.addListener(this);
+    addAndMakeVisible(&attack_curve);
+    
+    decay_time.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    decay_time.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+                                true, 100, 20);
+    decay_time.setRange(0.0, 600.0, 0.1);
+    decay_time.setValue(100.0);
+    decay_time.addListener(this);
+    addAndMakeVisible(&decay_time);
+    
+    decay_curve.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    decay_curve.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+                                true, 100, 20);
+    decay_curve.setRange(-0.1, 0.1);
+    decay_curve.setValue(-0.05);
+    decay_curve.addListener(this);
+    addAndMakeVisible(&decay_curve);
+    
+    sustain.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    sustain.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+                                true, 100, 20);
+    sustain.setRange(0.0, 200.0, 0.1);
+    sustain.setValue(150.0);
+    sustain.addListener(this);
+    addAndMakeVisible(&sustain);
+    
+    release_time.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    release_time.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+                                true, 100, 20);
+    release_time.setRange(0.0, 600.0, 0.1);
+    release_time.setValue(100.0);
+    release_time.addListener(this);
+    addAndMakeVisible(&release_time);
+    
+    release_curve.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    release_curve.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+                                true, 100, 20);
+    release_curve.setRange(-0.1, 0.1);
+    release_curve.setValue(-0.05);
+    release_curve.addListener(this);
+    addAndMakeVisible(&release_curve);
 }
 
 void Adsr::resized(){
-    adsr_plot.setBounds(0, 0, getWidth(), getHeight() - 80);
-    attack_time.setBounds(0, getHeight() - 90, 140, 80);
-    curve.setBounds(150, getHeight() - 90, 140, 80);
+    adsr_plot.setBounds(0, 0, getWidth(), getHeight() - 120);
+    attack_time.setBounds(0, getHeight() - 120, 140, 40);
+    attack_curve.setBounds(0, getHeight() - 80, 140, 40);
+    decay_time.setBounds(150, getHeight() - 120, 140, 40);
+    decay_curve.setBounds(150, getHeight() - 80, 140, 40);
+    sustain.setBounds(300, getHeight() - 120, 140, 40);
+    sustain.setRange(0.0, getHeight(), 0.1);
+    release_time.setBounds(450, getHeight() - 120, 140, 40);
+    release_curve.setBounds(450, getHeight() - 80, 140, 40);
 }
 
 void Adsr::paint(Graphics& g){
@@ -43,8 +90,8 @@ void Adsr::paint(Graphics& g){
 
 void Adsr::sliderValueChanged(Slider* slider){
     adsr_plot.repaint();
-    if (slider == &curve && curve.getValue() == 0){
-        curve.setValue(0.00001);
+    if (slider == &attack_curve && attack_curve.getValue() == 0){
+        attack_curve.setValue(0.00001);
     }
 }
 
@@ -56,8 +103,8 @@ void Adsr::sliderValueChanged(Slider* slider){
 
 
 //y = max_volume / (e^curve_width*time - 1) * (e^curve_width*X - 1)
-static double plotAdsr(int time, int max_volume, double curve_width, int x){
-    return(max_volume / (pow(M_E, curve_width*time) - 1) * (pow(M_E, curve_width*x) - 1));
+static double plotAdsr(int x1, int time, int y1, int max_volume, double curve_width, int x){
+    return(max_volume - y1) / (pow(M_E, curve_width*time) - pow(M_E, curve_width*x1)) * (pow(M_E, curve_width*x) - pow(M_E, curve_width*x1)) + y1;
 }
 
 Adsr::Graph::Graph(Adsr* _parent) : Component(), parent(_parent){}
@@ -70,16 +117,35 @@ void Adsr::Graph::paint(Graphics& g){
     Path myPath;
     myPath.startNewSubPath(0, getHeight());
     
+    //attack
     int max_volume(getHeight());
-    double time(parent->getAttackTimeSlider()->getValue());
-    double curve_width(parent->getCurveSlider()->getValue());
+    double atk_time(parent->getAttackTimeSlider()->getValue());
+    double atk_curve_width(parent->getAttackCurveSlider()->getValue());
     
-    for (int i=0; i <= time; i++){
-        myPath.lineTo (i, getHeight() - plotAdsr(time, max_volume, curve_width, i));
+    for (int i=0; i <= atk_time; i++){
+        myPath.lineTo (i, getHeight() - plotAdsr(0, atk_time, 0, max_volume, atk_curve_width, i));
     }
-    myPath.startNewSubPath(time, 0);
-    myPath.lineTo(time, getHeight());
+    
+    //decay
+    double dec_time = parent->getDecayTimeSlider()->getValue();
+    double dec_curve_width = parent->getDecayCurveSlider()->getValue();
+    double sustain_level = parent->getSustainSlider()->getValue();
+    
+    for (int i=0; i <= dec_time; i++){
+        myPath.lineTo (i + atk_time, getHeight() - plotAdsr(0, dec_time, max_volume, sustain_level, dec_curve_width, i));
+    }
 
+    //sustain
+    int sustain_time = 150;
+    myPath.lineTo(atk_time + dec_time + sustain_time, getHeight() - sustain_level);
+    
+    //release
+    double rel_time = parent->getReleaseTimeSlider()->getValue();
+    double rel_curve_width = parent->getReleaseCurveSlider()->getValue();
+    
+    for (int i=0; i <= rel_time; i++){
+        myPath.lineTo (i + atk_time + dec_time + sustain_time, getHeight() - plotAdsr(0, rel_time, sustain_level, 0, rel_curve_width, i));
+    }
     g.strokePath (myPath, PathStrokeType (1.0f));
 }
 

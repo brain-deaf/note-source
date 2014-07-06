@@ -14,7 +14,7 @@ void MainPage::resized(){
 }
 
 void MainPage::broughtToFront() {
-    adsr->setBounds(100, 5, 600, 350);
+    adsr->setBounds(100, 5, 800, 350);
     /*deleteAllChildren();
     int c = 0;
     for(auto i : instrument.getSampleNames()) {

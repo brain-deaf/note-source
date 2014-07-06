@@ -37,11 +37,21 @@ public:
     void resized();
     void sliderValueChanged(Slider*);
     Slider* getAttackTimeSlider(){return &attack_time;}
-    Slider* getCurveSlider(){return &curve;}
+    Slider* getAttackCurveSlider(){return &attack_curve;}
+    Slider* getDecayTimeSlider(){return &decay_time;}
+    Slider* getDecayCurveSlider(){return &decay_curve;}
+    Slider* getSustainSlider(){return &sustain;}
+    Slider* getReleaseTimeSlider(){return &release_time;}
+    Slider* getReleaseCurveSlider(){return &release_curve;}
 private:
     Graph adsr_plot;
     Slider attack_time;
-    Slider curve;
+    Slider attack_curve;
+    Slider decay_time;
+    Slider decay_curve;
+    Slider sustain;
+    Slider release_time;
+    Slider release_curve;
 };
 
 
