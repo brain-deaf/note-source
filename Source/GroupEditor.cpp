@@ -79,17 +79,19 @@ GroupEditor::~GroupEditor(){
 void GroupEditor::paint(Graphics& g){
     g.fillAll(Colours::white);
     g.setColour(Colours::lightgrey);
-    g.fillRect(0, 1, width, header_height);
-    g.fillRect(0, height - footer_height, width, height);
+    g.fillRect(0, 1, getWidth(), header_height);
+    g.fillRect(0, getHeight() - footer_height, getWidth(), getHeight() - footer_height);
     g.setColour(Colours::black);
     g.setOpacity(1.0f);
     Path myPath;
     myPath.startNewSubPath(0.0f, 0.0f);
-    myPath.lineTo(width, 0);
+    myPath.lineTo(getWidth(), 0);
     myPath.startNewSubPath(0.0f, header_height);
-    myPath.lineTo(width, header_height);
-    myPath.startNewSubPath(0.0f, height - footer_height);
-    myPath.lineTo(width, height - footer_height);
+    myPath.lineTo(getWidth(), header_height);
+    //myPath.startNewSubPath(getWidth(), header_height);
+    //myPath.lineTo(getWidth(), getHeight());
+    myPath.startNewSubPath(0.0f, getHeight() - footer_height);
+    myPath.lineTo(getWidth(), getHeight() - footer_height);
 
     g.strokePath(myPath, PathStrokeType(1.0f));
 }
@@ -154,5 +156,6 @@ void GroupBoxModel::selectedRowsChanged(int row){
 }
 
 void GroupEditor::resized(){
-    setBounds(0, 0, width, height);
+    create_group_button->setBounds(3, getHeight() - footer_height + 3, 80, 20);
+    delete_group_button->setBounds(86, getHeight() - footer_height + 3, 80, 20);
 }

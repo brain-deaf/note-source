@@ -22,6 +22,8 @@ class InstrumentTabWindow : public TabbedComponent
 public:
     InstrumentTabWindow(InstrumentComponent& instrument, TabbedButtonBar::Orientation orientation);
     MappingEditorBin* getMappingEditorBin(){return mappingEditor;}
+    FxBin* getFxBin(){return fxbin;}
+    void currentTabChanged(int, const String&);
 private:
     ScopedPointer<MainPage> mainPage;
     ScopedPointer<MappingEditorBin> mappingEditor;

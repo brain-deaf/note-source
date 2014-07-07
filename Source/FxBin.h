@@ -14,16 +14,21 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FxComponent.h"
 #include "FxSelector.h"
+#include "GroupEditor.h"
+#include "MappingEditorBin.h"
 
 class FxBin : public Component {
 public:
-    FxBin();
+    FxBin(MappingEditorBin*);
     ~FxBin();
     void resized();
+    void broughtToFront();
 private:
     FxSelector* fx_selector;
     FxComponent* fx_component;
     int selector_height;
+    GroupEditor* group_editor;
+    MappingEditorBin* mapping_editor;
 };
 
 

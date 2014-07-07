@@ -52,8 +52,8 @@ public:
     void addGroup();
     void removeGroups();
     
-    int getWidth(){return width;}
-    int getHeight(){return height;}
+    int get_width(){return width;}
+    int get_height(){return height;}
     int getRowHeight(){return row_height;}
     GroupBoxModel* getModel(){return model;}
     ListBox* getListBox(){return list_box;}

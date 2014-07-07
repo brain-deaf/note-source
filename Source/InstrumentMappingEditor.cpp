@@ -33,14 +33,20 @@ InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, In
     group_editor->getModel();
     addAndMakeVisible(view_port);
     addAndMakeVisible(group_editor);
-    
-    
 }
+
+/*void InstrumentMappingEditor::MappingEditorGraph::broughtToFront(){
+    int group_editor_width = 200;
+    addAndMakeVisible(group_editor);
+    group_editor->setBounds(0, 0, group_editor_width, 333 + 100);
+    std::cout<<"group editor resized mapping page"<<std::endl;
+}*/
 
 void InstrumentMappingEditor::resized() 
 {
     auto group_editor_width = group_editor->getWidth();
     view_port->setBounds(group_editor_width,0,getWidth()-group_editor_width, 333+100);
+    group_editor->setBounds(0, 0, group_editor_width, 333 + 100);
 }
 
 InstrumentMappingEditor::~InstrumentMappingEditor(){

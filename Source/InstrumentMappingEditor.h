@@ -224,6 +224,7 @@ public:
         InstrumentComponent& i);
     ~InstrumentMappingEditor();
     virtual void resized() override;
+    void refreshGroupEditor(){addAndMakeVisible(group_editor);resized();}
     ScopedPointer<MappingEditorGraph> graph;
     Viewport* view_port;
     GroupEditor* group_editor;
