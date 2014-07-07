@@ -10,7 +10,7 @@
 
 #include "FxBin.h"
 
-FxBin::FxBin() : Component(), selector_height(150), fx_selector(new FxSelector()), fx_component(new FxComponent()){
+FxBin::FxBin() : Component(), selector_height(150), fx_selector(new FxSelector(2, 6)), fx_component(new FxComponent()){
     addAndMakeVisible(fx_selector);
     addAndMakeVisible(fx_component);
 }
