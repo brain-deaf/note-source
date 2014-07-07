@@ -14,7 +14,8 @@ FxSelector::FxSelector(int rows, int columns) : Component(),
     num_rows(rows), num_columns(columns)
 {
     for (int i=0; i<num_columns*rows; i++){
-        fx_boxes.add(new FxBox(new FxButton()));
+        fx_boxes.add(new FxBox(new FxButton(this), this));
+        fx_boxes[i]->getButton()->setButtonText(String(i));
     }
     for (auto box : fx_boxes){
         addAndMakeVisible(box);
@@ -39,31 +40,17 @@ void FxSelector::resized(){
 }
 
 void FxSelector::paint(Graphics& g){
-    //g.fillAll(Colours::red);
     
     if (isDragAndDropActive()){
-        //g.fillAll(Colours::red);
-        Point<int> mouse_position(getMouseXYRelative());
-        int focused_row = (int)(mouse_position.getY() / (getHeight() / num_rows));
-        int focused_column = (int)(mouse_position.getX() / (getWidth() / num_columns));
-        int column_width = getWidth()/num_columns;
-        int row_height = getHeight()/num_rows;
-        //std::cout<<column_width<<" "<<row_height<<" "<<focused_row<<" "<<focused_column<<std::endl;
-        
-        //g.setColour(Colours::purple);
-        //g.setOpacity(0.5f);
-        //g.fillAll(Colours::purple);
-        //g.fillRect(Rectangle<int>(focused_column*column_width, focused_row*row_height, column_width, row_height));
     }else{
-        //std::cout<<"not dragging"<<std::endl;
     }
 }
 
-FxButton::FxButton() : TextButton("fx"){
+FxButton::FxButton(FxSelector* _parent) : TextButton("fx"), parent(_parent){
     setClickingTogglesState(true);
 }
 
-FxBox::FxBox(FxButton* button): _button(button), item_entered(false){
+FxBox::FxBox(FxButton* button, FxSelector* _parent): _button(button), parent(_parent), item_entered(false){
     addAndMakeVisible(_button);
 }
 
@@ -73,9 +60,42 @@ void FxBox::resized(){
 
 void FxButton::mouseDrag(const MouseEvent& e){
     DragAndDropContainer::findParentDragContainerFor(this)->startDragging("fx", this);
+    parent->setDragObject(this);
 }
 
-void FxBox::itemDropped(const SourceDetails& dragSourceDetails){}
+void FxBox::itemDropped(const SourceDetails& dragSourceDetails){
+    Array<FxBox*> boxes = parent->getBoxes();
+    
+    FxBox* dragged_box;
+    int dragged_index;
+    for (auto box : boxes){
+        if (box->getButton() == parent->getDragObject()){
+            dragged_box = box;
+            dragged_index = boxes.indexOf(box);
+            boxes.removeFirstMatchingValue(dragged_box);
+            break;
+        }
+    }
+    
+    
+    int new_index = boxes.indexOf(this);
+    if (new_index == -1){
+        boxes.insert(dragged_index, dragged_box);
+    }
+    else if (new_index < dragged_index){
+        boxes.insert(new_index, dragged_box);
+    }
+    else{
+        boxes.insert(new_index+1, dragged_box);
+    }
+
+    for (auto box : boxes){
+        box->setEntered(false);
+        box->repaint();
+    }
+    parent->setBoxes(boxes);
+    parent->resized();
+}
 
 void FxBox::itemDragEnter(const SourceDetails& dragSourceDetails){
     item_entered = true;
