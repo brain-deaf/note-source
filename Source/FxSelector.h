@@ -37,6 +37,7 @@ class FxButton : public TextButton{
 public:
     FxButton(FxSelector*);
     void mouseDrag(const MouseEvent& e);
+    void mouseDown(const MouseEvent& e);
 private:
     FxSelector* parent;
 };
@@ -57,6 +58,29 @@ private:
     FxButton* _button;
     bool item_entered;
     FxSelector* parent;
+};
+
+class FxChoiceButton : public TextButton{
+public:
+    FxChoiceButton() : TextButton(){}
+    void mouseDown(const MouseEvent& e) override;
+    void mouseEnter(const MouseEvent& e) override;
+    void mouseExit(const MouseEvent& e) override;
+    //void paint(Graphics& g) override;
+};
+
+class FxChooser : public Component{
+public:
+    FxChooser(int rows, int columns);
+    ~FxChooser();
+    void resized();
+    void paint(Graphics& g);
+    void focusButton(FxChoiceButton*);
+    void unfocusButton(FxChoiceButton*);
+private:
+    Array<FxChoiceButton*> buttons;
+    int numRows;
+    int numColumns;
 };
 
 
