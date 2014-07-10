@@ -16,7 +16,6 @@ FxComponent::FxComponent() : Component(), adsr(new Adsr()), visibleFx(-1){
 }
 
 FxComponent::~FxComponent(){
-    std::cout<<"desructor..."<<std::endl;
     delete adsr;
 }
 
@@ -35,17 +34,13 @@ void FxComponent::loadFx(int x){
 }
 
 void FxComponent::showFx(){
-    std::cout<<"show fx"<<std::endl;
     switch (visibleFx){
     case FxChooser::FX::ADSR:
-        std::cout<<"pre adsr"<<std::endl;
         std::cout<<adsr<<std::endl;
         if (!adsr->isVisible()) adsr->setVisible(true);
-        std::cout<<"adsr"<<std::endl;
         break;
     
     case FxChooser::FX::NONE:
-        std::cout<<"none"<<std::endl;
         if (adsr->isVisible()) adsr->setVisible(false);
         break;
     }
@@ -53,7 +48,6 @@ void FxComponent::showFx(){
 
 
 void FxComponent::resized(){
-    std::cout<<"resized"<<std::endl;
     adsr->setBounds(0, 0, getWidth(), getHeight());
 }
             
