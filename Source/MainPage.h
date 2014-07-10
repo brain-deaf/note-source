@@ -16,7 +16,6 @@ public:
     void broughtToFront() override;
     void resized();
 private:
-    Adsr* adsr;
 
 };
 

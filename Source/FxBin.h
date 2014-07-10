@@ -23,6 +23,7 @@ public:
     ~FxBin();
     void resized();
     void broughtToFront();
+    FxComponent* getFxComponent(){return fx_component;}
 private:
     FxSelector* fx_selector;
     FxComponent* fx_component;

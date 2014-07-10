@@ -28,7 +28,7 @@ FxBin::~FxBin(){
 
 void FxBin::resized(){
     fx_selector->setBounds(200, 0, getWidth() - 200, selector_height);
-    fx_component->setBounds(200, selector_height + 30, getWidth(), getHeight() - (selector_height + 30)); 
+    fx_component->setBounds(200, selector_height + 25, getWidth(), getHeight() - (selector_height + 25)); 
     group_editor->setBounds(0, 0, 200, getHeight());
     group_editor->repaint();
 }

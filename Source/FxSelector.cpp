@@ -9,6 +9,7 @@
 */
 
 #include "FxSelector.h"
+#include "FxBin.h"
 
 FxSelector::FxSelector(int rows, int columns) : Component(),
     num_rows(rows), num_columns(columns)
@@ -20,12 +21,14 @@ FxSelector::FxSelector(int rows, int columns) : Component(),
     for (auto box : fx_boxes){
         addAndMakeVisible(box);
     }
+    chooser = new FxChooser(2, 4, this);
 }
 
 FxSelector::~FxSelector(){
     for (auto box : fx_boxes){
         delete box;
     }
+    delete chooser;
 }
 
 void FxSelector::resized(){
@@ -46,12 +49,17 @@ void FxSelector::paint(Graphics& g){
     }
 }
 
-FxButton::FxButton(FxSelector* _parent) : TextButton("fx"), parent(_parent){
-    //setClickingTogglesState(true);
+void FxSelector::updateButtonText(String buttonText){
+    for (auto box : fx_boxes){
+        if (box->getButton() == fxButtonChoice){
+            box->getButton()->setButtonText(buttonText);
+        }
+    }
 }
 
-FxBox::FxBox(FxButton* button, FxSelector* _parent): _button(button), parent(_parent), item_entered(false){
-    addAndMakeVisible(_button);
+
+FxButton::FxButton(FxSelector* _parent) : TextButton("fx"), parent(_parent), fx(FxChooser::FX::NONE){
+    //setClickingTogglesState(true);
 }
 
 void FxBox::resized(){
@@ -65,13 +73,30 @@ void FxButton::mouseDrag(const MouseEvent& e){
 
 void FxButton::mouseDown(const MouseEvent& e){
     ModifierKeys keys = e.mods;
+    parent->fxButtonChoice = this;
     if (keys.isRightButtonDown()){
-        FxChooser* chooser;
-        parent->addAndMakeVisible(chooser = new FxChooser(2, 4));
+        parent->addAndMakeVisible(parent->getChooser());
         int x_margin = 50;
         int y_margin = 10;
-        chooser->setBounds(x_margin, y_margin, parent->getWidth() - x_margin*2, parent->getHeight() - y_margin*2);
+        parent->getChooser()->setBounds(x_margin, y_margin, parent->getWidth() - x_margin*2, parent->getHeight() - y_margin*2);
+    }else{
+        typedef FxChooser::FX FX;
+        FxBox* box = (FxBox*)getParentComponent();
+        FxSelector* selector = box->getParent();
+        FxBin* bin = (FxBin*)selector->getParentComponent();
+        switch (fx){
+        case FX::ADSR:{
+            bin->getFxComponent()->loadFx(FX::ADSR);
+            break;}
+        case FX::NONE:{
+            bin->getFxComponent()->loadFx(FX::NONE);
+            break;}
+        }
     }
+}
+
+FxBox::FxBox(FxButton* button, FxSelector* _parent): _button(button), parent(_parent), item_entered(false){
+    addAndMakeVisible(_button);
 }
 
 void FxBox::itemDropped(const SourceDetails& dragSourceDetails){
@@ -131,7 +156,9 @@ void FxBox::paint(Graphics& g){
 }
 
 void FxChoiceButton::mouseDown(const MouseEvent& e){
-    delete getParentComponent();
+    ((FxSelector*)((FxChooser*)getParentComponent())->getParentComponent())->updateButtonText(getButtonText());
+    getParentComponent()->setVisible(false);
+    ((FxChooser*)getParentComponent())->callButtonClick(this);
 }
 
 void FxChoiceButton::mouseEnter(const MouseEvent& e){
@@ -142,7 +169,7 @@ void FxChoiceButton::mouseExit(const MouseEvent& e){
     ((FxChooser*)(getParentComponent()))->unfocusButton(this);
 }
 
-FxChooser::FxChooser(int rows, int columns) : Component(), numRows(rows), numColumns(columns)
+FxChooser::FxChooser(int rows, int columns, FxSelector * f) : Component(), numRows(rows), numColumns(columns), parent(f)
 {
     for (int i=0; i<numRows; i++){
         for (int j=0; j<numColumns; j++){
@@ -155,6 +182,7 @@ FxChooser::FxChooser(int rows, int columns) : Component(), numRows(rows), numCol
             addAndMakeVisible(buttons[i*numColumns + j]);
         }
     }
+    buttons[0]->setButtonText("ADSR");
 }
 
 FxChooser::~FxChooser(){
@@ -176,6 +204,18 @@ void FxChooser::resized(){
         for (int j=0; j<numColumns; j++){
             buttons[i*numColumns+j]->setBounds(button_width*j + button_width/4, button_height*i + button_height/4, button_width/2, button_height/2);
         }
+    }
+}
+
+void FxChooser::callButtonClick(FxChoiceButton* b){
+    FxSelector* selector = (FxSelector*)getParentComponent();
+    FxBin* bin = ((FxBin*)(selector->getParentComponent()));
+    if (buttons.indexOf(b) == ADSR){
+        selector->fxButtonChoice->setFx(ADSR);
+        bin->getFxComponent()->loadFx(ADSR);
+    }else{ 
+        selector->fxButtonChoice->setFx(NONE);
+        bin->getFxComponent()->loadFx(NONE);
     }
 }
 
