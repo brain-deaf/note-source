@@ -10,15 +10,16 @@
 
 #include "FxBin.h"
 
-FxBin::FxBin(MappingEditorBin* bin) : Component(), selector_height(150),  
-    fx_selector(new FxSelector(2, 6)), 
+FxBin::FxBin(MappingEditorBin* bin) : Component(), selector_height(150),
     fx_component(new FxComponent()),
     mapping_editor{bin},
-    group_editor(bin->getMappingEditor()->graph->getGroupEditor())
+    group_editor(bin->getMappingEditor()->graph->getGroupEditor()),
+    fx_selector(new FxSelector(2, 6))
 {
     addAndMakeVisible(fx_selector);
     addAndMakeVisible(fx_component);
     addAndMakeVisible(group_editor);
+    group_editor->setFxBin(this);
 }
 
 FxBin::~FxBin(){

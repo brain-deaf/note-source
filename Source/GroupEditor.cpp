@@ -10,12 +10,13 @@
 
 #include "GroupEditor.h"
 #include "InstrumentMappingEditor.h"
+#include "FxBin.h"
 
 GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component(), width(w), height(h), row_height(30),
     mapping_editor(m),
     header_height(50), footer_height(25), model(new GroupBoxModel()), list_box(new ListBox("list box", nullptr)),
     group_name_lbl(new Label("")), group_number_lbl(new Label("")),
-    group_name(new Label("")), group_number(new Label("")), temp("123lkj"),
+    group_name(new Label("")), group_number(new Label("")), temp("123lkj"), fx_bin(nullptr),
     create_group_button(new TextButton("Create Group")), delete_group_button(new TextButton("Delete Group")){
     setBounds(0, 0, w, h);
     
@@ -74,6 +75,10 @@ GroupEditor::~GroupEditor(){
     create_group_button = nullptr;
     delete delete_group_button;
     delete_group_button = nullptr;
+}
+
+void GroupEditor::setFxBin(FxBin* f){
+    fx_bin = f;
 }
 
 void GroupEditor::paint(Graphics& g){
@@ -153,6 +158,10 @@ void GroupBoxModel::paintListBoxItem(int rowNumber, Graphics& g, int w, int h, b
 void GroupBoxModel::selectedRowsChanged(int row){
     parent->updateLabels(group_names[row], row);
     (parent->getMappingEditor())->graph->updateZones();
+    
+    if ((parent->getFxBin()) != nullptr){
+        ((parent->getFxBin())->getFxSelector())->updateFx();
+    }
 }
 
 void GroupEditor::resized(){

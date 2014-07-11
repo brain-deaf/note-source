@@ -12,16 +12,20 @@
 #include "FxBin.h"
 
 FxSelector::FxSelector(int rows, int columns) : Component(),
-    num_rows(rows), num_columns(columns)
+    num_rows(rows), num_columns(columns), groups(), group_editor(nullptr)
 {
+    groups.add(new FxGroup());
     for (int i=0; i<num_columns*rows; i++){
         fx_boxes.add(new FxBox(new FxButton(this), this));
         fx_boxes[i]->getButton()->setButtonText("");
+        groups[0]->group_fx.add(new Fx());
     }
     for (auto box : fx_boxes){
         addAndMakeVisible(box);
     }
     chooser = new FxChooser(2, 4, this);
+    
+    
 }
 
 FxSelector::~FxSelector(){
@@ -31,10 +35,19 @@ FxSelector::~FxSelector(){
     delete chooser;
 }
 
+void FxSelector::registerGroupEditor(){
+    if (group_editor == nullptr){
+        FxBin* parent = (FxBin*)getParentComponent();
+        group_editor = parent->getGroupEditor();
+        group_editor->getCreateGroupButton()->addListener(this);
+        group_editor->getDeleteGroupButton()->addListener(this);
+    }
+}
+
 void FxSelector::resized(){
+    registerGroupEditor();
     int box_width = getWidth() / num_columns;
     int box_height = getHeight() / num_rows;
-    
     for (int row=0; row<num_rows; row++){
         for (int i=0; i<num_columns; i++){
             fx_boxes[i+row*num_columns]->setBounds(i*box_width, box_height*row, box_width, box_height);
@@ -49,10 +62,43 @@ void FxSelector::paint(Graphics& g){
     }
 }
 
+void FxSelector::buttonClicked(Button* b){
+    registerGroupEditor();
+    
+    if (b == group_editor->getCreateGroupButton()){
+        groups.add(new FxGroup());
+        for (int i=0; i<num_columns*num_rows; i++){
+            groups[groups.size()-1]->group_fx.add(new Fx());
+        }
+    }
+    else if (b == group_editor->getDeleteGroupButton()){
+        SparseSet<int> s = group_editor->getListBox()->getSelectedRows();
+        for (int i=s.size()-1; i>=0; i--){
+            groups.remove(s[i]);
+        }
+    }
+}
+
 void FxSelector::updateButtonText(String buttonText){
     for (auto box : fx_boxes){
         if (box->getButton() == fxButtonChoice){
             box->getButton()->setButtonText(buttonText);
+        }
+    }
+}
+
+void FxSelector::updateFx(){
+    Array<int> used_index;
+    SparseSet<int> s = group_editor->getListBox()->getSelectedRows();
+    for (int i=0; i<s.size(); i++){
+        for (int j=0; j<groups[s[i]]->group_fx.size(); j++){
+            Fx* fx = groups[s[i]]->group_fx[j];
+            if (fx->getFxType() == FxChooser::FX::ADSR){
+                fx_boxes[j]->getButton()->setButtonText("ADSR");
+                used_index.add(j);
+            }else{
+                if (used_index.indexOf(j) == -1) fx_boxes[j]->getButton()->setButtonText("");
+            }
         }
     }
 }
@@ -72,6 +118,7 @@ void FxButton::mouseDrag(const MouseEvent& e){
 void FxButton::mouseDown(const MouseEvent& e){
     ModifierKeys keys = e.mods;
     parent->fxButtonChoice = this;
+    
     if (keys.isRightButtonDown()){
         parent->addAndMakeVisible(parent->getChooser());
         int x_margin = 50;
@@ -82,14 +129,22 @@ void FxButton::mouseDown(const MouseEvent& e){
         FxBox* box = (FxBox*)getParentComponent();
         FxSelector* selector = box->getParent();
         FxBin* bin = (FxBin*)selector->getParentComponent();
-        switch (fx){
-        case FX::ADSR:{
-            bin->getFxComponent()->loadFx(FX::ADSR, content);
-            break;}
-        case FX::NONE:{
-            bin->getFxComponent()->loadFx(FX::NONE, nullptr);
-            break;}
+        
+        SparseSet<int> s = selector->getGroupEditor()->getListBox()->getSelectedRows();
+        for (int i=0; i<s.size(); i++){
+            Fx* fx = selector->getGroups()[s[i]]->group_fx[selector->getBoxes().indexOf(box)];
+            switch (fx->getFxType()){
+            case FX::ADSR:{
+                if (fx->getFxType() == 0){
+                    bin->getFxComponent()->loadFx(FX::ADSR, fx->getContent());
+                    return;
+                }
+            }}
+            /*case FX::NONE:{
+                bin->getFxComponent()->loadFx(FX::NONE, nullptr);
+                return;}*/
         }
+        bin->getFxComponent()->loadFx(FX::NONE, nullptr);
     }
 }
 
@@ -112,14 +167,24 @@ void FxBox::itemDropped(const SourceDetails& dragSourceDetails){
     }
     
     int new_index = boxes.indexOf(this);
+    SparseSet<int> s = parent->getGroupEditor()->getListBox()->getSelectedRows();
+    
     if (new_index == -1){
         boxes.insert(dragged_index, dragged_box);
     }
     else if (new_index < dragged_index){
         boxes.insert(new_index, dragged_box);
+        for (int i=0; i<s.size(); i++){
+            parent->getGroups()[s[i]]->group_fx.insert(new_index, parent->getGroups()[s[i]]->group_fx[dragged_index]);
+            parent->getGroups()[s[i]]->group_fx.remove(dragged_index+1);
+        }
     }
     else{
         boxes.insert(new_index+1, dragged_box);
+        for (int i=0; i<s.size(); i++){
+            parent->getGroups()[s[i]]->group_fx.insert(new_index+2, parent->getGroups()[s[i]]->group_fx[dragged_index]);
+            parent->getGroups()[s[i]]->group_fx.remove(dragged_index);
+        }
     }
 
     for (auto box : boxes){
@@ -212,6 +277,13 @@ void FxChooser::callButtonClick(FxChoiceButton* b){
         selector->fxButtonChoice->setFx(ADSR);
         selector->fxButtonChoice->set_component((Component*)(new Adsr()));
         bin->getFxComponent()->loadFx(ADSR, selector->fxButtonChoice->get_component());
+        
+        int fx_index = selector->getBoxes().indexOf((FxBox*)(selector->fxButtonChoice->getParentComponent()));
+        SparseSet<int> s = selector->getGroupEditor()->getListBox()->getSelectedRows();
+        for (int i=s.size()-1; i>=0; i--){
+            selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = ADSR;
+            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
+        }
     }else{ 
         delete selector->fxButtonChoice->get_component();
         selector->fxButtonChoice->setFx(NONE);

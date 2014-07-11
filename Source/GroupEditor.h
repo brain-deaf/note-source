@@ -13,6 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+class FxBin;
 class InstrumentMappingEditor;
 class GroupEditor;
 
@@ -60,6 +61,8 @@ public:
     TextButton* getCreateGroupButton(){return create_group_button;}
     TextButton* getDeleteGroupButton(){return delete_group_button;}
     InstrumentMappingEditor* getMappingEditor(){return mapping_editor;}
+    void setFxBin(FxBin*);
+    FxBin* getFxBin(){return fx_bin;}
     
 private:
     int width;
@@ -77,6 +80,7 @@ private:
     TextButton* delete_group_button;
     InstrumentMappingEditor* mapping_editor;
     String temp;
+    FxBin* fx_bin;
 };
 
 

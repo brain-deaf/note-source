@@ -24,6 +24,8 @@ public:
     void resized();
     void broughtToFront();
     FxComponent* getFxComponent(){return fx_component;}
+    GroupEditor* getGroupEditor(){return group_editor;}
+    FxSelector* getFxSelector(){return fx_selector;}
 private:
     FxSelector* fx_selector;
     FxComponent* fx_component;

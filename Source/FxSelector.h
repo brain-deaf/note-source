@@ -12,13 +12,15 @@
 #define FXSELECTOR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "GroupEditor.h"
 
 class FxButton;
 class FxBox;
 class FxChooser;
 class FxBin;
+class FxGroup;
 
-class FxSelector : public Component, public DragAndDropContainer{
+class FxSelector : public Component, public DragAndDropContainer, public ButtonListener{
 public:
     FxSelector(int rows, int columns);
     ~FxSelector();
@@ -26,10 +28,15 @@ public:
     void resized();
     void setDragObject(FxButton* b){drag_object=b;}
     Array<FxBox*>& getBoxes(){return fx_boxes;}
+    Array<FxGroup*>& getGroups(){return groups;}
     FxButton* getDragObject(){return drag_object;}
     void setBoxes(Array<FxBox*> b){fx_boxes = b;}
     FxChooser* getChooser(){return chooser;}
     void updateButtonText(String);
+    void updateFx();
+    void buttonClicked(Button*);
+    void registerGroupEditor();
+    GroupEditor* getGroupEditor(){return group_editor;}
     
     FxButton* fxButtonChoice;
 private:
@@ -38,6 +45,27 @@ private:
     int num_columns;
     FxButton* drag_object;
     FxChooser* chooser;
+    Array<FxGroup*> groups;
+    GroupEditor* group_editor;
+};
+
+class Fx {
+public:
+    Fx() : fx_type(-1), content(nullptr){}
+    Fx(int i, Component* c) : fx_type(i), content(c){}
+    int& getFxType(){return fx_type;}
+    Component* getContent(){return content;}
+    void setContent(Component* c){content=c;}
+private:
+    Component* content;
+    int fx_type;
+};
+
+class FxGroup {
+public:
+    FxGroup() : group_fx(){}
+    ~FxGroup(){for (auto group : group_fx){delete group;}}
+    Array<Fx*> group_fx;
 };
 
 class FxButton : public TextButton{
