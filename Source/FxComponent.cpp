@@ -11,21 +11,19 @@
 #include "FxComponent.h"
 #include "FxSelector.h"
 
-FxComponent::FxComponent() : Component(), adsr(new Adsr()), visibleFx(-1){
-    addChildComponent(adsr);
-}
+FxComponent::FxComponent() : Component(), visibleFx(-1), content(nullptr){}
 
-FxComponent::~FxComponent(){
-    delete adsr;
-}
+FxComponent::~FxComponent(){}
 
 void FxComponent::paint(Graphics& g){
     g.fillAll(Colours::orange);
 }
 
-void FxComponent::loadFx(int x){
+void FxComponent::loadFx(int x, Component* c){
+    if (content != nullptr) removeChildComponent(content);
     if (x == FxChooser::FX::ADSR){
         visibleFx = FxChooser::FX::ADSR;
+        content = c;
     }
     if (x == FxChooser::FX::NONE){
         visibleFx = FxChooser::FX::NONE;
@@ -36,18 +34,17 @@ void FxComponent::loadFx(int x){
 void FxComponent::showFx(){
     switch (visibleFx){
     case FxChooser::FX::ADSR:
-        std::cout<<adsr<<std::endl;
-        if (!adsr->isVisible()) adsr->setVisible(true);
+        addAndMakeVisible(content);
+        resized();
         break;
     
     case FxChooser::FX::NONE:
-        if (adsr->isVisible()) adsr->setVisible(false);
         break;
     }
 }
 
 
 void FxComponent::resized(){
-    adsr->setBounds(0, 0, getWidth(), getHeight());
+    if (content != nullptr) content->setBounds(0, 0, getWidth(), getHeight());
 }
             

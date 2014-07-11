@@ -16,7 +16,7 @@ FxSelector::FxSelector(int rows, int columns) : Component(),
 {
     for (int i=0; i<num_columns*rows; i++){
         fx_boxes.add(new FxBox(new FxButton(this), this));
-        fx_boxes[i]->getButton()->setButtonText(String(i));
+        fx_boxes[i]->getButton()->setButtonText("");
     }
     for (auto box : fx_boxes){
         addAndMakeVisible(box);
@@ -58,9 +58,7 @@ void FxSelector::updateButtonText(String buttonText){
 }
 
 
-FxButton::FxButton(FxSelector* _parent) : TextButton("fx"), parent(_parent), fx(FxChooser::FX::NONE){
-    //setClickingTogglesState(true);
-}
+FxButton::FxButton(FxSelector* _parent) : TextButton("fx"), parent(_parent), fx(FxChooser::FX::NONE), content(nullptr){}
 
 void FxBox::resized(){
     _button->setSize(getWidth(), getHeight());
@@ -86,10 +84,10 @@ void FxButton::mouseDown(const MouseEvent& e){
         FxBin* bin = (FxBin*)selector->getParentComponent();
         switch (fx){
         case FX::ADSR:{
-            bin->getFxComponent()->loadFx(FX::ADSR);
+            bin->getFxComponent()->loadFx(FX::ADSR, content);
             break;}
         case FX::NONE:{
-            bin->getFxComponent()->loadFx(FX::NONE);
+            bin->getFxComponent()->loadFx(FX::NONE, nullptr);
             break;}
         }
     }
@@ -212,10 +210,12 @@ void FxChooser::callButtonClick(FxChoiceButton* b){
     FxBin* bin = ((FxBin*)(selector->getParentComponent()));
     if (buttons.indexOf(b) == ADSR){
         selector->fxButtonChoice->setFx(ADSR);
-        bin->getFxComponent()->loadFx(ADSR);
+        selector->fxButtonChoice->set_component((Component*)(new Adsr()));
+        bin->getFxComponent()->loadFx(ADSR, selector->fxButtonChoice->get_component());
     }else{ 
+        delete selector->fxButtonChoice->get_component();
         selector->fxButtonChoice->setFx(NONE);
-        bin->getFxComponent()->loadFx(NONE);
+        bin->getFxComponent()->loadFx(NONE, nullptr);
     }
 }
 

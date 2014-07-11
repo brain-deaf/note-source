@@ -46,8 +46,11 @@ public:
     void mouseDrag(const MouseEvent& e);
     void mouseDown(const MouseEvent& e);
     void setFx(int i){fx=i;}
+    void set_component(Component* c){if (content != nullptr) {delete content;} content=c;}
+    Component* get_component(){return content;}
 private:
     FxSelector* parent;
+    Component* content;
     int fx;
 };
 

@@ -19,13 +19,13 @@ public:
     FxComponent();
     ~FxComponent();
     void paint(Graphics&);
-    void loadFx(int);
+    void loadFx(int, Component*);
     void showFx();
     void resized();
     void setVisibleFx(int i){visibleFx=i; showFx();}
 private:
-    Adsr* adsr;
     int visibleFx;
+    Component* content;
 };
 
 

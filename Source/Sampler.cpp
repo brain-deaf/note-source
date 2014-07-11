@@ -16,8 +16,11 @@ Sampler::Sampler() : AudioSource(), synth(), formatManager(), filter1(), filter2
         synth.addVoice(new SampleVoice());
     }
     formatManager.registerBasicFormats();
-    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
-    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
+    /*filter1.setCoefficients(IIRCoefficients::makeNothing(44100.0, 7000.0));
+    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));*/
+    
+    filter1.setCoefficients(IIRCoefficients::makeNothing());
+    filter2.setCoefficients(IIRCoefficients::makeNothing());
 }
     
 void Sampler::addSample(String path, int root_note, int note_low, int note_high){
