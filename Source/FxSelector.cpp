@@ -39,9 +39,11 @@ FxSelector::~FxSelector(){
 }
 
 void FxSelector::loadPatch(XmlElement* xml){
+    registerGroupEditor();
     for (auto group : groups){
         delete group;
     }
+    groups.clear();
     
     forEachXmlChildElement(*xml, e){
         if (e->hasTagName("GROUP")){
