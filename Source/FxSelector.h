@@ -36,6 +36,7 @@ public:
     void updateFx();
     void buttonClicked(Button*);
     void registerGroupEditor();
+    void loadPatch(XmlElement*);
     GroupEditor* getGroupEditor(){return group_editor;}
     
     FxButton* fxButtonChoice;

@@ -32,7 +32,25 @@ FxSelector::~FxSelector(){
     for (auto box : fx_boxes){
         delete box;
     }
+    for (auto group : groups){
+        delete group;
+    }
     delete chooser;
+}
+
+void FxSelector::loadPatch(XmlElement* xml){
+    for (auto group : groups){
+        delete group;
+    }
+    
+    forEachXmlChildElement(*xml, e){
+        if (e->hasTagName("GROUP")){
+            groups.add(new FxGroup());
+            for (int i=0; i<num_columns*num_rows; i++){
+                groups[groups.size()-1]->group_fx.add(new Fx());
+            }
+        }
+    }
 }
 
 void FxSelector::registerGroupEditor(){

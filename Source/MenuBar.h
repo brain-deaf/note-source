@@ -55,6 +55,7 @@ private:
     AudioSettingsWindow* audioSettingsWindow;
     InstrumentBin* parent;
     std::shared_ptr<InstrumentMappingEditor> mapping_editor;
+    FxBin* fx_bin;
 };
 
 

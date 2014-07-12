@@ -86,6 +86,9 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             mapping_editor = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getMappingEditorBin()->getMappingEditor();
             
+            fx_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
+            ->getTabWindow().getFxBin();
+            
             FileChooser patch_loader("Please select the patch you want to load",
                                      File::getCurrentWorkingDirectory(),
                                      "*.xml");
@@ -96,6 +99,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                 XmlElement* instrument = xml_doc.getDocumentElement();
             
                 mapping_editor->graph->loadPatch(instrument);
+                fx_bin->getFxSelector()->loadPatch(instrument);
             }
             break;
         }

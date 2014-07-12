@@ -316,6 +316,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                 
                 copied_zones.add(new_zone);
             }
+            return true;
         }
         
         //paste zones
@@ -336,8 +337,10 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                 }
                 lassoSource.getZones().add(zone);
             }
+            return true;
         }
     }
+    return false;
 }
 
 void MappingEditorGraph::mouseDown(const MouseEvent& e) {
