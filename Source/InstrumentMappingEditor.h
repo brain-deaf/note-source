@@ -25,7 +25,8 @@ public:
                                public FileDragAndDropTarget,
                                public ButtonListener,
                                public MidiKeyboardStateListener,
-                               public ChangeListener
+                               public ChangeListener,
+                               public KeyListener
     {
     public:
         class MidiDeviceCallback : public MidiInputCallback
@@ -173,7 +174,9 @@ public:
         void updateZones();
         bool isInterestedInFileDrag(const StringArray& files){return true;}
         void loadPatch(XmlElement* i);
+        bool keyPressed(const KeyPress&, Component*);
         Array<Zone::Ptr> getZones(){return zones;}
+        Array<Zone::Ptr> getCopiedZones(){return copied_zones;}
         Array<Group*> getGroups(){return groups;}
 
         SelectedItemSet<Zone::Ptr>& getZoneInfoSet()
@@ -210,6 +213,7 @@ public:
         MidiKeyboardComponent keyboard;
         SelectedItemSet<std::pair<int, int> > notesHeld;
         Array<Zone::Ptr> zones;
+        Array<Zone::Ptr> copied_zones;
         Array<Group*> groups;
         LassoComponent<Zone::Ptr> lasso;
         MappingLasso<Zone::Ptr> lassoSource;

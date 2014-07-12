@@ -76,6 +76,8 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     setBounds(0, 0, getWidth(), getHeight() + getKeyboardHeight());
     notesHeld.addChangeListener(this);
     
+    addKeyListener(this);
+    
     groups.add(new Group());
     
     source_player.setSource(&sampler);
@@ -105,7 +107,7 @@ void MappingEditorGraph::updateZones(){
         lassoSource.getZones().clear();
         SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
         for (int i=0; i<s.size(); i++){
-            groups[s[i]]->getZones();
+            std::cout<<groups[s[i]]->getZones()->size()<<std::endl;
             if (groups[s[i]]->getZones() != nullptr && groups[s[i]]->getZones()->size() > 0){
                 for (int j=0; j<groups[s[i]]->getZones()->size(); j++){
                     (*(groups[s[i]]->getZones()))[j]->setVisible(true);
@@ -287,6 +289,58 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
     }
     getZoneInfoSet().selectOnly(newZone);
 }
+
+bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
+    const int KEY_C = 99;
+    const int KEY_V = 118;
+    float gridOutline = 1.0f;
+    float gridWidth = width / numColumns;
+    ModifierKeys modifier_keys(key.getModifiers());
+    
+    if (c == this){
+        //copy zones
+        if (modifier_keys.isCtrlDown() && key.getKeyCode() == KEY_C){
+            copied_zones.clear();
+            for (auto zone : lassoSource.getLassoSelection()){
+                Zone* new_zone = new Zone(this, zone->getName(), instrument);
+                new_zone->removeListener(this);
+                new_zone->addListener(this);
+                new_zone->removeMouseListener(new_zone);
+                new_zone->addMouseListener(this, true);
+                new_zone->setX(zone->getX());
+                new_zone->setNote(zone->getNote());
+                new_zone->setY(zone->getY());
+                new_zone->setHeight(zone->getHeight());
+                new_zone->set_width(zone->get_width());
+                new_zone->setBounds(new_zone->getX(), new_zone->getY(), 
+                                    gridWidth * new_zone->get_width() - gridOutline, new_zone->getHeight());
+                
+                copied_zones.add(new_zone);
+            }
+        }
+        
+        //paste zones
+        if (modifier_keys.isCtrlDown() && key.getKeyCode() == KEY_V){
+            for (auto zone : copied_zones){
+                addAndMakeVisible(zone);
+                sampler.addSample(zone->getName(), 
+                                  zone->getNote(), 
+                                  round(zone->getX()/gridWidth), 
+                                  round(zone->getX()/gridWidth) + zone->get_width()); 
+
+                                   
+                zones.add(zone);
+                
+                SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                for (int i=0; i<s.size(); i++){
+                    groups[s[i]]->getZones()->add(zone);
+                }
+                lassoSource.getZones().add(zone);
+            }
+        }
+    }
+}
+
 void MappingEditorGraph::mouseDown(const MouseEvent& e) {
     addAndMakeVisible(lasso);
     lasso.beginLasso(e, &lassoSource);
@@ -600,6 +654,7 @@ Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent&
     velocity.first = 0;
     velocity.second = 127;
 }
+    
 
 void Zone::mouseDown(const MouseEvent& e) {
     parent->draggedZone = this;
