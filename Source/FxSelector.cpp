@@ -48,10 +48,32 @@ void FxSelector::loadPatch(XmlElement* xml){
     forEachXmlChildElement(*xml, e){
         if (e->hasTagName("GROUP")){
             groups.add(new FxGroup());
-            for (int i=0; i<num_columns*num_rows; i++){
-                groups[groups.size()-1]->group_fx.add(new Fx());
+            forEachXmlChildElement(*e, fx_element){
+                if (fx_element->hasTagName("FX")){
+                    Fx* fx = new Fx();
+                    fx->getFxType() = fx_element->getIntAttribute("type");
+                
+                    switch (fx->getFxType()){
+                        case (FxChooser::FX::ADSR):{
+                            Adsr* adsr = new Adsr();
+                            adsr->getAttackTimeSlider()->setValue(fx_element->getIntAttribute("attack"));
+                            adsr->getAttackCurveSlider()->setValue(fx_element->getDoubleAttribute("attack_curve"));
+                            adsr->getDecayTimeSlider()->setValue(fx_element->getIntAttribute("decay"));
+                            adsr->getDecayCurveSlider()->setValue(fx_element->getDoubleAttribute("decay_curve"));
+                            adsr->getSustainSlider()->setValue(fx_element->getIntAttribute("sustain"));
+                            adsr->getReleaseTimeSlider()->setValue(fx_element->getIntAttribute("release"));
+                            adsr->getReleaseCurveSlider()->setValue(fx_element->getDoubleAttribute("release_curve"));
+                            fx->setContent(adsr);
+                            break;
+                        }
+                        case (FxChooser::FX::NONE):
+                            fx->setContent(nullptr);
+                            break;
+                    }
+                    groups[groups.size()-1]->group_fx.add(fx);
+                }
             }
-        }
+        }        
     }
 }
 

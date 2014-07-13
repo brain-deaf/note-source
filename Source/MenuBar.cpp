@@ -10,6 +10,8 @@
 #include <stdexcept>
 #include "MenuBar.h"
 #include "InstrumentMappingEditor.h"
+#include "FxSelector.h"
+#include "Adsr.h"
 
 MenuBar::MenuBar(InstrumentBin * i) : menuBar{this}, deviceManager(), file{}, view{}, edit{},
     audioSettingsWindow{nullptr}, parent{i} {
@@ -108,6 +110,11 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             mapping_editor = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getMappingEditorBin()->getMappingEditor();
             
+            fx_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
+            ->getTabWindow().getFxBin();
+            
+            Array<FxGroup*> fx_group_list = fx_bin->getFxSelector()->getGroups();
+            
             XmlElement instrument("INSTRUMENT");
             for (int i=0; i<mapping_editor->graph->getGroups().size(); i++){
                 XmlElement* group = new XmlElement("GROUP");
@@ -131,6 +138,28 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                     zone->setAttribute("note", note);
                     group->addChildElement(zone);
                 }
+                for (int j=0; j<fx_group_list[i]->group_fx.size(); j++){
+                    XmlElement* fx = new XmlElement("FX");
+                    Fx* insert_fx = fx_group_list[i]->group_fx[j];
+                    fx->setAttribute("type", insert_fx->getFxType());
+                    
+                    switch (insert_fx->getFxType()){
+                        case (FxChooser::FX::ADSR):{
+                            Adsr* adsr = (Adsr*) insert_fx->getContent();
+                            fx->setAttribute("attack", adsr->getAttackTimeSlider()->getValue());
+                            fx->setAttribute("attack_curve", adsr->getAttackCurveSlider()->getValue());
+                            fx->setAttribute("decay", adsr->getDecayTimeSlider()->getValue());
+                            fx->setAttribute("decay_curve", adsr->getDecayCurveSlider()->getValue());
+                            fx->setAttribute("sustain", adsr->getSustainSlider()->getValue());
+                            fx->setAttribute("release", adsr->getReleaseTimeSlider()->getValue());
+                            fx->setAttribute("release_curve", adsr->getReleaseCurveSlider()->getValue());
+                            break;
+                        }
+                        case (FxChooser::FX::NONE) :
+                            break;
+                    }
+                    group->addChildElement(fx);
+                }       
                 instrument.addChildElement(group);
             }
             FileChooser patch_saver("Please select the patch destination.",
