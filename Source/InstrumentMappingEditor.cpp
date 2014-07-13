@@ -292,6 +292,7 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
 bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
     const int KEY_C = 99;
     const int KEY_V = 118;
+    const int KEY_DELETE = 268435711;
     float gridOutline = 1.0f;
     float gridWidth = width / numColumns;
     ModifierKeys modifier_keys(key.getModifiers());
@@ -339,6 +340,22 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
             }
             return true;
         }
+        
+        if (key.getKeyCode() == KEY_DELETE){
+            for (auto zone : lassoSource.getLassoSelection()){
+                int zone_index = zones.indexOf(zone);
+                zones.removeFirstMatchingValue(zone);
+                sampler.getSynth()->removeSound(zone_index);
+                lassoSource.getZones().removeFirstMatchingValue(zone);
+                SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                for (int i=0; i<s.size(); i++){
+                    groups[s[i]]->getZones()->removeFirstMatchingValue(zone);
+                }
+                removeChildComponent(zone);
+                if (zoneInfoSet.isSelected(zone)) zoneInfoSet.deselect(zone);
+            }
+            return true;
+        }       
     }
     return false;
 }
