@@ -75,6 +75,7 @@ void FxSelector::loadPatch(XmlElement* xml){
             }
         }        
     }
+    updateFx();
 }
 
 void FxSelector::registerGroupEditor(){
