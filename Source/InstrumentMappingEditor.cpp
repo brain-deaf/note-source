@@ -235,8 +235,11 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 new_zone->get_width() * gridWidth - 1, new_zone->getHeight());
                                                 
                 addAndMakeVisible(new_zone);
+                
+                Array<int> groups_for_zone;
+                groups_for_zone.add(j-1);
         
-                getSampler().addSample(new_zone->getName(), new_zone->getNote(), round(new_zone->getX()/gridWidth), round(new_zone->getX()/gridWidth) + new_zone->get_width());
+                getSampler().addSample(new_zone->getName(), new_zone->getNote(), round(new_zone->getX()/gridWidth), round(new_zone->getX()/gridWidth) + new_zone->get_width(), groups_for_zone);
             }
         }
      }
@@ -260,9 +263,11 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
         }  
         zones.add(newZone);
         
+        Array<int> groups_for_zone;
         SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
         for (int i=0; i<s.size(); i++){
             groups[s[i]]->getZones()->add(newZone);
+            groups_for_zone.add(s[i]);
         }
 
         newZone->removeListener(this);
@@ -283,7 +288,7 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
         newZone->set_width(1);
         lassoSource.getZones().add(newZone);
         
-        sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1);
+        sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1, groups_for_zone);
         
     }
     getZoneInfoSet().selectOnly(newZone);
@@ -324,15 +329,22 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
         if (modifier_keys.isCtrlDown() && key.getKeyCode() == KEY_V){
             for (auto zone : copied_zones){
                 addAndMakeVisible(zone);
+                
+                Array<int> groups_for_zone;
+                SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                for (int i=0; i<s.size(); i++){
+                    groups_for_zone.add(s[i]);
+                }
+                
                 sampler.addSample(zone->getName(), 
                                   zone->getNote(), 
                                   round(zone->getX()/gridWidth), 
-                                  round(zone->getX()/gridWidth) + zone->get_width()); 
+                                  round(zone->getX()/gridWidth) + zone->get_width(),
+                                  groups_for_zone);
 
                                    
                 zones.add(zone);
                 
-                SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
                 for (int i=0; i<s.size(); i++){
                     groups[s[i]]->getZones()->add(zone);
                 }
@@ -494,10 +506,20 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                     zones.remove(zone_index);
                     sampler.getSynth()->removeSound(zone_index);
                     zones.add(i);
+                    
+                    Array<int> groups_for_zone;
+                    SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                    for (int j=0; j<s.size(); j++){
+                        if (groups[s[j]]->getZones()->contains(i)){
+                            groups_for_zone.add(s[j]);
+                        }
+                    }
+                    
                     sampler.addSample(i->getName(), 
                                       i->getNote(), 
                                       round(i->getX()/gridWidth), 
-                                      round(i->getX()/gridWidth) + i->get_width());
+                                      round(i->getX()/gridWidth) + i->get_width(),
+                                      groups_for_zone);
                 }
             }else{
                 auto Y = getMouseXYRelative().getY();
@@ -518,10 +540,19 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                 zones.remove(zone_index);
                 sampler.getSynth()->removeSound(zone_index);
                 zones.add(draggedZone);
+                
+                Array<int> groups_for_zone;
+                SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                for (int i=0; i<s.size(); i++){
+                    if (groups[s[i]]->getZones()->contains(draggedZone)){
+                        groups_for_zone.add(s[i]);
+                    }
+                }
                 sampler.addSample(draggedZone->getName(), 
                                   draggedZone->getNote(), 
                                   round(draggedZone->getX()/gridWidth), 
-                                  round(draggedZone->getX()/gridWidth) + draggedZone->get_width());
+                                  round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
+                                  groups_for_zone);
             }
         }
         else if (cursor == MouseCursor::TopEdgeResizeCursor){
@@ -585,10 +616,19 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                         zones.remove(zone_index);
                         sampler.getSynth()->removeSound(zone_index);
                         zones.add(i);
+                        
+                        Array<int> groups_for_zone;
+                        SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                        for (int j=0; j<s.size(); j++){
+                            if (groups[s[j]]->getZones()->contains(i)){
+                                groups_for_zone.add(s[j]);
+                            }
+                        }
                         sampler.addSample(i->getName(), 
                                           i->getNote(), 
                                           round(i->getX()/gridWidth), 
-                                          round(i->getX()/gridWidth) + i->get_width());
+                                          round(i->getX()/gridWidth) + i->get_width(),
+                                          groups_for_zone);
                     }
                 }
             } else {
@@ -599,10 +639,19 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                     zones.remove(zone_index);
                     sampler.getSynth()->removeSound(zone_index);
                     zones.add(draggedZone);
+                    
+                    Array<int> groups_for_zone;
+                    SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                    for (int i=0; i<s.size(); i++){
+                        if (groups[s[i]]->getZones()->contains(draggedZone)){
+                            groups_for_zone.add(s[i]);
+                        }
+                    }
                     sampler.addSample(draggedZone->getName(), 
                                       draggedZone->getNote(), 
                                       round(draggedZone->getX()/gridWidth), 
-                                      round(draggedZone->getX()/gridWidth) + draggedZone->get_width());
+                                      round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
+                                      groups_for_zone);
                 }
             }
         }
@@ -620,10 +669,20 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                             zones.remove(zone_index);
                             sampler.getSynth()->removeSound(zone_index);
                             zones.add(i);
+                            
+                            Array<int> groups_for_zone;
+                            SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                            for (int j=0; j<s.size(); j++){
+                                if (groups[s[j]]->getZones()->contains(i)){
+                                    groups_for_zone.add(s[j]);
+                                }
+                            }
+                            
                             sampler.addSample(i->getName(), 
                                               i->getNote(), 
                                               round(i->getX()/gridWidth), 
-                                              round(i->getX()/gridWidth) + i->get_width());
+                                              round(i->getX()/gridWidth) + i->get_width(),
+                                              groups_for_zone);
                         }
                     }
                 }
@@ -639,10 +698,19 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                     zones.remove(zone_index);
                     sampler.getSynth()->removeSound(zone_index);
                     zones.add(draggedZone);
+                    
+                    Array<int> groups_for_zone;
+                    SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                    for (int i=0; i<s.size(); i++){
+                        if (groups[s[i]]->getZones()->contains(draggedZone)){
+                            groups_for_zone.add(s[i]);
+                        }
+                    }
                     sampler.addSample(draggedZone->getName(), 
                                       draggedZone->getNote(), 
                                       round(draggedZone->getX()/gridWidth), 
-                                      round(draggedZone->getX()/gridWidth) + draggedZone->get_width());
+                                      round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
+                                      groups_for_zone);
                 }
             }
         }

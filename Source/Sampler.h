@@ -17,7 +17,7 @@ class Sampler : public AudioSource
 {
 public:
     Sampler();
-    void addSample(String path, int root_note, int note_low, int note_high);
+    void addSample(String path, int root_note, int note_low, int note_high, Array<int>&);
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
     void releaseResources() override;
     void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override;
@@ -43,7 +43,34 @@ public:
 private:
     IIRFilter filter1;
     IIRFilter filter2;
+    float samplePosition;
 };
+
+class SampleSound : public SamplerSound
+{
+public:
+    SampleSound(const String& name, 
+                AudioFormatReader& source,
+                const BigInteger& midiNotes,
+                int midiNoteForNormalPitch,
+                double attackTimeSecs,
+                double releaseTimeSecs,
+                double maxSampleLengthSeconds,
+                Array<int> group) : 
+                    SamplerSound(name, source, midiNotes, midiNoteForNormalPitch, 
+                                 attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
+                    groups(group){
+                        for (auto i: groups){std::cout<<i<<std::endl;}
+                    }
+    Array<int> getGroups(){return groups;}
+    typedef ReferenceCountedObjectPtr<SampleSound> Ptr;
+private:
+    Array<int> groups;
+};
+
+                    
+                    
+                                    
     
     
     
