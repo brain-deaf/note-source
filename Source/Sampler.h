@@ -40,12 +40,14 @@ class SampleVoice : public SamplerVoice
 public:
     SampleVoice();
     void renderNextBlock(AudioSampleBuffer&, int startSample, int numSamples) override;
+    void startNote(const int, const float, SynthesiserSound*, const int);
 private:
     IIRFilter filter1;
     IIRFilter filter2;
     float samplePosition;
     float attackTime;
     float autoReleaseTime;
+    float pitchRatio;
 };
 
 class SampleSound : public SamplerSound
@@ -63,13 +65,16 @@ public:
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
                     groups(group){
         sampleRate = source.sampleRate;
+        rootNote = midiNoteForNormalPitch;
     }
     Array<int> getGroups(){return groups;}
     typedef ReferenceCountedObjectPtr<SampleSound> Ptr;
     double getSampleRate(){return sampleRate;}
+    int getRootNote(){return rootNote;}
 private:
     Array<int> groups;
     double sampleRate;
+    int rootNote;
 };
 
                     

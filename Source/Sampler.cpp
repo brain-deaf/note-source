@@ -61,6 +61,18 @@ SampleVoice::SampleVoice() : SamplerVoice(), filter1(), filter2(), samplePositio
     filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
 }
 
+void SampleVoice::startNote(const int midiNoteNumber,
+                            const float velocity,
+                            SynthesiserSound* s,
+                            const int pitchWheelPosition){
+    if (SampleSound* sound = (SampleSound*)s){
+        const double a = pow(2.0, 1.0/12.0);
+        double old_frequency = 440.0 * pow(a, (double)sound->getRootNote() - 69.0);
+        double new_frequency = old_frequency * pow(a, (float)midiNoteNumber - sound->getRootNote());
+        pitchRatio = new_frequency/old_frequency;
+    }
+}
+
 void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, int numSamples){
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
     if (s != nullptr){
@@ -85,27 +97,36 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
         if (getCurrentlyPlayingSound().get()){
             const float* const inL = s->getAudioData()->getReadPointer(0);
             const float* const inR = num_channels>1 ? s->getAudioData()->getReadPointer(1) : nullptr;
-    
             float* outL = buffer.getWritePointer(0, startSample);
             float* outR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1, startSample) : nullptr;
     
+            
             int start = samplePosition;
             for (int i= start; i<numSamples+start; i++){
                 double attack_multiplier = samplePosition/s->getSampleRate()<attackTime ? samplePosition/(attackTime*s->getSampleRate()) : 1.0;
                 double samples_left = sample_length - samplePosition;
                 double release_multiplier = samples_left <= autoReleaseTime*s->getSampleRate() ? samples_left/(autoReleaseTime*s->getSampleRate()) : 1.0;
             
-                if (num_channels > 1){
-                    *outL += inL[i]*gain*attack_multiplier*release_multiplier;
-                    *outR += inR[i]*gain*attack_multiplier*release_multiplier;
-                }else{
-                    *outL += inL[i]*gain*attack_multiplier*release_multiplier;
-                    *outR += inL[i]*gain*attack_multiplier*release_multiplier;
-                }
+                const int pos = (int) samplePosition;
+                const float alpha = (float) (samplePosition - pos);
+                const float invAlpha = 1.0f - alpha;
+                
+                // just using a very simple linear interpolation here..
+                //std::cout<<inL[pos]<<std::endl;
+                float l = (inL [pos] * invAlpha + inL [pos + 1] * alpha);
+                
+                float r = inR != nullptr ? inR[pos] * invAlpha + inR[pos + 1] * alpha : l;
+                
+                //std::cout<<l<<std::endl;
+
+                *outL += l*attack_multiplier*release_multiplier;
+                *outR += r*attack_multiplier*release_multiplier;
                 outL++;
                 outR++;
             
-                samplePosition ++;
+                samplePosition += pitchRatio;
+                //std::cout<<pitchRatio<<std::endl;
+                //samplePosition++;
                 if (samplePosition > sample_length || sample_length - samplePosition < numSamples){
                     samplePosition = 0.0;
                     stopNote(false);
