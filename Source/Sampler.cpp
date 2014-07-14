@@ -55,7 +55,8 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
     filter2.processSamples(bufferToFill.buffer->getWritePointer(1), bufferToFill.buffer->getNumSamples());
 }
 
-SampleVoice::SampleVoice() : SamplerVoice(), filter1(), filter2(), samplePosition(0.0f){
+SampleVoice::SampleVoice() : SamplerVoice(), filter1(), filter2(), samplePosition(0.0f),
+                             attackTime(0.02), autoReleaseTime(0.1){
     filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
     filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
 }
@@ -79,23 +80,36 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
         }
     }*/
     float gain = 1.0f;
-    double sample_length = 48000.0;
+    double sample_length = s->getAudioData()->getNumSamples();
+    int num_channels = s->getAudioData()->getNumChannels();
     if (getCurrentlyPlayingSound().get()){
         const float* const inL = s->getAudioData()->getReadPointer(0);
-        const float* const inR = s->getAudioData()->getReadPointer(1);
+        const float* const inR = num_channels>1 ? s->getAudioData()->getReadPointer(1) : nullptr;
     
         float* outL = buffer.getWritePointer(0, startSample);
-        float* outR = buffer.getWritePointer(1, startSample);
+        float* outR;
+        if (num_channels > 1){
+            outR = buffer.getWritePointer(1, startSample);
+        }
     
         int start = samplePosition;
         for (int i= start; i<numSamples+start; i++){
-            *outL += inL[i]*gain;
-            *outR += inR[i]*gain;
+            double attack_multiplier = samplePosition/s->getSampleRate()<attackTime ? samplePosition/s->getSampleRate()*10 : 1.0;
+            double samples_left = sample_length - samplePosition;
+            double release_multiplier = samples_left <= autoReleaseTime*s->getSampleRate() ? samples_left/(autoReleaseTime*s->getSampleRate()) : 1.0;
+            *outL += inL[i]*gain*attack_multiplier*release_multiplier;
             outL++;
-            outR++;
+            if (num_channels > 1){
+                *outR += inR[i]*gain;
+                outR++;
+            }
+            
             samplePosition ++;
-            if (samplePosition > sample_length){
+            if (samplePosition > sample_length || sample_length - samplePosition < numSamples){
+                samplePosition = 0.0;
                 stopNote(false);
+                std::cout<<"end of sample"<<std::endl;
+                break;
             }
         }
         

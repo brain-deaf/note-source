@@ -44,6 +44,8 @@ private:
     IIRFilter filter1;
     IIRFilter filter2;
     float samplePosition;
+    float attackTime;
+    float autoReleaseTime;
 };
 
 class SampleSound : public SamplerSound
@@ -60,12 +62,14 @@ public:
                     SamplerSound(name, source, midiNotes, midiNoteForNormalPitch, 
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
                     groups(group){
-                        for (auto i: groups){std::cout<<i<<std::endl;}
-                    }
+        sampleRate = source.sampleRate;
+    }
     Array<int> getGroups(){return groups;}
     typedef ReferenceCountedObjectPtr<SampleSound> Ptr;
+    double getSampleRate(){return sampleRate;}
 private:
     Array<int> groups;
+    double sampleRate;
 };
 
                     
