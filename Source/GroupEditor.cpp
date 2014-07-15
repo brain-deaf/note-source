@@ -79,6 +79,7 @@ GroupEditor::~GroupEditor(){
 
 void GroupEditor::setFxBin(FxBin* f){
     fx_bin = f;
+    mapping_editor->graph->getSampler().setFxSelector(fx_bin->getFxSelector());
 }
 
 void GroupEditor::paint(Graphics& g){

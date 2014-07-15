@@ -12,6 +12,7 @@
 #define SAMPLER_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "FxSelector.h"
 
 class Sampler : public AudioSource
 {
@@ -22,6 +23,8 @@ public:
     void releaseResources() override;
     void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override;
     void setMidiChannel(int i){midi_input_id = i;}
+    void setFxSelector(FxSelector* f){fx_selector=f;}
+    FxSelector* getFxSelector(){return fx_selector;}
     
     Synthesiser* getSynth(){return &synth;}
     MidiMessageCollector& getMidiCollector(){return midiCollector;}
@@ -32,6 +35,7 @@ private:
     int midi_input_id;
     IIRFilter filter1;
     IIRFilter filter2;
+    FxSelector* fx_selector;
     //Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
 };
 
@@ -45,9 +49,16 @@ private:
     IIRFilter filter1;
     IIRFilter filter2;
     float samplePosition;
-    float attackTime;
-    float autoReleaseTime;
     float pitchRatio;
+    
+    float attackTime;
+    float attackCurve;
+    float decayTime;
+    float decayCurve;
+    float sustain;
+    float releaseTime;
+    float releaseCurve;
+    float releaseStart;
 };
 
 class SampleSound : public SamplerSound
@@ -60,10 +71,11 @@ public:
                 double attackTimeSecs,
                 double releaseTimeSecs,
                 double maxSampleLengthSeconds,
-                Array<int> group) : 
+                Array<int> group,
+                FxSelector* fx) : 
                     SamplerSound(name, source, midiNotes, midiNoteForNormalPitch, 
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
-                    groups(group){
+                    groups(group), fx_selector(fx){
         sampleRate = source.sampleRate;
         rootNote = midiNoteForNormalPitch;
     }
@@ -71,10 +83,14 @@ public:
     typedef ReferenceCountedObjectPtr<SampleSound> Ptr;
     double getSampleRate(){return sampleRate;}
     int getRootNote(){return rootNote;}
+    FxSelector* getFxSelector(){return fx_selector;}
+    
+
 private:
     Array<int> groups;
     double sampleRate;
     int rootNote;
+    FxSelector* fx_selector;
 };
 
                     
