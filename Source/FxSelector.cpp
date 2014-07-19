@@ -10,6 +10,7 @@
 
 #include "FxSelector.h"
 #include "FxBin.h"
+#include "Sampler.h"
 
 FxSelector::FxSelector(int rows, int columns) : Component(),
     num_rows(rows), num_columns(columns), groups(), group_editor(nullptr)
@@ -139,7 +140,11 @@ void FxSelector::updateFx(){
             if (fx->getFxType() == FxChooser::FX::ADSR){
                 fx_boxes[j]->getButton()->setButtonText("ADSR");
                 used_index.add(j);
-            }else{
+            }
+            else if (fx->getFxType() == FxChooser::FX::FILTER){
+                fx_boxes[j]->getButton()->setButtonText("FILTER");
+            }
+            else{
                 if (used_index.indexOf(j) == -1) fx_boxes[j]->getButton()->setButtonText("");
             }
         }
@@ -178,11 +183,18 @@ void FxButton::mouseDown(const MouseEvent& e){
             Fx* fx = selector->getGroups()[s[i]]->group_fx[selector->getBoxes().indexOf(box)];
             switch (fx->getFxType()){
             case FX::ADSR:{
-                if (fx->getFxType() == 0){
+                if (fx->getFxType() == FX::ADSR){
                     bin->getFxComponent()->loadFx(FX::ADSR, fx->getContent());
                     return;
                 }
-            }}
+            }
+            case FX::FILTER:{
+                if (fx->getFxType() == FX::FILTER){
+                    bin->getFxComponent()->loadFx(FX::FILTER, fx->getContent());
+                    return;
+                }
+            }
+            }
             /*case FX::NONE:{
                 bin->getFxComponent()->loadFx(FX::NONE, nullptr);
                 return;}*/
@@ -289,6 +301,7 @@ FxChooser::FxChooser(int rows, int columns, FxSelector * f) : Component(), numRo
         }
     }
     buttons[0]->setButtonText("ADSR");
+    buttons[1]->setButtonText("FILTER");
 }
 
 FxChooser::~FxChooser(){
@@ -316,18 +329,36 @@ void FxChooser::resized(){
 void FxChooser::callButtonClick(FxChoiceButton* b){
     FxSelector* selector = (FxSelector*)getParentComponent();
     FxBin* bin = ((FxBin*)(selector->getParentComponent()));
+    SparseSet<int> s = selector->getGroupEditor()->getListBox()->getSelectedRows();
     if (buttons.indexOf(b) == ADSR){
         selector->fxButtonChoice->setFx(ADSR);
         selector->fxButtonChoice->set_component((Component*)(new Adsr()));
         bin->getFxComponent()->loadFx(ADSR, selector->fxButtonChoice->get_component());
         
         int fx_index = selector->getBoxes().indexOf((FxBox*)(selector->fxButtonChoice->getParentComponent()));
-        SparseSet<int> s = selector->getGroupEditor()->getListBox()->getSelectedRows();
+        
         for (int i=s.size()-1; i>=0; i--){
             selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = ADSR;
             selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
         }
-    }else{ 
+    }
+    else if (buttons.indexOf(b) == FILTER){
+        selector->fxButtonChoice->setFx(FILTER);
+        FilterComponent* f = new FilterComponent();
+        
+        Sampler& sampler = bin->getMappingEditor()->getMappingEditor()->graph->getSampler();
+        f->setIIRFilter(sampler.getFilter());
+        
+        selector->fxButtonChoice->set_component((Component*)(f));
+        bin->getFxComponent()->loadFx(FILTER, selector->fxButtonChoice->get_component());
+        
+        int fx_index = selector->getBoxes().indexOf((FxBox*)(selector->fxButtonChoice->getParentComponent()));
+        for (int i=s.size()-1; i>=0; i--){
+            selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = FILTER;
+            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
+        }
+    }
+    else{ 
         delete selector->fxButtonChoice->get_component();
         selector->fxButtonChoice->setFx(NONE);
         bin->getFxComponent()->loadFx(NONE, nullptr);

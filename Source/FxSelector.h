@@ -13,6 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GroupEditor.h"
+#include "FilterComponent.h"
 
 class FxButton;
 class FxBox;
@@ -116,7 +117,8 @@ public:
     enum FX
     {
         NONE = -1,
-        ADSR = 0
+        ADSR = 0,
+        FILTER = 1
     };
 
     FxChooser(int rows, int columns, FxSelector* parent);

@@ -17,11 +17,11 @@ Sampler::Sampler() : AudioSource(), synth(), formatManager(), filter1(), filter2
         synth.addVoice(new SampleVoice());
     }
     formatManager.registerBasicFormats();
-    /*filter1.setCoefficients(IIRCoefficients::makeNothing(44100.0, 7000.0));
-    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));*/
+    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
+    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
     
-    filter1.setCoefficients(IIRCoefficients::makeNothing());
-    filter2.setCoefficients(IIRCoefficients::makeNothing());
+    //filter1.setCoefficients(IIRCoefficients());
+    //filter2.setCoefficients(IIRCoefficients());
 }
     
 void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups){
@@ -56,10 +56,10 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
     filter2.processSamples(bufferToFill.buffer->getWritePointer(1), bufferToFill.buffer->getNumSamples());
 }
 
-SampleVoice::SampleVoice() : SamplerVoice(), filter1(), filter2(), samplePosition(0.0f),
+SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
                              attackTime(0.1), releaseTime(0.1){
-    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
-    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
+    //filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
+    //filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
 }
 
 void SampleVoice::startNote(const int midiNoteNumber,

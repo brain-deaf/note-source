@@ -25,7 +25,11 @@ void FxComponent::loadFx(int x, Component* c){
         visibleFx = FxChooser::FX::ADSR;
         content = c;
     }
-    if (x == FxChooser::FX::NONE){
+    else if (x == FxChooser::FX::FILTER){
+        visibleFx = FxChooser::FX::FILTER;
+        content = c;
+    }
+    else if (x == FxChooser::FX::NONE){
         visibleFx = FxChooser::FX::NONE;
     }
     showFx();
@@ -34,6 +38,11 @@ void FxComponent::loadFx(int x, Component* c){
 void FxComponent::showFx(){
     switch (visibleFx){
     case FxChooser::FX::ADSR:
+        addAndMakeVisible(content);
+        resized();
+        break;
+    
+    case FxChooser::FX::FILTER:
         addAndMakeVisible(content);
         resized();
         break;

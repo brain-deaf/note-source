@@ -13,6 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FxSelector.h"
+#include "IIR_Filter.h"
 
 class Sampler : public AudioSource
 {
@@ -25,6 +26,7 @@ public:
     void setMidiChannel(int i){midi_input_id = i;}
     void setFxSelector(FxSelector* f){fx_selector=f;}
     FxSelector* getFxSelector(){return fx_selector;}
+    IIR_Filter* getFilter(){return &filter1;}
     
     Synthesiser* getSynth(){return &synth;}
     MidiMessageCollector& getMidiCollector(){return midiCollector;}
@@ -33,8 +35,8 @@ private:
     Synthesiser synth;
     AudioFormatManager formatManager;
     int midi_input_id;
-    IIRFilter filter1;
-    IIRFilter filter2;
+    IIR_Filter filter1;
+    IIR_Filter filter2;
     FxSelector* fx_selector;
     //Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
 };
@@ -46,8 +48,8 @@ public:
     void renderNextBlock(AudioSampleBuffer&, int startSample, int numSamples) override;
     void startNote(const int, const float, SynthesiserSound*, const int);
 private:
-    IIRFilter filter1;
-    IIRFilter filter2;
+    //IIR_Filter filter1;
+    //IIR_Filter filter2;
     float samplePosition;
     float pitchRatio;
     

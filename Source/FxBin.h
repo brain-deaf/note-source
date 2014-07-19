@@ -26,6 +26,7 @@ public:
     FxComponent* getFxComponent(){return fx_component;}
     GroupEditor* getGroupEditor(){return group_editor;}
     FxSelector* getFxSelector(){return fx_selector;}
+    MappingEditorBin* getMappingEditor(){return mapping_editor;}
 private:
     FxSelector* fx_selector;
     FxComponent* fx_component;
