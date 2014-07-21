@@ -18,7 +18,12 @@ Sampler::Sampler() : AudioSource(), synth(), formatManager(), filter1(), filter2
     }
     formatManager.registerBasicFormats();
     filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
-    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
+    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 10000.0));
+    /*filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
+    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
+    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
+    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
+    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));*/
     
     //filter1.setCoefficients(IIRCoefficients());
     //filter2.setCoefficients(IIRCoefficients());
@@ -52,14 +57,14 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
     synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, 0, bufferToFill.numSamples);
     
     //add filter processing to the output channels 1 and 2
-    filter1.processSamples(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getNumSamples());
-    filter2.processSamples(bufferToFill.buffer->getWritePointer(1), bufferToFill.buffer->getNumSamples());
+    //filter1.processSamples(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getNumSamples());
+    //filter2.processSamples(bufferToFill.buffer->getWritePointer(1), bufferToFill.buffer->getNumSamples());
 }
 
 SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
                              attackTime(0.1), releaseTime(0.1){
-    //filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
-    //filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 500.0));
+    //filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
+    //filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
 }
 
 void SampleVoice::startNote(const int midiNoteNumber,
@@ -108,22 +113,11 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
     if (s != nullptr){
         Array<int> groups_for_note = s->getGroups();
+        
         //example of how to not process a sound for a particular Group
         //if (groups_for_note[0] == 0){return;}
-    
-    
-    //SamplerVoice::renderNextBlock(buffer, startSample, numSamples);
-    
-    //process filter if group 0
-    /*if (s != nullptr){
-        Array<int> groups_for_note = s->getGroups();
-        if (groups_for_note[0] == 0){
-            filter1.processSamples(buffer.getWritePointer(0), buffer.getNumSamples());
-            filter2.processSamples(buffer.getWritePointer(1), buffer.getNumSamples());
-        }
-    }*/
+        
         float gain = 1.0f;
-        //std::cout<<getCurrentlyPlayingNote()<<" "<<isKeyDown()<<std::endl;
         double sample_length = s->getAudioData()->getNumSamples();
         int num_channels = s->getAudioData()->getNumChannels();
         if (getCurrentlyPlayingSound().get()){
@@ -144,7 +138,6 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                                            
                 double samples_left = sample_length - samplePosition;
                 
-                //float release_x = noteDown ? 0.0 : (samplePosition - releaseStart)/s->getSampleRate()*1000;
                 if (samples_left < release_sample_length && releaseStart == 0.0){
                     releaseStart = samplePosition;
                 }
@@ -161,9 +154,14 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 // just using a very simple linear interpolation here..
                 float l = (inL [pos] * invAlpha + inL [pos + 1] * alpha);
                 float r = inR != nullptr ? inR[pos] * invAlpha + inR[pos + 1] * alpha : l;
+                
+                //process fx after interpolation...
+                //l = filter1.processSingleSampleRaw(l);
+                //r = filter2.processSingleSampleRaw(r);
 
                 *outL += l*attack_multiplier*release_multiplier;
                 *outR += r*attack_multiplier*release_multiplier;
+                
                 outL++;
                 outR++;
             
@@ -174,6 +172,12 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     break;
                 }
             }
+            /*if (groups_for_note[0] == 0){
+                filter1.processSamples(outL, buffer.getNumSamples());
+                std::cout<<"process left"<<std::endl;
+                if (outR != nullptr){filter2.processSamples(outR, buffer.getNumSamples());}
+                std::cout<<"process right"<<std::endl;
+            }*/
         }
     }
 }

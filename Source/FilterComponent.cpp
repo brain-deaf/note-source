@@ -78,14 +78,13 @@ void FilterComponent::paint(Graphics& g){
         std::cout<<"adding bands"<<std::endl;
         Array<int> bands;
         for (int i=0; i<num_bands; i++){
-            if(i=0){
+            if(i==0){
                 bands.add(0);
             }else{
                 bands.add(start_band_offset*pow(2, i-1));
-                //std::cout<<start_band_offset*pow(2, i-1)<<std::endl;
+                std::cout<<start_band_offset*pow(2, i-1)<<std::endl;
             }
         }
-        std::cout<<"done adding bands"<<std::endl;
             
         myPath.startNewSubPath(0, getHeight()/5.0f * 4.0f);
         grid_width = actual_width/(max_hz/hz_per_sample);
@@ -94,12 +93,13 @@ void FilterComponent::paint(Graphics& g){
         for (int i=0; i<max_hz/hz_per_sample; i++){
             double y =  (getHeight()/5.0f*4.5f) - 200.0* frequency_response[i];
             if (!std::isnan(y)){
-                /*band = check_band(y, bands);
+                band = check_band(y, bands);
+                std::cout<<band<<std::endl;
                 int freq_range = bands[band+1] - bands[band];
                 double samples_per_band = 1.0/hz_per_sample * freq_range;
                 grid_width = band_width/samples_per_band;
                 double band_start = band_width*band;
-                myPath.lineTo(myPath.getCurrentPosition().getX() + grid_width, y);*/
+                myPath.lineTo(myPath.getCurrentPosition().getX() + grid_width, y);
             }else{
                 myPath.lineTo(i*grid_width, (getHeight()/5.0f*4.5f));
             }

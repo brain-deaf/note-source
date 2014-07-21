@@ -48,8 +48,8 @@ public:
     void renderNextBlock(AudioSampleBuffer&, int startSample, int numSamples) override;
     void startNote(const int, const float, SynthesiserSound*, const int);
 private:
-    //IIR_Filter filter1;
-    //IIR_Filter filter2;
+    IIR_Filter filter1;
+    IIR_Filter filter2;
     float samplePosition;
     float pitchRatio;
     
