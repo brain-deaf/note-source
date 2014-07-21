@@ -64,7 +64,7 @@ void FilterComponent::paint(Graphics& g){
         }*/
         
         double hz_per_sample = 44100.0/((double)(frequency_response.size()));
-        double max_hz = 20000.0;
+        
         int num_bands = 10;
         int start_band_offset = 40;
         
@@ -85,16 +85,21 @@ void FilterComponent::paint(Graphics& g){
                 std::cout<<start_band_offset*pow(2, i-1)<<std::endl;
             }
         }
+        double max_hz = bands[bands.size()-1];
+        
             
         myPath.startNewSubPath(0, getHeight()/5.0f * 4.0f);
         grid_width = actual_width/(max_hz/hz_per_sample);
         
         int band;
         for (int i=0; i<max_hz/hz_per_sample; i++){
+            if (i==0){
+                band=check_band(hz_per_sample*i, bands);
+                std::cout<<band<<std::endl;
+            }
             double y =  (getHeight()/5.0f*4.5f) - 200.0* frequency_response[i];
             if (!std::isnan(y)){
-                band = check_band(y, bands);
-                std::cout<<band<<std::endl;
+                band = check_band(hz_per_sample*i, bands);
                 int freq_range = bands[band+1] - bands[band];
                 double samples_per_band = 1.0/hz_per_sample * freq_range;
                 grid_width = band_width/samples_per_band;
