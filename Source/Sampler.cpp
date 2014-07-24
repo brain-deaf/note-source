@@ -17,7 +17,7 @@ Sampler::Sampler() : AudioSource(), synth(), formatManager(), filter1(), filter2
         synth.addVoice(new SampleVoice());
     }
     formatManager.registerBasicFormats();
-    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
+    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 6000.0));
     filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 10000.0));
     /*filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
     filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
