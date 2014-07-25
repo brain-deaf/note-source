@@ -96,6 +96,11 @@ void SampleVoice::startNote(const int midiNoteNumber,
             }
         }
     }
+    
+    
+    
+    
+    
 }
 
 //y = (y2-y1)/(e^wx2 - e^wx1) * (e^wx - e^wx1) + y1
@@ -131,51 +136,47 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             }
             double release_sample_length = releaseTime/1000*s->getSampleRate();
             float release_x = 0.0f;
+            
             int start = samplePosition;
-            
-            fftw_complex *outFFTW;
-            fftw_complex *outFFTWR;
-            double* inFL;
-            double* inFR;
-            double* outFL;
-            double* outFR;
     
-            inFL  = (double*) fftw_malloc(sizeof(double)*numSamples);
-            inFR  = (double*) fftw_malloc(sizeof(double)*numSamples);
-            outFFTW = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*numSamples);
-            outFFTWR = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*numSamples);
-            outFL = (double*) fftw_malloc(sizeof(double)*numSamples);
-            outFR = (double*) fftw_malloc(sizeof(double)*numSamples);
-            
-            for (int i=start; i<numSamples+start; i++){
-                inFL[i-start] = inL[i];
-                if (inR != nullptr){
-                    inFR[i-start] = inR[i];
-                }
-            }
+            /*double* inFL  = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
+            double* inFR  = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
+            fftw_complex* outFFTW = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*((int)(pitchRatio*numSamples)));
+            fftw_complex* outFFTWR = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*((int)(pitchRatio*numSamples)));
+            double* outFL = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
+            double* outFR = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
             
             fftw_plan pFFTW;
             fftw_plan pFFTWR;
             fftw_plan p2FFTW;
             fftw_plan p2FFTWR;
     
-            pFFTW  = fftw_plan_dft_r2c_1d(numSamples, inFL, outFFTW, FFTW_ESTIMATE);
-            pFFTWR = fftw_plan_dft_r2c_1d(numSamples, inFR, outFFTWR, FFTW_ESTIMATE);
-            p2FFTW = fftw_plan_dft_c2r_1d(numSamples, outFFTW, outFL, FFTW_ESTIMATE);
-            p2FFTWR= fftw_plan_dft_c2r_1d(numSamples, outFFTWR, outFR, FFTW_ESTIMATE);
+            pFFTW  = fftw_plan_dft_r2c_1d((int)(pitchRatio*numSamples), inFL, outFFTW, FFTW_ESTIMATE);
+            pFFTWR = fftw_plan_dft_r2c_1d((int)(pitchRatio*numSamples), inFR, outFFTWR, FFTW_ESTIMATE);
+            p2FFTW = fftw_plan_dft_c2r_1d((int)(pitchRatio*numSamples), outFFTW, outFL, FFTW_ESTIMATE);
+            p2FFTWR= fftw_plan_dft_c2r_1d((int)(pitchRatio*numSamples), outFFTWR, outFR, FFTW_ESTIMATE);
+            
+            //std::cout<<numSamples*pitchRatio<<std::endl;
+            for (int i=start; i<start+((int)(pitchRatio*numSamples)); i++){
+                inFL[i-start] = inL[i];
+                if (inR != nullptr){
+                    inFR[i-start] = inR[i];
+                }
+            }
             
             fftw_execute(pFFTW);
             fftw_execute(pFFTWR);
             fftw_execute(p2FFTW);
-            fftw_execute(p2FFTWR);
+            fftw_execute(p2FFTWR);*/
             
-            fftw_destroy_plan(pFFTW);
-            fftw_destroy_plan(pFFTWR);
-            fftw_destroy_plan(p2FFTW);
-            fftw_destroy_plan(p2FFTWR);
+            //std::cout<<std::endl<<outFL[50]/((int)(pitchRatio*numSamples))<<std::endl;
+            //std::cout<<inL[start+50]<<std::endl;
             
+            int pxn = (int)(pitchRatio*numSamples);
+            
+            //std::cout<<"start"<<std::endl;
             for (int i= start; i<numSamples+start; i++){
-                float x = samplePosition/s->getSampleRate()*1000;
+                double x = samplePosition/s->getSampleRate()*1000;
                 double attack_multiplier = x<attackTime ? getAttackMultiplier(attackTime, attackCurve, x) : 1.0;                      
                                            
                 double samples_left = sample_length - samplePosition;
@@ -190,29 +191,21 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 double release_multiplier = !isKeyDown() || samples_left < release_sample_length ? getReleaseMultiplier(releaseTime, releaseCurve, release_x) : 1.0;
             
                 const int pos = (int) samplePosition;
-                const float alpha = (float) (samplePosition - pos);
-                const float invAlpha = 1.0f - alpha;
+                const double alpha = (double) (samplePosition - pos);
+                const double invAlpha = 1.0f - alpha;
+                //double num_samples = (double)numSamples;
                 
                 // just using a very simple linear interpolation here..
-                float l = (outFL [pos-start]/numSamples * invAlpha +  outFL[pos-start + 1]/numSamples * alpha);
-                float r = inR != nullptr ? outFR[pos-start]/numSamples * invAlpha + outFR[pos-start + 1]/numSamples * alpha : l;
+                float l = ((inL[pos]) * invAlpha +  (inL[pos+1]) * alpha);
+                float r = inR != nullptr ? (inR[pos]) * invAlpha + (inR[pos+1] * alpha) : l;
+                
                 
                 //process fx after interpolation...
                 //l = filter1.processSingleSampleRaw(l);
-                //r = filter2.processSingleSampleRaw(r);
+                //r = filter2.processSingleSampleRaw(r);*/
 
-                //*outL += l*attack_multiplier*release_multiplier;
-                //*outR += r*attack_multiplier*release_multiplier;
                 *outL += l*attack_multiplier*release_multiplier;
                 *outR += r*attack_multiplier*release_multiplier;
-                
-                //*outL += l;
-                //*outR += r;
-                
-                
-                /*std::cout<<"input: "<<inFFTW[i-start]<<std::endl;
-                std::cout<<"out fft: "<<outFFTW[i-start][0]<<std::endl;
-                std::cout<<"out ifft: "<<outFinal[i-start]/numSamples<<std::endl;*/
                 
                 outL++;
                 outR++;
@@ -224,13 +217,16 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     break;
                 }
             }
-            
-            free(outFL);
-            free(outFR);
-            free(outFFTW);
-            free(outFFTWR);
-            free(inFL);
-            free(inFR);
+            /*fftw_destroy_plan(pFFTW);
+            fftw_destroy_plan(pFFTWR);
+            fftw_destroy_plan(p2FFTW);
+            fftw_destroy_plan(p2FFTWR);
+            fftw_free(outFL);
+            fftw_free(outFR);
+            fftw_free(outFFTW);
+            fftw_free(outFFTWR);
+            fftw_free(inFL);
+            fftw_free(inFR);*/
             /*if (groups_for_note[0] == 0){
                 filter1.processSamples(outL, buffer.getNumSamples());
                 std::cout<<"process left"<<std::endl;
