@@ -14,6 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FxSelector.h"
 #include "IIR_Filter.h"
+#include <fftw3.h>
 
 class Sampler : public AudioSource
 {
