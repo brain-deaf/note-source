@@ -19,9 +19,10 @@ public:
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, InstrumentComponent& i)
 :   Component(), instrument(i), view_port(new Viewport(componentName)),
-    graph(new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i, group_editor)),
-    group_editor(new GroupEditor(200, 333 + 100, this))
+    group_editor(new GroupEditor(200, 333 + 100, this)),
+    graph(new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i, group_editor))
 {
+    
     graph->getGroupEditor() = group_editor;
     view_port->setViewedComponent(graph);
     int group_editor_width = 200;
@@ -292,6 +293,7 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
         
     }
     getZoneInfoSet().selectOnly(newZone);
+    getGroupEditor()->getGroupView()->refreshRows();
 }
 
 bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){

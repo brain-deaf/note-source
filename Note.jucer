@@ -21,6 +21,9 @@
     <FILE id="jMCmUl" name="FxSelector.cpp" compile="1" resource="0" file="Source/FxSelector.cpp"/>
     <FILE id="svnQ4F" name="GroupEditor.h" compile="0" resource="0" file="Source/GroupEditor.h"/>
     <FILE id="JQUHE4" name="GroupEditor.cpp" compile="1" resource="0" file="Source/GroupEditor.cpp"/>
+    <FILE id="GQZL0l" name="GroupEditorZ.h" compile="0" resource="0" file="Source/GroupEditorZ.h"/>
+    <FILE id="bqUof0" name="GroupEditorZ.cpp" compile="1" resource="0"
+          file="Source/GroupEditorZ.cpp"/>
     <FILE id="G3aBOM" name="IIR_Filter.h" compile="0" resource="0" file="Source/IIR_Filter.h"/>
     <FILE id="YdTt5W" name="IIR_Filter.cpp" compile="1" resource="0" file="Source/IIR_Filter.cpp"/>
     <FILE id="rYr79s" name="InstrumentBin.h" compile="0" resource="0" file="Source/InstrumentBin.h"/>
@@ -56,6 +59,8 @@
     <FILE id="NYiBrA" name="MenuBar.cpp" compile="1" resource="0" file="Source/MenuBar.cpp"/>
     <FILE id="gmMdRS" name="Sampler.h" compile="0" resource="0" file="Source/Sampler.h"/>
     <FILE id="h7Ax0F" name="Sampler.cpp" compile="1" resource="0" file="Source/Sampler.cpp"/>
+    <FILE id="AYWK7r" name="WaveBin.h" compile="0" resource="0" file="Source/WaveBin.h"/>
+    <FILE id="hX2aW8" name="WaveBin.cpp" compile="1" resource="0" file="Source/WaveBin.cpp"/>
     <FILE id="m8jQtt" name="WaveformView.h" compile="0" resource="0" file="Source/WaveformView.h"/>
     <FILE id="vVHGZO" name="WaveformView.cpp" compile="1" resource="0"
           file="Source/WaveformView.cpp"/>

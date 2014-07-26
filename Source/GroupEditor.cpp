@@ -11,6 +11,7 @@
 #include "GroupEditor.h"
 #include "InstrumentMappingEditor.h"
 #include "FxBin.h"
+#include "GroupEditorZ.h"
 
 GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component(), width(w), height(h), row_height(30),
     mapping_editor(m),
@@ -24,7 +25,6 @@ GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component()
     list_box->setBounds(0, header_height, w, h-header_height - footer_height);
     list_box->setModel(model);
     list_box->setMultipleSelectionEnabled(true);
-    
     
     group_name_lbl->setBounds(2, 3, 80, 20);
     group_name_lbl->setText("Group Name ", dontSendNotification);
@@ -106,6 +106,7 @@ void GroupEditor::labelTextChanged(Label* source){
     if (source == group_name){
         model->getGroupNames().set(group_number->getText().getIntValue(), source->getText());
         list_box->repaintRow(group_number->getText().getIntValue());
+        group_view->refreshRows();
     }
 }
 
@@ -135,6 +136,7 @@ void GroupEditor::buttonClicked(Button* source){
             list_box->repaintRow(i);
         }
     }
+    group_view->refreshRows();
 }
 
 void GroupEditor::addGroup(){

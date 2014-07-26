@@ -16,17 +16,20 @@
 #include "MainPage.h"
 #include "MappingEditorBin.h"
 #include "FxBin.h"
+#include "WaveBin.h"
 
 class InstrumentTabWindow : public TabbedComponent
 {
 public:
     InstrumentTabWindow(InstrumentComponent& instrument, TabbedButtonBar::Orientation orientation);
     MappingEditorBin* getMappingEditorBin(){return mappingEditor;}
+    WaveBin* getWaveBin(){return waveBin;}
     FxBin* getFxBin(){return fxbin;}
     void currentTabChanged(int, const String&);
 private:
     ScopedPointer<MainPage> mainPage;
     ScopedPointer<MappingEditorBin> mappingEditor;
+    ScopedPointer<WaveBin> waveBin;
     ScopedPointer<FxBin> fxbin;
     ScopedPointer<TextButton> zoomButton;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentTabWindow)

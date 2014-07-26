@@ -16,6 +16,7 @@
 class FxBin;
 class InstrumentMappingEditor;
 class GroupEditor;
+class GroupView;
 
 class GroupBoxModel : public ListBoxModel
 {
@@ -61,7 +62,9 @@ public:
     TextButton* getCreateGroupButton(){return create_group_button;}
     TextButton* getDeleteGroupButton(){return delete_group_button;}
     InstrumentMappingEditor* getMappingEditor(){return mapping_editor;}
+    GroupView* getGroupView(){return group_view;}
     void setFxBin(FxBin*);
+    void setGroupView(GroupView* g){group_view=g;}
     FxBin* getFxBin(){return fx_bin;}
     
 private:
@@ -81,6 +84,7 @@ private:
     InstrumentMappingEditor* mapping_editor;
     String temp;
     FxBin* fx_bin;
+    GroupView* group_view;
 };
 
 
