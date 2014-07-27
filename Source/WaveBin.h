@@ -34,10 +34,13 @@ private:
     int vport_width;
     int drag_threshold;
     int lower_limit;
+    int waveform_width;
     int waveform_height;
+    int top_padding;
     int waveform_padding;
     bool dragging;
     Viewport* Vport;
+    Viewport* WaveVport;
     WaveformView* waveform;
     TextButton* sample_start;
 };
