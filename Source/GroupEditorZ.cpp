@@ -9,10 +9,19 @@
 */
 
 #include "GroupEditorZ.h"
+#include "WaveformView.h"
+#include "WaveBin.h"
 
-GroupViewItem::GroupViewItem(String s, bool b) : TreeViewItem(), name(s), canBeOpened(b){}
+GroupViewItem::GroupViewItem(String s, bool b, InstrumentMappingEditor::MappingEditorGraph::Zone* zone, GroupView* p) : 
+    TreeViewItem(), name(s), canBeOpened(b), z(zone), parent(p){}
 
 void GroupViewItem::itemOpennessChanged(bool isOpen){}
+
+void GroupViewItem::itemClicked(const MouseEvent& e){
+    if (z != nullptr){
+        parent->getParent()->getWaveformView()->updateWaveformForFilePlayer(z);
+    }
+}
 
 void GroupViewItem::paintItem(Graphics& g, int width, int height) {
     
@@ -26,16 +35,16 @@ void GroupViewItem::paintItem(Graphics& g, int width, int height) {
                 Justification::centredLeft, true);
 }
 
-GroupView::GroupView(GroupEditor* g) : TreeView(), group_editor(g) 
+GroupView::GroupView(GroupEditor* g, WaveBin* p) : TreeView(), group_editor(g), parent(p) 
 {
-    root_item = new GroupViewItem("Groups", true);
+    root_item = new GroupViewItem("Groups", true, nullptr, this);
     setRootItem(root_item);
     setRootItemVisible(true);
     
     groups = group_editor->getMappingEditor()->graph->getGroups();
     
     for (auto name : group_editor->getModel()->getGroupNames()){
-        root_item->addSubItem(new GroupViewItem(name, true));
+        root_item->addSubItem(new GroupViewItem(name, true, nullptr, this));
     }
     g->setGroupView(this);
 }
@@ -49,17 +58,16 @@ void GroupView::refreshRows(){
     groups = group_editor->getMappingEditor()->graph->getGroups();
     int group_count = 0;
     for (auto name : group_editor->getModel()->getGroupNames()){
-        GroupViewItem* group = new GroupViewItem(name, true);
+        GroupViewItem* group = new GroupViewItem(name, true, nullptr, this);
         root_item->addSubItem(group);
         
         if (groups[group_count] != nullptr){
             for (int i=0; i<groups[group_count]->getZones()->size(); i++){ 
                 InstrumentMappingEditor::MappingEditorGraph::Zone* z = (*(groups[group_count]->getZones()))[i];
-                GroupViewItem* zone = new GroupViewItem(z->getName(), false);
+                GroupViewItem* zone = new GroupViewItem(z->getName(), false, z, this);
                 group->addSubItem(zone);
             }
         }
-        
         group_count++;
     }
 }

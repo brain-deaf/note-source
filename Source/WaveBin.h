@@ -14,19 +14,22 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GroupEditorZ.h"
 #include "MappingEditorBin.h"
+#include "WaveformView.h"
 
 class WaveBin : public Component {
 public:
     WaveBin(MappingEditorBin*);
     ~WaveBin();
     void resized();
+    WaveformView* getWaveformView(){return waveform;}
 private:
     GroupView* group_view;
-    Component* wave_editor;
     MappingEditorBin* mapping_editor;
     int group_view_width;
     int vport_width;
+    int waveform_height;
     Viewport* Vport;
+    WaveformView* waveform;
 };
 
 

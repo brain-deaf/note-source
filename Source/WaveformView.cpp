@@ -9,32 +9,30 @@
 */
 
 #include "WaveformView.h"
-#include "FilePlayer.h"
 
-WaveformView::WaveformView(int w, int h)
-: Component(), width(w), height(h), 
-  cache(new AudioThumbnailCache(5)),
-  thumbnail(nullptr){}
 
-void WaveformView::updateWaveformForFilePlayer(FilePlayer* f){
-    if (thumbnail == nullptr){
-        thumbnail = new AudioThumbnail(256, f->getAudioFormatManager(), *cache);
-    }
-    thumbnail->setSource(new FileInputSource(File(f->getSampleName())));
-    thumbnail->addChangeListener(this);
+
+
+WaveformView::WaveformView()
+: Component(), formatManager(), cache(5), thumbnail(256, formatManager, cache)
+{
+    formatManager.registerBasicFormats();
+    thumbnail.addChangeListener(this);
+}
+
+void WaveformView::updateWaveformForFilePlayer(Zone* z){
+    thumbnail.setSource(new FileInputSource(File(z->getName())));
     repaint();
 }
 
 void WaveformView::paint(Graphics& g){
     g.fillAll(Colours::yellow);
     g.setColour(Colours::blue);
-    if (thumbnail != nullptr){
-        thumbnail->drawChannels(g, getLocalBounds(), 0.0, thumbnail->getTotalLength(), 0.7f);
-    }
+    thumbnail.drawChannels(g, getLocalBounds(), 0.0, thumbnail.getTotalLength(), 0.7f);
 }
 
 void WaveformView::changeListenerCallback(ChangeBroadcaster* source){
-    if (source == thumbnail){
+    if (source == &thumbnail){
         repaint();
     }
 }

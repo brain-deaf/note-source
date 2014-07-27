@@ -737,7 +737,6 @@ typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
 Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent& i) 
     : TextButton{""}, parent{p}, instrument(i),
-    filePlayer(new FilePlayer(sampleName)),
     name(sampleName)  {
     setAlpha(0.5f);
     velocity.first = 0;

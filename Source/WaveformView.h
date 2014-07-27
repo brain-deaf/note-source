@@ -12,29 +12,22 @@
 #define WAVEFORMVIEW_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "InstrumentMappingEditor.h"
 
-class FilePlayer;
+typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
 class WaveformView : public Component, public ChangeListener
 {
 public:
-    WaveformView(int w, int h);
-    ~WaveformView(){
-        delete thumbnail; 
-        thumbnail = nullptr;
-        delete cache;
-        cache = nullptr;
-    }
-    void updateWaveformForFilePlayer(FilePlayer*);
+    WaveformView();
+    ~WaveformView(){}
+    void updateWaveformForFilePlayer(Zone*z);
     void paint(Graphics& g);
     void changeListenerCallback(ChangeBroadcaster* source);
-    int get_width(){return width;}
-    int get_height(){return height;}
 private:
-    AudioThumbnail* thumbnail;
-    AudioThumbnailCache* cache;
-    int width;
-    int height;
+    AudioThumbnailCache cache;
+    AudioThumbnail thumbnail;
+    AudioFormatManager formatManager;
 };
 
 

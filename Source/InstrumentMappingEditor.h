@@ -14,7 +14,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GroupEditor.h"
 #include "Sampler.h"
-#include "FilePlayer.h"
 
 class InstrumentComponent;
 
@@ -65,12 +64,10 @@ public:
             void mouseDown(const MouseEvent& event);
             void mouseMove(const MouseEvent& event);
             void mouseDoubleClick(const MouseEvent& event);
-            FilePlayer* getFilePlayer(){return filePlayer;}
             typedef ReferenceCountedObjectPtr<Zone> Ptr;
         private:
             MappingEditorGraph * parent;
             InstrumentComponent& instrument;
-            FilePlayer* filePlayer;
             int _x;
             int _y;
             int _height;
