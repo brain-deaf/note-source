@@ -26,7 +26,7 @@ void WaveformView::updateWaveformForFilePlayer(Zone* z){
 }
 
 void WaveformView::paint(Graphics& g){
-    g.fillAll(Colours::yellow);
+    g.fillAll(Colours::white);
     g.setColour(Colours::blue);
     thumbnail.drawChannels(g, getLocalBounds(), 0.0, thumbnail.getTotalLength(), 0.7f);
 }

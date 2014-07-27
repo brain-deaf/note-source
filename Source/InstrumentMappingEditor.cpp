@@ -246,6 +246,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
      }
    } 
    group_editor->getListBox()->selectRow(0);
+   getGroupEditor()->getGroupView()->refreshRows();
 }
 
 void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
