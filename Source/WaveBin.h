@@ -28,6 +28,7 @@ public:
     void mouseDrag(const MouseEvent&) override;
     void sliderValueChanged(Slider*) override;
     void setFileLength(double d){fileLength=d;sample_start->setRange(0, d, 1);}
+    void updateZone(Zone*_zone);
     WaveformView* getWaveformView(){return waveform;}
 private:
     GroupView* group_view;
@@ -49,6 +50,7 @@ private:
     Slider* sample_start;
     Slider* vScaling;
     Slider* hScaling;
+    Zone* z;
 };
 
 

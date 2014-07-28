@@ -20,6 +20,7 @@ void GroupViewItem::itemOpennessChanged(bool isOpen){}
 void GroupViewItem::itemClicked(const MouseEvent& e){
     if (z != nullptr){
         parent->getParent()->getWaveformView()->updateWaveformForFilePlayer(z);
+        parent->getParent()->updateZone(z);
     }
 }
 

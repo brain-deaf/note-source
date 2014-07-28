@@ -9,10 +9,12 @@
 */
 
 #include "WaveBin.h"
+#include "InstrumentMappingEditor.h"
 
 WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m), 
                  waveform(new WaveformView(this)),
-                 dragging(false)
+                 dragging(false),
+                 z(nullptr)
 {
     mapping_editor->getMappingEditor()->group_editor;
     group_view = new GroupView(mapping_editor->getMappingEditor()->group_editor, this);
@@ -73,6 +75,11 @@ WaveBin::~WaveBin(){
     hScaling = nullptr;
 }
 
+void WaveBin::updateZone(Zone* _zone){
+    z = _zone;
+    if (z != nullptr) sample_start->setValue(z->getPlaySettings().getSampleStart());
+}
+
 void WaveBin::resized(){
     group_view->setBounds(0, 0, group_view_width, getHeight() - 20);
     Vport->setBounds(0, 0, vport_width, getHeight());
@@ -108,6 +115,7 @@ void WaveBin::sliderValueChanged(Slider* s){
     }
     if (s == sample_start){
         waveform->setSampleStart(sample_start->getValue());
+        z->getPlaySettings().setSampleStart(sample_start->getValue());
     }
 }
 

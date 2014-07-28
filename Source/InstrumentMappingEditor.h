@@ -65,6 +65,18 @@ public:
             void mouseMove(const MouseEvent& event);
             void mouseDoubleClick(const MouseEvent& event);
             typedef ReferenceCountedObjectPtr<Zone> Ptr;
+            
+            class PlaySettings
+            {
+            public:
+                PlaySettings() : sampleStart(0.0){}
+                double getSampleStart(){return sampleStart;}
+                void setSampleStart(double d){sampleStart=d;}
+            private:
+                double sampleStart;
+            };
+            
+            PlaySettings& getPlaySettings(){return playSettings;}
         private:
             MappingEditorGraph * parent;
             InstrumentComponent& instrument;
@@ -75,6 +87,7 @@ public:
             int range_low;
             int range_high;
             int width;
+            PlaySettings playSettings;
 
             const String name;
             std::pair<int, int> velocity;

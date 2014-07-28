@@ -230,6 +230,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 new_zone->setY(zone->getIntAttribute("y"));
                 new_zone->setHeight(zone->getIntAttribute("height"));
                 new_zone->set_width(zone->getIntAttribute("width"));
+                new_zone->getPlaySettings().setSampleStart(zone->getDoubleAttribute("sample_start"));
 
                 float gridWidth = get_width() / getNumColumns();
                 new_zone->setBounds(new_zone->getX(), new_zone->getY(), 
@@ -353,6 +354,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                 }
                 lassoSource.getZones().add(zone);
             }
+            getGroupEditor()->getGroupView()->refreshRows();
             return true;
         }
         
@@ -369,6 +371,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                 removeChildComponent(zone);
                 if (zoneInfoSet.isSelected(zone)) zoneInfoSet.deselect(zone);
             }
+            getGroupEditor()->getGroupView()->refreshRows();
             return true;
         }       
     }
@@ -737,7 +740,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
 typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
 Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent& i) 
-    : TextButton{""}, parent{p}, instrument(i),
+    : TextButton{""}, parent{p}, instrument(i), playSettings(),
     name(sampleName)  {
     setAlpha(0.5f);
     velocity.first = 0;

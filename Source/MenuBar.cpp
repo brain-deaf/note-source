@@ -128,6 +128,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                     int    width(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->get_width());
                     int    height(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getHeight());
                     int    note(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getNote());
+                    double sample_start(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getPlaySettings().getSampleStart());
 
                     
                     zone->setAttribute("file", path);
@@ -136,6 +137,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                     zone->setAttribute("width", width);
                     zone->setAttribute("height", height);
                     zone->setAttribute("note", note);
+                    zone->setAttribute("sample_start", sample_start);
                     group->addChildElement(zone);
                 }
                 for (int j=0; j<fx_group_list[i]->group_fx.size(); j++){
