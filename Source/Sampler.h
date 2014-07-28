@@ -20,7 +20,7 @@ class Sampler : public AudioSource
 {
 public:
     Sampler();
-    void addSample(String path, int root_note, int note_low, int note_high, Array<int>&);
+    void addSample(String path, int root_note, int note_low, int note_high, Array<int>&, double);
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
     void releaseResources() override;
     void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override;

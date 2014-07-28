@@ -29,17 +29,18 @@ Sampler::Sampler() : AudioSource(), synth(), formatManager(), filter1(), filter2
     //filter2.setCoefficients(IIRCoefficients());
 }
     
-void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups){
+void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups, double sampleStart){
     ScopedPointer<AudioFormatReader> audioReader(formatManager.createReaderFor(File(path)));
         
     BigInteger allNotes;
     for (int i=note_low; i<note_high; i++){
         allNotes.setBit(i);
     }
-        
-    synth.addSound(new SampleSound("demo sound", *audioReader,
+    SampleSound* ss;
+    synth.addSound(ss = new SampleSound("demo sound", *audioReader,
                                     allNotes, root_note,
                                     0.0, 0.0, 10.0, groups, fx_selector));
+    ss->setSampleStart(sampleStart);
 }
     
 void Sampler::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {

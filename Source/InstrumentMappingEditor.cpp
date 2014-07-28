@@ -241,7 +241,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 Array<int> groups_for_zone;
                 groups_for_zone.add(j-1);
         
-                getSampler().addSample(new_zone->getName(), new_zone->getNote(), round(new_zone->getX()/gridWidth), round(new_zone->getX()/gridWidth) + new_zone->get_width(), groups_for_zone);
+                getSampler().addSample(new_zone->getName(), new_zone->getNote(), round(new_zone->getX()/gridWidth), round(new_zone->getX()/gridWidth) + new_zone->get_width(), groups_for_zone, new_zone->getPlaySettings().getSampleStart());
             }
         }
      }
@@ -291,7 +291,7 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
         newZone->set_width(1);
         lassoSource.getZones().add(newZone);
         
-        sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1, groups_for_zone);
+        sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1, groups_for_zone, newZone->getPlaySettings().getSampleStart());
         
     }
     getZoneInfoSet().selectOnly(newZone);
@@ -323,6 +323,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                 new_zone->set_width(zone->get_width());
                 new_zone->setBounds(new_zone->getX(), new_zone->getY(), 
                                     gridWidth * new_zone->get_width() - gridOutline, new_zone->getHeight());
+                new_zone->getPlaySettings().setSampleStart(zone->getPlaySettings().getSampleStart());
                 
                 copied_zones.add(new_zone);
             }
@@ -344,7 +345,8 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                                   zone->getNote(), 
                                   round(zone->getX()/gridWidth), 
                                   round(zone->getX()/gridWidth) + zone->get_width(),
-                                  groups_for_zone);
+                                  groups_for_zone,
+                                  zone->getPlaySettings().getSampleStart());
 
                                    
                 zones.add(zone);
@@ -525,7 +527,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                       i->getNote(), 
                                       round(i->getX()/gridWidth), 
                                       round(i->getX()/gridWidth) + i->get_width(),
-                                      groups_for_zone);
+                                      groups_for_zone,
+                                      i->getPlaySettings().getSampleStart());
                 }
             }else{
                 auto Y = getMouseXYRelative().getY();
@@ -558,7 +561,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                   draggedZone->getNote(), 
                                   round(draggedZone->getX()/gridWidth), 
                                   round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
-                                  groups_for_zone);
+                                  groups_for_zone,
+                                  draggedZone->getPlaySettings().getSampleStart());
             }
         }
         else if (cursor == MouseCursor::TopEdgeResizeCursor){
@@ -634,7 +638,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                           i->getNote(), 
                                           round(i->getX()/gridWidth), 
                                           round(i->getX()/gridWidth) + i->get_width(),
-                                          groups_for_zone);
+                                          groups_for_zone,
+                                          i->getPlaySettings().getSampleStart());
                     }
                 }
             } else {
@@ -657,7 +662,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                       draggedZone->getNote(), 
                                       round(draggedZone->getX()/gridWidth), 
                                       round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
-                                      groups_for_zone);
+                                      groups_for_zone,
+                                      draggedZone->getPlaySettings().getSampleStart());
                 }
             }
         }
@@ -688,7 +694,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                               i->getNote(), 
                                               round(i->getX()/gridWidth), 
                                               round(i->getX()/gridWidth) + i->get_width(),
-                                              groups_for_zone);
+                                              groups_for_zone,
+                                              i->getPlaySettings().getSampleStart());
                         }
                     }
                 }
@@ -716,7 +723,8 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                       draggedZone->getNote(), 
                                       round(draggedZone->getX()/gridWidth), 
                                       round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
-                                      groups_for_zone);
+                                      groups_for_zone,
+                                      draggedZone->getPlaySettings().getSampleStart());
                 }
             }
         }
