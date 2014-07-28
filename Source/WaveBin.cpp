@@ -56,7 +56,7 @@ WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m),
     hScaling = new Slider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::NoTextBox);
     vScaling->setRange(0.1, 2.0);
     vScaling->setValue(0.7);
-    hScaling->setRange(300.0, 40000.0);
+    hScaling->setRange(100.0, 40000.0);
     vScaling->addListener(this);
     hScaling->addListener(this);
     addAndMakeVisible(vScaling);
