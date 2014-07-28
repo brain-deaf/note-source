@@ -10,8 +10,10 @@
 
 #include "WaveBin.h"
 
-WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m), waveform(new WaveformView()),
-                 sample_start(new TextButton("Start")), dragging(false){
+WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m), 
+                 waveform(new WaveformView(this)),
+                 dragging(false)
+{
     mapping_editor->getMappingEditor()->group_editor;
     group_view = new GroupView(mapping_editor->getMappingEditor()->group_editor, this);
     
@@ -25,16 +27,31 @@ WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m), waveform(new WaveformV
     WaveVport->removeMouseListener(this);
     addAndMakeVisible(WaveVport);
     
+    sample_start = new Slider(Slider::SliderStyle::RotaryVerticalDrag, Slider::TextEntryBoxPosition::TextBoxBelow);
+    sample_start->setRange(0, 96000, 1);
+    sample_start->setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::green);
+    sample_start->addListener(this);
     addAndMakeVisible(sample_start);
     
     group_view_width = 800;
     vport_width = 300;
     lower_limit = 100;
     drag_threshold = 5;
-    waveform_height = 200;
+    waveform_height = 280;
     waveform_width = 600;
     waveform_padding = 30;
+    scaling_slider_height = 10;
     top_padding = 30;
+    
+    vScaling = new Slider(Slider::SliderStyle::LinearVertical, Slider::TextEntryBoxPosition::NoTextBox);
+    hScaling = new Slider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::NoTextBox);
+    vScaling->setRange(0.1, 2.0);
+    vScaling->setValue(0.7);
+    hScaling->setRange(300.0, 40000.0);
+    vScaling->addListener(this);
+    hScaling->addListener(this);
+    addAndMakeVisible(vScaling);
+    addAndMakeVisible(hScaling);
     
     waveform->setSize(waveform_width, waveform_height);
 }
@@ -50,16 +67,48 @@ WaveBin::~WaveBin(){
     sample_start = nullptr;
     delete WaveVport;
     WaveVport = nullptr;
+    delete vScaling;
+    vScaling = nullptr;
+    delete hScaling;
+    hScaling = nullptr;
 }
 
 void WaveBin::resized(){
     group_view->setBounds(0, 0, group_view_width, getHeight() - 20);
     Vport->setBounds(0, 0, vport_width, getHeight());
     WaveVport->setBounds(vport_width+waveform_padding, top_padding, getWidth()-vport_width-waveform_padding*2, waveform_height);
+    hScaling->setBounds(vport_width + waveform_padding + WaveVport->getWidth()/2, 
+                        top_padding+waveform_height,
+                        WaveVport->getWidth()/2,
+                        scaling_slider_height);
+    vScaling->setBounds(vport_width + waveform_padding + WaveVport->getWidth(), 
+                        top_padding,
+                        scaling_slider_height,
+                        WaveVport->getHeight()/2);
+                        
+    if (WaveVport->getWidth() > waveform->getWidth()){
+        waveform->setSize(WaveVport->getWidth(), waveform_height);
+    }
+    
+    sample_start->setBounds(vport_width + waveform_padding, waveform_height + 50, 50, 50);
 }
 
 void WaveBin::paint(Graphics& g){
     g.fillAll(Colours::grey);
+}
+
+void WaveBin::sliderValueChanged(Slider* s){
+    if (s == hScaling){
+        if (s->getValue() >= WaveVport->getWidth())
+            waveform->setSize(s->getValue(), waveform_height);
+    }
+    if (s == vScaling){
+        waveform->setVScale(s->getValue());
+        waveform->repaint();
+    }
+    if (s == sample_start){
+        waveform->setSampleStart(sample_start->getValue());
+    }
 }
 
 void WaveBin::mouseMove(const MouseEvent& e){

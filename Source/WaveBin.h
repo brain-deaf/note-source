@@ -16,7 +16,7 @@
 #include "MappingEditorBin.h"
 #include "WaveformView.h"
 
-class WaveBin : public Component {
+class WaveBin : public Component, public Slider::Listener {
 public:
     WaveBin(MappingEditorBin*);
     ~WaveBin();
@@ -26,6 +26,8 @@ public:
     void mouseDown(const MouseEvent&) override;
     void mouseUp(const MouseEvent&) override;
     void mouseDrag(const MouseEvent&) override;
+    void sliderValueChanged(Slider*) override;
+    void setFileLength(double d){fileLength=d;sample_start->setRange(0, d, 1);}
     WaveformView* getWaveformView(){return waveform;}
 private:
     GroupView* group_view;
@@ -38,11 +40,15 @@ private:
     int waveform_height;
     int top_padding;
     int waveform_padding;
+    int scaling_slider_height;
+    double fileLength;
     bool dragging;
     Viewport* Vport;
     Viewport* WaveVport;
     WaveformView* waveform;
-    TextButton* sample_start;
+    Slider* sample_start;
+    Slider* vScaling;
+    Slider* hScaling;
 };
 
 
