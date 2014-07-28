@@ -52,6 +52,7 @@ private:
     IIR_Filter filter1;
     IIR_Filter filter2;
     float samplePosition;
+    float sampleStart;
     float pitchRatio;
     
     float attackTime;
