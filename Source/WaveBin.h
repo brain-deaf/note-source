@@ -15,8 +15,9 @@
 #include "GroupEditorZ.h"
 #include "MappingEditorBin.h"
 #include "WaveformView.h"
+#include "FilePlayer.h"
 
-class WaveBin : public Component, public Slider::Listener {
+class WaveBin : public Component, public Slider::Listener, public Button::Listener, public ChangeListener, public Timer {
 public:
     WaveBin(MappingEditorBin*);
     ~WaveBin();
@@ -29,6 +30,9 @@ public:
     void sliderValueChanged(Slider*) override;
     void setFileLength(double d){fileLength=d;sample_start->setRange(0, d, 1);}
     void updateZone(Zone*_zone);
+    void buttonClicked(Button*);
+    void changeListenerCallback(ChangeBroadcaster*);
+    void timerCallback();
     WaveformView* getWaveformView(){return waveform;}
 private:
     GroupView* group_view;
@@ -50,6 +54,8 @@ private:
     Slider* sample_start;
     Slider* vScaling;
     Slider* hScaling;
+    TextButton* playButton;
+    FilePlayer* filePlayer;
     Zone* z;
 };
 

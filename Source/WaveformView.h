@@ -27,12 +27,17 @@ public:
     void changeListenerCallback(ChangeBroadcaster* source);
     void setVScale(double d){vScale=d;}
     void setSampleStart(double d){sample_start=d;repaint();}
+    void setPlaying(bool b){playing=b;}
+    void setPlayPosition(double d){playPosition=d;}
+    void setLength(double d){length_sec = d;}
 private:
     WaveBin* parent;
     double vScale;
     double length_sec;
     double sample_rate;
     double sample_start;
+    double playPosition;
+    bool playing;
     AudioThumbnailCache cache;
     AudioThumbnail thumbnail;
     AudioFormatManager formatManager;

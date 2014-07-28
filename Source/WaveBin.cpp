@@ -15,7 +15,9 @@
 WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m), 
                  waveform(new WaveformView(this)),
                  dragging(false),
-                 z(nullptr)
+                 z(nullptr),
+                 filePlayer(nullptr),
+                 playButton(new TextButton("Play"))
 {
     mapping_editor->getMappingEditor()->group_editor;
     group_view = new GroupView(mapping_editor->getMappingEditor()->group_editor, this);
@@ -24,6 +26,10 @@ WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m),
     Vport->setViewedComponent(group_view);
     Vport->removeMouseListener(this);
     addAndMakeVisible(Vport);
+    
+    playButton->addListener(this);
+    playButton->setClickingTogglesState(true);
+    addAndMakeVisible(playButton);
     
     WaveVport = new Viewport();
     WaveVport->setViewedComponent(waveform);
@@ -57,6 +63,7 @@ WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m),
     addAndMakeVisible(hScaling);
     
     waveform->setSize(waveform_width, waveform_height);
+    waveform->setPlaying(false);
 }
 
 WaveBin::~WaveBin(){
@@ -74,11 +81,21 @@ WaveBin::~WaveBin(){
     vScaling = nullptr;
     delete hScaling;
     hScaling = nullptr;
+    delete playButton;
+    playButton = nullptr;
 }
 
 void WaveBin::updateZone(Zone* _zone){
     z = _zone;
-    if (z != nullptr) sample_start->setValue(z->getPlaySettings().getSampleStart());
+    if (z != nullptr){
+        sample_start->setValue(z->getPlaySettings().getSampleStart());
+        if (filePlayer != nullptr){
+            delete filePlayer;
+            filePlayer = nullptr;
+        }
+        filePlayer = new FilePlayer(z->getName());
+        filePlayer->getTransportSource().addChangeListener(this);
+    }
 }
 
 void WaveBin::resized(){
@@ -94,6 +111,8 @@ void WaveBin::resized(){
                         scaling_slider_height,
                         WaveVport->getHeight()/2);
                         
+    playButton->setBounds(getWidth() - waveform_padding*3, top_padding/5, waveform_padding*2, top_padding/3*2);
+                        
     if (WaveVport->getWidth() > waveform->getWidth()){
         waveform->setSize(WaveVport->getWidth(), waveform_height);
     }
@@ -102,7 +121,7 @@ void WaveBin::resized(){
 }
 
 void WaveBin::paint(Graphics& g){
-    g.fillAll(Colours::grey);
+     g.fillAll(Colours::grey); 
 }
 
 void WaveBin::sliderValueChanged(Slider* s){
@@ -121,6 +140,38 @@ void WaveBin::sliderValueChanged(Slider* s){
         InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
         int zone_index = m->getZones().indexOf(z);
         static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setSampleStart(sample_start->getValue());
+    }
+}
+
+void WaveBin::buttonClicked(Button* b){
+    if (b == playButton){
+        if (filePlayer != nullptr){
+            filePlayer->toggleState();
+            if (b->getToggleState()){
+                waveform->setLength(filePlayer->getTransportSource().getLengthInSeconds());
+                waveform->setPlaying(true);
+                startTimer(1);
+            }else{
+                waveform->setPlaying(false);
+                stopTimer();
+            }
+        }
+    }
+}
+
+void WaveBin::timerCallback(){
+    waveform->setPlayPosition(filePlayer->getTransportSource().getCurrentPosition());
+    waveform->repaint();
+}
+    
+
+void WaveBin::changeListenerCallback(ChangeBroadcaster* source){
+    if (source == &(filePlayer->getTransportSource())){
+        if(filePlayer->getTransportSource().hasStreamFinished()){ 
+            playButton->setToggleState(false, dontSendNotification);
+            waveform->setPlaying(false);
+            stopTimer();
+        }
     }
 }
 

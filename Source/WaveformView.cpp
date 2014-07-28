@@ -13,7 +13,7 @@
 
 WaveformView::WaveformView()
 : Component(), formatManager(), parent(nullptr), cache(5), 
-  vScale(0.7), sample_rate(44100.0), 
+  vScale(0.7), sample_rate(44100.0), playPosition(0.0), playing(false),
   length_sec(0.1), thumbnail(256, formatManager, cache),
   zone(nullptr)
 {
@@ -30,20 +30,14 @@ WaveformView::WaveformView(WaveBin* w)
 
 void WaveformView::updateWaveformForFilePlayer(Zone* z){
     zone = z;
-    /*SharedResourcePointer<AudioDeviceManager> dm;
-    AudioDeviceManager::AudioDeviceSetup a;
-    dm->getAudioDeviceSetup(a);*/
-    
     
     AudioFormatReader* afr = formatManager.createReaderFor(File(z->getName()));
     sample_rate = afr->sampleRate;
-    //std::cout<<afr->sampleRate<<std::endl;
     
     thumbnail.setSource(new FileInputSource(File(z->getName())));
-    length_sec = thumbnail.getTotalLength();
     sample_start = z->getPlaySettings().getSampleStart();
     if (parent != nullptr){ 
-        parent->setFileLength(sample_rate*length_sec);
+        parent->setFileLength(sample_rate*thumbnail.getTotalLength());
     }
     
     repaint();
@@ -58,10 +52,19 @@ void WaveformView::paint(Graphics& g){
         g.setColour(Colours::green);
         Path myPath;
         if (sample_rate > 1 && parent != nullptr){
-            double length_per_sample = getWidth() / (length_sec*sample_rate);
+            double length_per_sample = getWidth() / (thumbnail.getTotalLength()*sample_rate);
             myPath.startNewSubPath(length_per_sample*sample_start, 0);
             myPath.lineTo(length_per_sample*sample_start, getHeight());
             g.strokePath (myPath, PathStrokeType (3.0f));
+        }
+        if (playing){
+            Path myPath;
+            g.setColour(Colours::red);
+            double length_per_sample = getWidth() / (length_sec*sample_rate);
+            double position = playPosition*sample_rate;
+            myPath.startNewSubPath(length_per_sample*position, 0);
+            myPath.lineTo(length_per_sample*position, getHeight());
+            g.strokePath(myPath, PathStrokeType(2.0f));
         }
     }
 }
