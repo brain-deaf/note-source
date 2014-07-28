@@ -14,7 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FxSelector.h"
 #include "IIR_Filter.h"
-#include <fftw3.h>
+//#include <fftw3.h>
 
 class Sampler : public AudioSource
 {
@@ -78,7 +78,8 @@ public:
                 FxSelector* fx) : 
                     SamplerSound(name, source, midiNotes, midiNoteForNormalPitch, 
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
-                    groups(group), fx_selector(fx){
+                    groups(group), fx_selector(fx), sampleStart(0.0)
+    {
         sampleRate = source.sampleRate;
         rootNote = midiNoteForNormalPitch;
     }
@@ -87,13 +88,14 @@ public:
     double getSampleRate(){return sampleRate;}
     int getRootNote(){return rootNote;}
     FxSelector* getFxSelector(){return fx_selector;}
-    
-
+    void setSampleStart(double d){sampleStart=d;}
+    double getSampleStart(){return sampleStart;}
 private:
     Array<int> groups;
     double sampleRate;
     int rootNote;
     FxSelector* fx_selector;
+    double sampleStart;
 };
 
                     

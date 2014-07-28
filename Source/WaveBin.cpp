@@ -10,6 +10,7 @@
 
 #include "WaveBin.h"
 #include "InstrumentMappingEditor.h"
+#include "Sampler.h"
 
 WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m), 
                  waveform(new WaveformView(this)),
@@ -116,6 +117,10 @@ void WaveBin::sliderValueChanged(Slider* s){
     if (s == sample_start){
         waveform->setSampleStart(sample_start->getValue());
         z->getPlaySettings().setSampleStart(sample_start->getValue());
+        
+        InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
+        int zone_index = m->getZones().indexOf(z);
+        static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setSampleStart(sample_start->getValue());
     }
 }
 

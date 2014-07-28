@@ -30,10 +30,14 @@ WaveformView::WaveformView(WaveBin* w)
 
 void WaveformView::updateWaveformForFilePlayer(Zone* z){
     zone = z;
-    SharedResourcePointer<AudioDeviceManager> dm;
+    /*SharedResourcePointer<AudioDeviceManager> dm;
     AudioDeviceManager::AudioDeviceSetup a;
-    dm->getAudioDeviceSetup(a);
-    sample_rate = a.sampleRate;
+    dm->getAudioDeviceSetup(a);*/
+    
+    
+    AudioFormatReader* afr = formatManager.createReaderFor(File(z->getName()));
+    sample_rate = afr->sampleRate;
+    //std::cout<<afr->sampleRate<<std::endl;
     
     thumbnail.setSource(new FileInputSource(File(z->getName())));
     length_sec = thumbnail.getTotalLength();

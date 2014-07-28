@@ -62,7 +62,7 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 }
 
 SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
-                             attackTime(0.1), releaseTime(0.1){
+                             attackTime(0.01), releaseTime(0.1){
     //filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
     //filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
 }
@@ -77,6 +77,7 @@ void SampleVoice::startNote(const int midiNoteNumber,
         double new_frequency = old_frequency * pow(a, (float)midiNoteNumber - sound->getRootNote());
         pitchRatio = new_frequency/old_frequency;
         releaseStart = 0.0f;
+        samplePosition = sound->getSampleStart();
         
         Array<int> groups_for_note = sound->getGroups();
         for (auto i : groups_for_note){
@@ -172,7 +173,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             //std::cout<<std::endl<<outFL[50]/((int)(pitchRatio*numSamples))<<std::endl;
             //std::cout<<inL[start+50]<<std::endl;
             
-            int pxn = (int)(pitchRatio*numSamples);
+            //int pxn = (int)(pitchRatio*numSamples);
             
             //std::cout<<"start"<<std::endl;
             for (int i= start; i<numSamples+start; i++){
