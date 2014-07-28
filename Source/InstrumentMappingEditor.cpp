@@ -745,6 +745,7 @@ Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent&
     setAlpha(0.5f);
     velocity.first = 0;
     velocity.second = 127;
+    playSettings.setSampleStart(0.0);
 }
     
 

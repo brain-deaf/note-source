@@ -36,6 +36,7 @@ private:
     AudioThumbnailCache cache;
     AudioThumbnail thumbnail;
     AudioFormatManager formatManager;
+    Zone* zone;
 };
 
 
