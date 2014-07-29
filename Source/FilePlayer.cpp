@@ -17,7 +17,7 @@ public:
 FilePlayer::FilePlayer(const String& s): ChangeListener{},
     sampleName{s}, deviceManager{}, formatManager{}, transportSource{},
     filter{&transportSource,false}, sourcePlayer{}, state{Stopped} {
-    filter.setCoefficients (IIRCoefficients::makeHighPass (44100,1300));
+    filter.setCoefficients (IIRCoefficients::makeHighPass (44100,0));
 
     formatManager.registerBasicFormats();
     sourcePlayer.setSource (&filter);

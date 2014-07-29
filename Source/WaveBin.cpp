@@ -150,10 +150,11 @@ void WaveBin::buttonClicked(Button* b){
             if (b->getToggleState()){
                 waveform->setLength(filePlayer->getTransportSource().getLengthInSeconds());
                 waveform->setPlaying(true);
-                startTimer(1);
+                startTimer(2);
             }else{
                 waveform->setPlaying(false);
                 stopTimer();
+                waveform->repaint();
             }
         }
     }
@@ -171,6 +172,7 @@ void WaveBin::changeListenerCallback(ChangeBroadcaster* source){
             playButton->setToggleState(false, dontSendNotification);
             waveform->setPlaying(false);
             stopTimer();
+            waveform->repaint();
         }
     }
 }
