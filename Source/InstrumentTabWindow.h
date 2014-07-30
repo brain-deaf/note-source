@@ -26,6 +26,7 @@ public:
     MappingEditorBin* getMappingEditorBin(){return mappingEditor;}
     WaveBin* getWaveBin(){return waveBin;}
     FxBin* getFxBin(){return fxbin;}
+    ScriptBin* getScriptBin(){return scriptBin;}
     void currentTabChanged(int, const String&);
 private:
     ScopedPointer<MainPage> mainPage;

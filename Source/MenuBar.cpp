@@ -12,8 +12,11 @@
 #include "InstrumentMappingEditor.h"
 #include "FxSelector.h"
 #include "Adsr.h"
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
-MenuBar::MenuBar(InstrumentBin * i) : menuBar{this}, deviceManager(), file{}, view{}, edit{},
+MenuBar::MenuBar(InstrumentBin * i) : menuBar{this}, scriptBin(nullptr), deviceManager(), file{}, view{}, edit{},
     audioSettingsWindow{nullptr}, parent{i} {
     addAndMakeVisible(menuBar);
     
@@ -73,6 +76,10 @@ PopupMenu MenuBar::getMenuForIndex(int topLevelMenuIndex, const String& menuName
 void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
     switch (menuItemID) {
         case ID_Quit: {
+            for (auto instrument : parent->getInstruments()){
+                scriptBin = instrument->getTabWindow().getScriptBin();
+                lua_close(scriptBin->getLuaScript()->getLuaState());
+            }
             JUCEApplication::quit();
             break;
         }

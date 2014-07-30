@@ -12,6 +12,7 @@
 #define SCRIPTBIN_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "LuaScript.h"
 
 class ScriptBin : public Component{
 public:
@@ -19,10 +20,12 @@ public:
     ~ScriptBin();
     void paint(Graphics&);
     void resized();
+    LuaScript* getLuaScript(){return luaScript;}
 private:
     CodeDocument* codeDocument;
     CodeEditorComponent* codeEditor;
     TextButton* compileButton;
+    LuaScript* luaScript;
 };
 
 

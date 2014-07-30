@@ -45,6 +45,8 @@
           file="Source/InstrumentTabWindow.h"/>
     <FILE id="RAmgon" name="InstrumentTabWindow.cpp" compile="1" resource="0"
           file="Source/InstrumentTabWindow.cpp"/>
+    <FILE id="XOFcHp" name="LuaScript.h" compile="0" resource="0" file="Source/LuaScript.h"/>
+    <FILE id="efjR3R" name="LuaScript.cpp" compile="1" resource="0" file="Source/LuaScript.cpp"/>
     <FILE id="KjKOXS" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     <FILE id="VmFzuz" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
     <FILE id="MAnRwS" name="MainComponent.cpp" compile="1" resource="0"
@@ -70,8 +72,8 @@
     <FILE id="kq9689" name="ZoneInfo.cpp" compile="1" resource="0" file="Source/ZoneInfo.cpp"/>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <LINUX_MAKE targetFolder="Builds/Linux" extraCompilerFlags="-std=c++1y -Wfatal-errors"
-                extraLinkerFlags="-lfftw3 -lm">
+    <LINUX_MAKE targetFolder="Builds/Linux" extraCompilerFlags="-std=c++1y -Wfatal-errors &#96;pkg-config --cflags --libs lua5.1&#96;"
+                extraLinkerFlags="-lfftw3 -lm -llua5.1">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="Note"/>

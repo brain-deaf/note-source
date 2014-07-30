@@ -13,6 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentBin.h"
+#include "ScriptBin.h"
 
 class InstrumentMappingEditor;
 
@@ -55,6 +56,7 @@ private:
     AudioSettingsWindow* audioSettingsWindow;
     InstrumentBin* parent;
     std::shared_ptr<InstrumentMappingEditor> mapping_editor;
+    ScriptBin* scriptBin;
     FxBin* fx_bin;
 };
 

@@ -12,7 +12,8 @@
 
 ScriptBin::ScriptBin() : codeDocument(new CodeDocument()), 
                        codeEditor(new CodeEditorComponent(*codeDocument, new LuaTokeniser())),
-                       compileButton(new TextButton("compile"))
+                       compileButton(new TextButton("compile")),
+                       luaScript(new LuaScript())
 {
     addAndMakeVisible(codeEditor);
     addAndMakeVisible(compileButton);
@@ -25,6 +26,8 @@ ScriptBin::~ScriptBin(){
     compileButton = nullptr;
     delete codeDocument;
     codeDocument = nullptr;
+    delete luaScript;
+    luaScript = nullptr;
     
 }
 
