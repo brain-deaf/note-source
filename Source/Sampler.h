@@ -16,6 +16,21 @@
 #include "IIR_Filter.h"
 //#include <fftw3.h>
 
+class NoteEvent{
+public:
+    int getNoteNumber(){return noteNumber;}
+    float getVelocity(){return velocity;}
+    Array<int> getGroups(){return groups;}
+    
+    void setNoteNumber(int n){noteNumber=n;}
+    void setVelocity(float v){velocity=v;}
+    void setGroups(Array<int> g){groups=g;}
+private:
+    int noteNumber;
+    float velocity;
+    Array<int> groups;
+};
+
 class Sampler : public AudioSource
 {
 public:
@@ -31,6 +46,8 @@ public:
     
     Synthesiser* getSynth(){return &synth;}
     MidiMessageCollector& getMidiCollector(){return midiCollector;}
+    Array<NoteEvent>& getEvents(){return events;}
+    NoteEvent getLastEvent(){return events[-1];}
 private:
     MidiMessageCollector midiCollector;
     Synthesiser synth;
@@ -39,8 +56,11 @@ private:
     IIR_Filter filter1;
     IIR_Filter filter2;
     FxSelector* fx_selector;
+    Array<NoteEvent> events;
     //Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
 };
+
+
 
 class SampleVoice : public SamplerVoice
 {

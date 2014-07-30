@@ -12,7 +12,7 @@
 #include "Adsr.h"
 
 
-Sampler::Sampler() : AudioSource(), synth(), formatManager(), filter1(), filter2(), fx_selector(nullptr) {
+Sampler::Sampler() : AudioSource(), synth(), formatManager(), events(), filter1(), filter2(), fx_selector(nullptr) {
     for (int i=0; i<256; i++){
         synth.addVoice(new SampleVoice());
     }
@@ -99,11 +99,6 @@ void SampleVoice::startNote(const int midiNoteNumber,
             }
         }
     }
-    
-    
-    
-    
-    
 }
 
 //y = (y2-y1)/(e^wx2 - e^wx1) * (e^wx - e^wx1) + y1
