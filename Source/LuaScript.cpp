@@ -14,3 +14,9 @@ LuaScript::LuaScript() : L(nullptr){
     L = lua_open();
     luaL_openlibs(L);
 }
+
+void LuaScript::loadScript(String f){
+    if (luaL_loadfile(L, f.toRawUTF8()) != 0){
+        std::cout<<"error: "<<lua_tostring(L, -1)<<std::endl;
+    }
+}

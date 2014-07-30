@@ -14,13 +14,14 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "LuaScript.h"
 
-class ScriptBin : public Component{
+class ScriptBin : public Component, Button::Listener{
 public:
     ScriptBin();
     ~ScriptBin();
     void paint(Graphics&);
     void resized();
     LuaScript* getLuaScript(){return luaScript;}
+    void buttonClicked(Button*);
 private:
     CodeDocument* codeDocument;
     CodeEditorComponent* codeEditor;

@@ -17,6 +17,7 @@ ScriptBin::ScriptBin() : codeDocument(new CodeDocument()),
 {
     addAndMakeVisible(codeEditor);
     addAndMakeVisible(compileButton);
+    compileButton->addListener(this);
 }
                        
 ScriptBin::~ScriptBin(){
@@ -38,4 +39,12 @@ void ScriptBin::paint(Graphics& g){
 void ScriptBin::resized(){
     codeEditor->setBounds(0, 20, getWidth(), getHeight());
     compileButton->setBounds(0, 0, 50, 20);
+}
+
+void ScriptBin::buttonClicked(Button* source){
+    if (source == compileButton){
+        File outFile(File::getCurrentWorkingDirectory().getFullPathName() + "/script.lua");
+        outFile.replaceWithText(codeDocument->getAllContent());
+        luaScript->loadScript(outFile.getFullPathName());
+    }
 }
