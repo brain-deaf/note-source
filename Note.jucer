@@ -59,6 +59,8 @@
     <FILE id="NYiBrA" name="MenuBar.cpp" compile="1" resource="0" file="Source/MenuBar.cpp"/>
     <FILE id="gmMdRS" name="Sampler.h" compile="0" resource="0" file="Source/Sampler.h"/>
     <FILE id="h7Ax0F" name="Sampler.cpp" compile="1" resource="0" file="Source/Sampler.cpp"/>
+    <FILE id="RGwk8W" name="ScriptBin.h" compile="0" resource="0" file="Source/ScriptBin.h"/>
+    <FILE id="k4EU9I" name="ScriptBin.cpp" compile="1" resource="0" file="Source/ScriptBin.cpp"/>
     <FILE id="AYWK7r" name="WaveBin.h" compile="0" resource="0" file="Source/WaveBin.h"/>
     <FILE id="hX2aW8" name="WaveBin.cpp" compile="1" resource="0" file="Source/WaveBin.cpp"/>
     <FILE id="m8jQtt" name="WaveformView.h" compile="0" resource="0" file="Source/WaveformView.h"/>

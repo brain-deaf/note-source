@@ -17,6 +17,7 @@
 #include "MappingEditorBin.h"
 #include "FxBin.h"
 #include "WaveBin.h"
+#include "ScriptBin.h"
 
 class InstrumentTabWindow : public TabbedComponent
 {
@@ -31,6 +32,7 @@ private:
     ScopedPointer<MappingEditorBin> mappingEditor;
     ScopedPointer<WaveBin> waveBin;
     ScopedPointer<FxBin> fxbin;
+    ScopedPointer<ScriptBin> scriptBin;
     ScopedPointer<TextButton> zoomButton;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentTabWindow)
 };
