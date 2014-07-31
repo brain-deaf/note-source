@@ -10,10 +10,11 @@
 
 #include "ScriptBin.h"
 
-ScriptBin::ScriptBin() : codeDocument(new CodeDocument()), 
+ScriptBin::ScriptBin(MappingEditorBin* m) : codeDocument(new CodeDocument()), 
                        codeEditor(new CodeEditorComponent(*codeDocument, new LuaTokeniser())),
                        compileButton(new TextButton("compile")),
-                       luaScript(new LuaScript())
+                       luaScript(new LuaScript(m)),
+                       mapping_editor(m)
 {
     addAndMakeVisible(codeEditor);
     addAndMakeVisible(compileButton);

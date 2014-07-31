@@ -16,13 +16,17 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+class MappingEditorBin;
+
 class LuaScript{
 public:
-    LuaScript();
+    LuaScript(MappingEditorBin*);
     lua_State* getLuaState(){return L;}
     void loadScript(String);
+    void onNote(int, double, double);
 private:
     lua_State* L;
+    MappingEditorBin* mapping_editor;
 };
 
 

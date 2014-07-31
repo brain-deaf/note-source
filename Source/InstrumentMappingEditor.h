@@ -14,6 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GroupEditor.h"
 #include "Sampler.h"
+#include "LuaScript.h"
 
 class InstrumentComponent;
 
@@ -33,10 +34,14 @@ public:
             MappingEditorGraph* parent;
             int midi_input_id;
         public:
-            MidiDeviceCallback(MappingEditorGraph * p): parent{p},midi_input_id(-1){}
+            MidiDeviceCallback(MappingEditorGraph * p): luaScript(nullptr), 
+                                                        parent{p},
+                                                        midi_input_id(-1){}
+                                                        
             void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message);
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiDeviceCallback)
             void setMidiChannel(int i){midi_input_id = i;}
+            LuaScript* luaScript;
         };
 
         class Zone : public TextButton,
@@ -203,6 +208,7 @@ public:
         bool isDragging(){return dragging;}
         InstrumentComponent& getInstrument(){return instrument;}
         Sampler& getSampler(){return sampler;}
+        Sampler* getSamplerP(){return &sampler;}
         SelectedItemSet<std::pair<int, int> >& getNotesHeld() { return notesHeld;}
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
         GroupEditor*& getGroupEditor(){return group_editor;}
@@ -233,6 +239,7 @@ public:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingEditorGraph)
         Sampler sampler;
         AudioSourcePlayer source_player;
+        
     };
     InstrumentMappingEditor(const String& componentName,
         InstrumentComponent& i);

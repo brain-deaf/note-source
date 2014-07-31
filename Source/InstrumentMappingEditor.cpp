@@ -124,10 +124,14 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
     if (message.getChannel() == midi_input_id || midi_input_id== -1){
         if (message.isNoteOn()) 
         {
+            if (luaScript == nullptr)
+                luaScript = parent->getInstrument().getTabWindow().getScriptBin()->getLuaScript();
+            
             parent->getNotesHeld().addToSelection(std::pair<int, int>(message.getNoteNumber(), message.getVelocity()));
             for (auto zone : parent->zones){
                 if (zone->getNote() == message.getNoteNumber()){}
             }
+            luaScript->onNote(message.getNoteNumber(), message.getVelocity(), message.getTimeStamp());
         }
         if (message.isNoteOff()) 
         {
@@ -136,8 +140,10 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
                     parent->getNotesHeld().deselect(pair);
                 }
             }
+            parent->getSampler().getMidiCollector().addMessageToQueue(message);
         }
-        parent->getSampler().getMidiCollector().addMessageToQueue(message);
+        
+        
     }
     //SharedResourcePointer<AudioDeviceManager> dm;
     //std::cout<<dm->getCpuUsage()<<std::endl;

@@ -15,7 +15,7 @@ InstrumentTabWindow::InstrumentTabWindow(InstrumentComponent& i,
     : TabbedComponent{orientation},mainPage{new MainPage(i)},
     mappingEditor{new MappingEditorBin(i)}, fxbin{new FxBin(mappingEditor)}, 
     waveBin(new WaveBin(mappingEditor)),
-    scriptBin(new ScriptBin())
+    scriptBin(new ScriptBin(mappingEditor))
 {
     addTab("Main", Colour(100, 100, 100), mainPage, false);
     addTab("FX", Colour(100, 110, 100), fxbin, false);

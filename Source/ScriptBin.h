@@ -16,7 +16,7 @@
 
 class ScriptBin : public Component, Button::Listener{
 public:
-    ScriptBin();
+    ScriptBin(MappingEditorBin*);
     ~ScriptBin();
     void paint(Graphics&);
     void resized();
@@ -27,6 +27,7 @@ private:
     CodeEditorComponent* codeEditor;
     TextButton* compileButton;
     LuaScript* luaScript;
+    MappingEditorBin* mapping_editor;
 };
 
 
