@@ -19,6 +19,14 @@ ScriptBin::ScriptBin(MappingEditorBin* m) : codeDocument(new CodeDocument()),
     addAndMakeVisible(codeEditor);
     addAndMakeVisible(compileButton);
     compileButton->addListener(this);
+    
+    File f(File::getCurrentWorkingDirectory().getFullPathName() + "/script.lua");
+    FileInputStream* stream = new FileInputStream(f);
+    codeDocument->loadFromStream(*stream);
+    buttonClicked(compileButton);
+    
+    delete stream;
+    stream = nullptr;
 }
                        
 ScriptBin::~ScriptBin(){

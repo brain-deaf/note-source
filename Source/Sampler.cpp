@@ -131,6 +131,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
     
             if (!isKeyDown() && releaseStart == 0.0f){
                 releaseStart = samplePosition;
+                std::cout<<"set release start"<<std::endl;
             }
             double release_sample_length = releaseTime/1000*s->getSampleRate();
             float release_x = 0.0f;
@@ -212,6 +213,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 if (samplePosition > sample_length || sample_length - samplePosition < numSamples || release_x >= releaseTime){
                     samplePosition = 0.0;
                     stopNote(false);
+                    
                     break;
                 }
             }
