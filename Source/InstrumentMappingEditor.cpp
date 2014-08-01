@@ -65,7 +65,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
 : Component(), width(w), height(h), keyboardHeight(kh), group_editor(g),
     numColumns(nc), draggedZone(nullptr), dragging(false), 
     lasso(), lassoSource(this), instrument(i), midiCallback(this), 
-    keyboardState(), zones(), sampler(), source_player(),
+    keyboardState(), zones(), sampler(&(getNotesHeld())), source_player(),
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
 {
     keyboardState.addListener(this);

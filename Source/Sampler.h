@@ -18,15 +18,22 @@
 
 class NoteEvent{
 public:
+    NoteEvent() : noteNumber(0),
+                  triggerNote(0),
+                  velocity(1.0),
+                  groups(){}
     int getNoteNumber(){return noteNumber;}
     float getVelocity(){return velocity;}
+    int getTriggerNote(){return triggerNote;}
     Array<int> getGroups(){return groups;}
     
     void setNoteNumber(int n){noteNumber=n;}
     void setVelocity(float v){velocity=v;}
+    void setTriggerNote(int n){triggerNote=n;}
     void setGroups(Array<int> g){groups=g;}
 private:
     int noteNumber;
+    int triggerNote;
     float velocity;
     Array<int> groups;
 };
@@ -34,7 +41,7 @@ private:
 class Sampler : public AudioSource
 {
 public:
-    Sampler();
+    Sampler(SelectedItemSet<std::pair<int, int> >*);
     void addSample(String path, int root_note, int note_low, int note_high, Array<int>&, double);
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
     void releaseResources() override;
@@ -46,8 +53,9 @@ public:
     
     Synthesiser* getSynth(){return &synth;}
     MidiMessageCollector& getMidiCollector(){return midiCollector;}
-    Array<NoteEvent>& getEvents(){return events;}
-    NoteEvent getLastEvent(){return events[-1];}
+    Array<NoteEvent*>& getEvents(){return events;}
+    NoteEvent* getLastEvent(){return events[events.size()-1];}
+    SelectedItemSet<std::pair<int, int> >* getNotesHeld(){return notesHeld;}
 private:
     MidiMessageCollector midiCollector;
     Synthesiser synth;
@@ -56,8 +64,8 @@ private:
     IIR_Filter filter1;
     IIR_Filter filter2;
     FxSelector* fx_selector;
-    Array<NoteEvent> events;
-    //Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
+    Array<NoteEvent*> events;
+    SelectedItemSet<std::pair<int, int> >* notesHeld;
 };
 
 
@@ -83,6 +91,8 @@ private:
     float releaseTime;
     float releaseCurve;
     float releaseStart;
+    
+    NoteEvent* noteEvent;
 };
 
 class SampleSound : public SamplerSound
@@ -96,10 +106,11 @@ public:
                 double releaseTimeSecs,
                 double maxSampleLengthSeconds,
                 Array<int> group,
-                FxSelector* fx) : 
+                FxSelector* fx,
+                Sampler* s) : 
                     SamplerSound(name, source, midiNotes, midiNoteForNormalPitch, 
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
-                    groups(group), fx_selector(fx), sampleStart(0.0)
+                    groups(group), fx_selector(fx), sampleStart(0.0), sampler(s)
     {
         sampleRate = source.sampleRate;
         rootNote = midiNoteForNormalPitch;
@@ -111,12 +122,14 @@ public:
     FxSelector* getFxSelector(){return fx_selector;}
     void setSampleStart(double d){sampleStart=d;}
     double getSampleStart(){return sampleStart;}
+    Sampler* getSampler(){return sampler;}
 private:
     Array<int> groups;
     double sampleRate;
     int rootNote;
     FxSelector* fx_selector;
     double sampleStart;
+    Sampler* sampler;
 };
 
                     

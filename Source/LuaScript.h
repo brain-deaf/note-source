@@ -24,9 +24,11 @@ public:
     lua_State* getLuaState(){return L;}
     void loadScript(String);
     void onNote(int, double, double);
+    int getLastPlayedNote(){return lastPlayedNote;}
 private:
     lua_State* L;
     MappingEditorBin* mapping_editor;
+    int lastPlayedNote;
 };
 
 

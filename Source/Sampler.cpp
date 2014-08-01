@@ -10,9 +10,20 @@
 
 #include "Sampler.h"
 #include "Adsr.h"
+#include "InstrumentMappingEditor.h"
 
+static bool isNoteHeld(SelectedItemSet<std::pair<int, int> > s, int n){
+    for (auto pair : s){
+         
+         if (pair.first == n){
+             return true;
+         }
+    }
+    return false;
+}
 
-Sampler::Sampler() : AudioSource(), synth(), formatManager(), events(), filter1(), filter2(), fx_selector(nullptr) {
+Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s) 
+    : AudioSource(), synth(), notesHeld(s), formatManager(), events(), filter1(), filter2(), fx_selector(nullptr) {
     for (int i=0; i<256; i++){
         synth.addVoice(new SampleVoice());
     }
@@ -39,7 +50,7 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
     SampleSound* ss;
     synth.addSound(ss = new SampleSound("demo sound", *audioReader,
                                     allNotes, root_note,
-                                    0.0, 0.0, 10.0, groups, fx_selector));
+                                    0.0, 0.0, 10.0, groups, fx_selector, this));
     ss->setSampleStart(sampleStart);
 }
     
@@ -63,7 +74,9 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 }
 
 SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
-                             attackTime(0.01), releaseTime(0.1), sampleStart(0.0){
+                             attackTime(0.01), releaseTime(0.1), sampleStart(0.0),
+                             noteEvent(nullptr)
+{
     //filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
     //filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
 }
@@ -81,6 +94,8 @@ void SampleVoice::startNote(const int midiNoteNumber,
         samplePosition = sound->getSampleStart();
         sampleStart = samplePosition;
         
+        noteEvent = sound->getSampler()->getLastEvent();
+        
         Array<int> groups_for_note = sound->getGroups();
         for (auto i : groups_for_note){
             FxGroup* fx_group = sound->getFxSelector()->getGroups()[i];
@@ -94,7 +109,7 @@ void SampleVoice::startNote(const int midiNoteNumber,
                     sustain     = adsr->getSustainSlider()->getValue();
                     releaseTime = adsr->getReleaseTimeSlider()->getValue();
                     releaseCurve= adsr->getReleaseCurveSlider()->getValue();
-                    return;
+                    //return;
                 }
             }
         }
@@ -129,9 +144,10 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             float* outL = buffer.getWritePointer(0, startSample);
             float* outR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1, startSample) : nullptr;
     
-            if (!isKeyDown() && releaseStart == 0.0f){
+            *(s->getSampler()->getNotesHeld());
+            noteEvent->getTriggerNote();
+            if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()) && releaseStart == 0.0f){
                 releaseStart = samplePosition;
-                std::cout<<"set release start"<<std::endl;
             }
             double release_sample_length = releaseTime/1000*s->getSampleRate();
             float release_x = 0.0f;
@@ -187,7 +203,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     release_x = (samplePosition - releaseStart)/s->getSampleRate()*1000;
                 }
                 
-                double release_multiplier = !isKeyDown() || samples_left < release_sample_length ? getReleaseMultiplier(releaseTime, releaseCurve, release_x) : 1.0;
+                double release_multiplier = releaseStart != 0.0 || samples_left < release_sample_length ? getReleaseMultiplier(releaseTime, releaseCurve, release_x) : 1.0;
             
                 const int pos = (int) samplePosition;
                 const double alpha = (double) (samplePosition - pos);

@@ -12,6 +12,7 @@
 #include "Sampler.h"
 #include "MappingEditorBin.h"
 
+static LuaScript* luaScript = nullptr;
 static Sampler* staticSampler = nullptr;
 
 static int l_playNote(lua_State* L){
@@ -21,16 +22,23 @@ static int l_playNote(lua_State* L){
     
     MidiMessage* m = new MidiMessage(MidiMessage::noteOn(1, (int)note, (float)velocity));
     m->setTimeStamp(timestamp);
-    staticSampler->getMidiCollector().addMessageToQueue(*m);
     
+    NoteEvent* n = new NoteEvent();
+    n->setTriggerNote(luaScript->getLastPlayedNote());
+    n->setNoteNumber(note);
+    n->setVelocity(velocity);
+    
+    staticSampler->getEvents().add(n);
+    staticSampler->getMidiCollector().addMessageToQueue(*m);
     return 0;
 }
 
-LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m){
+LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastPlayedNote(0){
     L = lua_open();
     luaL_openlibs(L);
     lua_pushcfunction(L, l_playNote);
     lua_setglobal(L, "playNote");
+    luaScript = this;
 }
 
 void LuaScript::loadScript(String f){
@@ -43,12 +51,11 @@ void LuaScript::loadScript(String f){
 }
 
 void LuaScript::onNote(int note, double velocity, double timestamp){
-    
+    lastPlayedNote = note;
     lua_getglobal(L, "onNote");
     lua_pushnumber(L, note);
     lua_pushnumber(L, velocity);
     lua_pushnumber(L, timestamp);
-    
     if (lua_pcall(L, 3, 0, 0) != 0)
         std::cout<<"error running function `onNote' : "<<lua_tostring(L, -1)<<std::endl;
         
