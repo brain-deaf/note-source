@@ -11,6 +11,7 @@
 #include "LuaScript.h"
 #include "Sampler.h"
 #include "MappingEditorBin.h"
+#include <memory>
 
 static LuaScript* luaScript = nullptr;
 static Sampler* staticSampler = nullptr;
@@ -19,17 +20,19 @@ static int l_playNote(lua_State* L){
     double note = lua_tonumber(L, 1);
     double velocity = lua_tonumber(L, 2);
     double timestamp = lua_tonumber(L, 3);
+    double triggered_note = lua_tonumber(L, 4);
     
     MidiMessage* m = new MidiMessage(MidiMessage::noteOn(1, (int)note, (float)velocity));
     m->setTimeStamp(timestamp);
     
-    NoteEvent* n = new NoteEvent();
-    n->setTriggerNote(luaScript->getLastPlayedNote());
+    auto n = std::make_shared<NoteEvent>();
+    n->setTriggerNote(triggered_note);
     n->setNoteNumber(note);
     n->setVelocity(velocity);
     
-    staticSampler->getEvents().add(n);
+    staticSampler->getIncomingEvents().add(n);
     staticSampler->getMidiCollector().addMessageToQueue(*m);
+    
     return 0;
 }
 

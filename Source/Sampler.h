@@ -14,6 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FxSelector.h"
 #include "IIR_Filter.h"
+#include <memory>
 //#include <fftw3.h>
 
 class NoteEvent{
@@ -53,8 +54,9 @@ public:
     
     Synthesiser* getSynth(){return &synth;}
     MidiMessageCollector& getMidiCollector(){return midiCollector;}
-    Array<NoteEvent*>& getEvents(){return events;}
-    NoteEvent* getLastEvent(){return events[events.size()-1];}
+    Array<std::shared_ptr<NoteEvent> >& getEvents(){return events;}
+    Array<std::shared_ptr<NoteEvent> >& getIncomingEvents(){return incomingEvents;}
+    std::shared_ptr<NoteEvent> getLastEvent(){return events[events.size()-1];}
     SelectedItemSet<std::pair<int, int> >* getNotesHeld(){return notesHeld;}
 private:
     MidiMessageCollector midiCollector;
@@ -64,7 +66,8 @@ private:
     IIR_Filter filter1;
     IIR_Filter filter2;
     FxSelector* fx_selector;
-    Array<NoteEvent*> events;
+    Array<std::shared_ptr<NoteEvent> > events;
+    Array<std::shared_ptr<NoteEvent> > incomingEvents;
     SelectedItemSet<std::pair<int, int> >* notesHeld;
 };
 
@@ -92,7 +95,7 @@ private:
     float releaseCurve;
     float releaseStart;
     
-    NoteEvent* noteEvent;
+    std::shared_ptr<NoteEvent> noteEvent;
 };
 
 class SampleSound : public SamplerSound

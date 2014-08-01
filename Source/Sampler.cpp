@@ -23,7 +23,10 @@ static bool isNoteHeld(SelectedItemSet<std::pair<int, int> > s, int n){
 }
 
 Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s) 
-    : AudioSource(), synth(), notesHeld(s), formatManager(), events(), filter1(), filter2(), fx_selector(nullptr) {
+    : AudioSource(), synth(), notesHeld(s), formatManager(), 
+      events(), incomingEvents(),
+      filter1(), filter2(), fx_selector(nullptr) 
+{
     for (int i=0; i<256; i++){
         synth.addVoice(new SampleVoice());
     }
@@ -94,7 +97,14 @@ void SampleVoice::startNote(const int midiNoteNumber,
         samplePosition = sound->getSampleStart();
         sampleStart = samplePosition;
         
-        noteEvent = sound->getSampler()->getLastEvent();
+        for (auto e : sound->getSampler()->getIncomingEvents()){
+            if (e->getNoteNumber() == midiNoteNumber){
+                noteEvent = e;
+                sound->getSampler()->getIncomingEvents().removeFirstMatchingValue(e);
+                sound->getSampler()->getEvents().add(noteEvent);
+                break;
+            }
+        }
         
         Array<int> groups_for_note = sound->getGroups();
         for (auto i : groups_for_note){
@@ -143,9 +153,6 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             const float* const inR = num_channels>1 ? s->getAudioData()->getReadPointer(1) : nullptr;
             float* outL = buffer.getWritePointer(0, startSample);
             float* outR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1, startSample) : nullptr;
-    
-            *(s->getSampler()->getNotesHeld());
-            noteEvent->getTriggerNote();
             if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()) && releaseStart == 0.0f){
                 releaseStart = samplePosition;
             }
@@ -228,8 +235,10 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 samplePosition += pitchRatio;
                 if (samplePosition > sample_length || sample_length - samplePosition < numSamples || release_x >= releaseTime){
                     samplePosition = 0.0;
-                    stopNote(false);
                     
+                    s->getSampler()->getEvents().removeFirstMatchingValue(noteEvent);
+                    noteEvent = nullptr;
+                    stopNote(false);
                     break;
                 }
             }
