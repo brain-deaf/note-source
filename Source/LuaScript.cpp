@@ -82,7 +82,9 @@ static int l_setSize(lua_State* L){
     double width = lua_tonumber(L, 2);
     double height = lua_tonumber(L, 3);
     
-    staticMainPage->getComponents()[name]->setSize(width, height);
+    Component* c = staticMainPage->getComponents()[name];
+    if (c != nullptr)
+        c->setSize(width, height);
     
     return 0;
 }
@@ -92,9 +94,29 @@ static int l_setPosition(lua_State* L){
     double x = lua_tonumber(L, 2);
     double y= lua_tonumber(L, 3);
     
-    staticMainPage->getComponents()[name]->setTopLeftPosition(x, y);
+    Component* c = staticMainPage->getComponents()[name];
+    if (c != nullptr)
+        c->setTopLeftPosition(x, y);
     
     return 0;
+}
+
+static int l_getPageWidth(lua_State* L){
+    lua_pushnumber(L, staticMainPage->getWidth());
+    return 1;
+}
+
+static int l_getWidth(lua_State* L){
+    String name = lua_tostring(L, 1);
+    Component* c = staticMainPage->getComponents()[name];
+    
+    if (c != nullptr){
+        lua_pushnumber(L, staticMainPage->getComponents()[name]->getWidth());
+    }else{
+        lua_pushnumber(L, -1);
+    }
+    
+    return 1;
 }
 
 LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastPlayedNote(0){
@@ -110,6 +132,10 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "setSize");
     lua_pushcfunction(L, l_setPosition);
     lua_setglobal(L, "setPosition");
+    lua_pushcfunction(L, l_getPageWidth);
+    lua_setglobal(L, "getPageWidth");
+    lua_pushcfunction(L, l_getWidth);
+    lua_setglobal(L, "getWidth");
     luaScript = this;
 }
 
