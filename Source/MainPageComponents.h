@@ -23,6 +23,17 @@ private:
     String name;
 };
 
+class MainVerticalSlider : public Slider
+{
+public:
+    MainVerticalSlider(String, double, double, double);
+    int getId(){return id;}
+private:
+    int id;
+    String name;
+};
+
+
 
 
 #endif  // MAINPAGECOMPONENTS_H_INCLUDED

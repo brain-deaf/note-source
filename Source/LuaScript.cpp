@@ -77,6 +77,24 @@ static int l_makeHorizontalSlider(lua_State* L){
     return 1;
 }
 
+static int l_makeVerticalSlider(lua_State* L){
+    String name = lua_tostring(L, 1);
+    double min = lua_tonumber(L, 2);
+    double max = lua_tonumber(L, 3);
+    double interval = lua_tonumber(L, 4);
+    
+    auto s = new MainVerticalSlider(name, min, max, interval);
+    s->setSize(30, 250);
+    s->addListener(luaScript);
+    
+    staticMainPage->getComponents()[name] = s;
+    staticMainPage->addNewComponent(name);
+    
+    lua_pushstring(L, name.toRawUTF8());
+    
+    return 1;
+}
+
 static int l_setSize(lua_State* L){
     String name = lua_tostring(L, 1);
     double width = lua_tonumber(L, 2);
@@ -115,7 +133,18 @@ static int l_getWidth(lua_State* L){
     }else{
         lua_pushnumber(L, -1);
     }
+    return 1;
+}
+
+static int l_getHeight(lua_State* L){
+    String name = lua_tostring(L, 1);
+    Component* c = staticMainPage->getComponents()[name];
     
+    if (c != nullptr){
+        lua_pushnumber(L, staticMainPage->getComponents()[name]->getHeight());
+    }else{
+        lua_pushnumber(L, -1);
+    }
     return 1;
 }
 
@@ -126,8 +155,12 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "playNote");
     lua_pushcfunction(L, l_setGroup);
     lua_setglobal(L, "setGroup");
+    
     lua_pushcfunction(L, l_makeHorizontalSlider);
     lua_setglobal(L, "makeHorizontalSlider");
+    lua_pushcfunction(L, l_makeVerticalSlider);
+    lua_setglobal(L, "makeVerticalSlider");
+    
     lua_pushcfunction(L, l_setSize);
     lua_setglobal(L, "setSize");
     lua_pushcfunction(L, l_setPosition);
@@ -136,6 +169,9 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "getPageWidth");
     lua_pushcfunction(L, l_getWidth);
     lua_setglobal(L, "getWidth");
+    lua_pushcfunction(L, l_getHeight);
+    lua_setglobal(L, "getHeight");
+    
     luaScript = this;
 }
 
