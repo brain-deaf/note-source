@@ -72,6 +72,28 @@ static int l_makeHorizontalSlider(lua_State* L){
     staticMainPage->getComponents()[name] = s;
     staticMainPage->addNewComponent(name);
     
+    lua_pushstring(L, name.toRawUTF8());
+    
+    return 1;
+}
+
+static int l_setSize(lua_State* L){
+    String name = lua_tostring(L, 1);
+    double width = lua_tonumber(L, 2);
+    double height = lua_tonumber(L, 3);
+    
+    staticMainPage->getComponents()[name]->setSize(width, height);
+    
+    return 0;
+}
+
+static int l_setPosition(lua_State* L){
+    String name = lua_tostring(L, 1);
+    double x = lua_tonumber(L, 2);
+    double y= lua_tonumber(L, 3);
+    
+    staticMainPage->getComponents()[name]->setTopLeftPosition(x, y);
+    
     return 0;
 }
 
@@ -84,6 +106,10 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "setGroup");
     lua_pushcfunction(L, l_makeHorizontalSlider);
     lua_setglobal(L, "makeHorizontalSlider");
+    lua_pushcfunction(L, l_setSize);
+    lua_setglobal(L, "setSize");
+    lua_pushcfunction(L, l_setPosition);
+    lua_setglobal(L, "setPosition");
     luaScript = this;
 }
 
