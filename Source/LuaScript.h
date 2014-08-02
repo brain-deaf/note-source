@@ -18,7 +18,7 @@
 
 class MappingEditorBin;
 
-class LuaScript : public Slider::Listener
+class LuaScript : public Slider::Listener, public Button::Listener
 {
 public:
     LuaScript(MappingEditorBin*);
@@ -27,6 +27,7 @@ public:
     void onNote(int, double, double);
     int getLastPlayedNote(){return lastPlayedNote;}
     void sliderValueChanged(Slider*) override;
+    void buttonClicked(Button*) override;
 private:
     lua_State* L;
     MappingEditorBin* mapping_editor;

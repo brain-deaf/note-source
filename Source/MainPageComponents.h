@@ -43,6 +43,16 @@ private:
     String name;
 };
 
+class MainButton : public TextButton
+{
+public:
+    MainButton(String);
+    int getId(){return id;}
+private:
+    int id;
+    String name;
+};
+
 
 
 

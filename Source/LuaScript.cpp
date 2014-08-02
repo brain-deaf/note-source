@@ -113,6 +113,23 @@ static int l_makeKnob(lua_State* L){
     return 1;
 }
 
+static int l_makeButton(lua_State* L){
+    String name = lua_tostring(L, 1);
+    bool toggle = lua_toboolean(L, 2);
+    
+    auto s = new MainButton(name);
+    s->setSize(80, 50);
+    s->addListener(luaScript);
+    s->setClickingTogglesState(toggle);
+    
+    staticMainPage->getComponents()[name] = s;
+    staticMainPage->addNewComponent(name);
+    
+    lua_pushstring(L, name.toRawUTF8());
+    
+    return 1;
+}
+
 static int l_setSize(lua_State* L){
     String name = lua_tostring(L, 1);
     double width = lua_tonumber(L, 2);
@@ -198,6 +215,8 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "makeVerticalSlider");
     lua_pushcfunction(L, l_makeKnob);
     lua_setglobal(L, "makeKnob");
+    lua_pushcfunction(L, l_makeButton);
+    lua_setglobal(L, "makeButton");
     
     lua_pushcfunction(L, l_setSize);
     lua_setglobal(L, "setSize");
@@ -253,5 +272,12 @@ void LuaScript::sliderValueChanged(Slider* s){
     lua_pushnumber(L, s->getValue());
     if (lua_pcall(L, 1, 0, 0) != 0)
         std::cout<<"error running function `on" + s->getName() + "Changed' : "<<lua_tostring(L, -1)<<std::endl;
+}
+
+void LuaScript::buttonClicked(Button* b){
+    lua_getglobal(L, String("on" + b->getName() + "Clicked").toRawUTF8());
+    lua_pushnumber(L, b->getToggleState());
+    if (lua_pcall(L, 1, 0, 0) != 0)
+        std::cout<<"error running function `on" + b->getName() + "Clicked' : "<<lua_tostring(L, -1)<<std::endl;
 }
     

@@ -36,3 +36,8 @@ MainKnob::MainKnob(String s, double minimum, double maximum, double interval) :
     setRange(minimum, maximum, interval);
     setName(name);
 }
+
+MainButton::MainButton(String s) : TextButton(""), id(0), name(s)
+{
+    setName(name);
+}
