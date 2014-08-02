@@ -27,7 +27,7 @@ public:
     int getNoteNumber(){return noteNumber;}
     float getVelocity(){return velocity;}
     int getTriggerNote(){return triggerNote;}
-    Array<int> getGroups(){return groups;}
+    Array<int>& getGroups(){return groups;}
     
     void setNoteNumber(int n){noteNumber=n;}
     void setVelocity(float v){velocity=v;}

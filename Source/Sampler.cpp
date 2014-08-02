@@ -77,7 +77,8 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 }
 
 SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
-                             attackTime(0.01), releaseTime(0.1), sampleStart(0.0),
+                             attackTime(10.0), attackCurve(0.05), releaseTime(50.0), 
+                             sampleStart(0.0), releaseCurve(0.01),
                              noteEvent(nullptr)
 {
     //filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
@@ -105,6 +106,8 @@ void SampleVoice::startNote(const int midiNoteNumber,
                 break;
             }
         }
+        std::cout<<sound->getSampler()->getIncomingEvents().size()<<std::endl;
+    
         
         Array<int> groups_for_note = sound->getGroups();
         for (auto i : groups_for_note){
@@ -141,6 +144,25 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
     if (s != nullptr){
         Array<int> groups_for_note = s->getGroups();
+        Array<int> groups_for_event = noteEvent->getGroups();
+        
+        bool return_flag = true;
+        if (groups_for_event.size() > 0){
+            for (auto i : groups_for_note){
+                for (auto j : groups_for_event){
+                    if (j == i){ 
+                        return_flag = false;
+                    }
+                }
+            }
+        }
+        if (return_flag){ 
+            s->getSampler()->getEvents().removeFirstMatchingValue(noteEvent);
+            noteEvent = nullptr;
+            stopNote(false);
+            return;
+        }
+            
         
         //example of how to not process a sound for a particular Group
         //if (groups_for_note[0] == 0){return;}
@@ -153,6 +175,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             const float* const inR = num_channels>1 ? s->getAudioData()->getReadPointer(1) : nullptr;
             float* outL = buffer.getWritePointer(0, startSample);
             float* outR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1, startSample) : nullptr;
+            
             if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()) && releaseStart == 0.0f){
                 releaseStart = samplePosition;
             }
@@ -231,11 +254,10 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 
                 outL++;
                 outR++;
-            
+                
                 samplePosition += pitchRatio;
                 if (samplePosition > sample_length || sample_length - samplePosition < numSamples || release_x >= releaseTime){
                     samplePosition = 0.0;
-                    
                     s->getSampler()->getEvents().removeFirstMatchingValue(noteEvent);
                     noteEvent = nullptr;
                     stopNote(false);

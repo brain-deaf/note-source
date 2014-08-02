@@ -41,11 +41,27 @@ static int l_playNote(lua_State* L){
     return 1;
 }
 
+static int l_setGroup(lua_State* L){
+    int id = lua_tonumber(L, 1);
+    int group = lua_tonumber(L, 2);
+    
+    for (auto e : staticSampler->getIncomingEvents()){
+        if (e->getId() == id){
+            e->getGroups().add(group);
+        }
+        
+    }
+    
+    return 0;
+}
+
 LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastPlayedNote(0){
     L = lua_open();
     luaL_openlibs(L);
     lua_pushcfunction(L, l_playNote);
     lua_setglobal(L, "playNote");
+    lua_pushcfunction(L, l_setGroup);
+    lua_setglobal(L, "setGroup");
     luaScript = this;
 }
 
