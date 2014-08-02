@@ -18,13 +18,15 @@
 
 class MappingEditorBin;
 
-class LuaScript{
+class LuaScript : public Slider::Listener
+{
 public:
     LuaScript(MappingEditorBin*);
     lua_State* getLuaState(){return L;}
     void loadScript(String);
     void onNote(int, double, double);
     int getLastPlayedNote(){return lastPlayedNote;}
+    void sliderValueChanged(Slider*) override;
 private:
     lua_State* L;
     MappingEditorBin* mapping_editor;

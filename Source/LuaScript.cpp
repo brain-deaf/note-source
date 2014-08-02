@@ -11,10 +11,14 @@
 #include "LuaScript.h"
 #include "Sampler.h"
 #include "MappingEditorBin.h"
+#include "MainPage.h"
 #include <memory>
+#include "MainPageComponents.h"
+#include "InstrumentComponent.h"
 
 static LuaScript* luaScript = nullptr;
 static Sampler* staticSampler = nullptr;
+static MainPage* staticMainPage = nullptr;
 
 static int l_playNote(lua_State* L){
     double note = lua_tonumber(L, 1);
@@ -55,6 +59,22 @@ static int l_setGroup(lua_State* L){
     return 0;
 }
 
+static int l_makeHorizontalSlider(lua_State* L){
+    String name = lua_tostring(L, 1);
+    double min = lua_tonumber(L, 2);
+    double max = lua_tonumber(L, 3);
+    double interval = lua_tonumber(L, 4);
+    
+    auto s = new MainHorizontalSlider(name, min, max, interval);
+    s->setSize(250, 30);
+    s->addListener(luaScript);
+    
+    staticMainPage->getComponents()[name] = s;
+    staticMainPage->addNewComponent(name);
+    
+    return 0;
+}
+
 LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastPlayedNote(0){
     L = lua_open();
     luaL_openlibs(L);
@@ -62,16 +82,28 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "playNote");
     lua_pushcfunction(L, l_setGroup);
     lua_setglobal(L, "setGroup");
+    lua_pushcfunction(L, l_makeHorizontalSlider);
+    lua_setglobal(L, "makeHorizontalSlider");
     luaScript = this;
 }
 
 void LuaScript::loadScript(String f){
     if (staticSampler == nullptr)
-    staticSampler = mapping_editor->getMappingEditor()->graph->getSamplerP();
+        staticSampler = mapping_editor->getMappingEditor()->graph->getSamplerP();
+        
+    if (staticMainPage == nullptr)
+        staticMainPage = mapping_editor->getMappingEditor()->graph->
+                         getInstrument().getTabWindow().getMainPage();
+    staticMainPage->resetComponents();
         
     if (luaL_loadfile(L, f.toRawUTF8()) || lua_pcall(L, 0, 0, 0)){
         std::cout<<"error: "<<lua_tostring(L, -1)<<std::endl;
+        return;
     }
+    
+    lua_getglobal(L, "Initialize");
+    if (lua_pcall(L, 0, 0, 0) != 0)
+        std::cout<<"error running function `Initialize' : "<<lua_tostring(L, -1)<<std::endl;
 }
 
 void LuaScript::onNote(int note, double velocity, double timestamp){
@@ -85,3 +117,11 @@ void LuaScript::onNote(int note, double velocity, double timestamp){
         
     //lua_pop(L, 1); no results to pop
 }
+
+void LuaScript::sliderValueChanged(Slider* s){
+    lua_getglobal(L, String("on" + s->getName() + "Changed").toRawUTF8());
+    lua_pushnumber(L, s->getValue());
+    if (lua_pcall(L, 1, 0, 0) != 0)
+        std::cout<<"error running function `on" + s->getName() + "Changed' : "<<lua_tostring(L, -1)<<std::endl;
+}
+    

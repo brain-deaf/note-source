@@ -2,7 +2,8 @@
 #define MAINPAGE_H 
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Adsr.h"
+#include <map>
+#include "MainPageComponents.h"
 
 class InstrumentComponent;
 
@@ -15,8 +16,12 @@ public:
     void changeListenerCallback(ChangeBroadcaster * src);
     void broughtToFront() override;
     void resized();
+    void addNewComponent(String);
+    void resetComponents();
+    std::map<String, Component*>& getComponents(){return components;}
 private:
-
+    std::map<String, Component*> components;
+    int idCount;
 };
 
 #endif /* MAINPAGE_H */

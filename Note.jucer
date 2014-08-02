@@ -53,6 +53,10 @@
           file="Source/MainComponent.cpp"/>
     <FILE id="fHyPhe" name="MainPage.h" compile="0" resource="0" file="Source/MainPage.h"/>
     <FILE id="ZwQmOr" name="MainPage.cpp" compile="1" resource="0" file="Source/MainPage.cpp"/>
+    <FILE id="vGT8lP" name="MainPageComponents.h" compile="0" resource="0"
+          file="Source/MainPageComponents.h"/>
+    <FILE id="EIOriX" name="MainPageComponents.cpp" compile="1" resource="0"
+          file="Source/MainPageComponents.cpp"/>
     <FILE id="SFQtAo" name="MappingEditorBin.h" compile="0" resource="0"
           file="Source/MappingEditorBin.h"/>
     <FILE id="JmEM47" name="MappingEditorBin.cpp" compile="1" resource="0"
