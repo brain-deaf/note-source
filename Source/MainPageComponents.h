@@ -33,6 +33,16 @@ private:
     String name;
 };
 
+class MainKnob : public Slider
+{
+public:
+    MainKnob(String, double, double, double);
+    int getId(){return id;}
+private:
+    int id;
+    String name;
+};
+
 
 
 

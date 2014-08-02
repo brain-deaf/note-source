@@ -27,3 +27,12 @@ MainVerticalSlider::MainVerticalSlider(String s, double minimum, double maximum,
     setRange(minimum, maximum, interval);
     setName(name);
 }
+
+MainKnob::MainKnob(String s, double minimum, double maximum, double interval) : 
+                                           Slider(), id(0), name(s)
+{
+    setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    setRange(minimum, maximum, interval);
+    setName(name);
+}
