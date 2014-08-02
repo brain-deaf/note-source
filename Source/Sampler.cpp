@@ -23,7 +23,7 @@ static bool isNoteHeld(SelectedItemSet<std::pair<int, int> > s, int n){
 }
 
 Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s) 
-    : AudioSource(), synth(), notesHeld(s), formatManager(), 
+    : AudioSource(), synth(), idCount(0), notesHeld(s), formatManager(), 
       events(), incomingEvents(),
       filter1(), filter2(), fx_selector(nullptr) 
 {

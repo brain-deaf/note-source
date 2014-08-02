@@ -22,6 +22,7 @@ public:
     NoteEvent() : noteNumber(0),
                   triggerNote(0),
                   velocity(1.0),
+                  id(0),
                   groups(){}
     int getNoteNumber(){return noteNumber;}
     float getVelocity(){return velocity;}
@@ -32,10 +33,13 @@ public:
     void setVelocity(float v){velocity=v;}
     void setTriggerNote(int n){triggerNote=n;}
     void setGroups(Array<int> g){groups=g;}
+    int getId(){return id;}
+    void setId(int i){id=i;}
 private:
     int noteNumber;
     int triggerNote;
     float velocity;
+    int id;
     Array<int> groups;
 };
 
@@ -58,6 +62,8 @@ public:
     Array<std::shared_ptr<NoteEvent> >& getIncomingEvents(){return incomingEvents;}
     std::shared_ptr<NoteEvent> getLastEvent(){return events[events.size()-1];}
     SelectedItemSet<std::pair<int, int> >* getNotesHeld(){return notesHeld;}
+    int getIdCount(){return idCount;}
+    void incIdCount(){idCount++;}
 private:
     MidiMessageCollector midiCollector;
     Synthesiser synth;
@@ -69,6 +75,7 @@ private:
     Array<std::shared_ptr<NoteEvent> > events;
     Array<std::shared_ptr<NoteEvent> > incomingEvents;
     SelectedItemSet<std::pair<int, int> >* notesHeld;
+    int idCount;
 };
 
 

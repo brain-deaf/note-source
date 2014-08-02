@@ -29,11 +29,16 @@ static int l_playNote(lua_State* L){
     n->setTriggerNote(triggered_note);
     n->setNoteNumber(note);
     n->setVelocity(velocity);
+    n->setId(staticSampler->getIdCount());
+    
+    lua_pushnumber(L, staticSampler->getIdCount());
+    
+    staticSampler->incIdCount();
     
     staticSampler->getIncomingEvents().add(n);
     staticSampler->getMidiCollector().addMessageToQueue(*m);
     
-    return 0;
+    return 1;
 }
 
 LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastPlayedNote(0){
