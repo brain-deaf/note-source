@@ -18,7 +18,8 @@
 
 class MappingEditorBin;
 
-class LuaScript : public Slider::Listener, public Button::Listener
+class LuaScript : public Slider::Listener, public Button::Listener,
+                  public ComboBox::Listener
 {
 public:
     LuaScript(MappingEditorBin*);
@@ -28,10 +29,13 @@ public:
     int getLastPlayedNote(){return lastPlayedNote;}
     void sliderValueChanged(Slider*) override;
     void buttonClicked(Button*) override;
+    void comboBoxChanged(ComboBox*) override;
+    Array<Font>& getFonts(){return fonts;}
 private:
     lua_State* L;
     MappingEditorBin* mapping_editor;
     int lastPlayedNote;
+    Array<Font> fonts;
 };
 
 

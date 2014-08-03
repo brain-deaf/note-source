@@ -47,3 +47,9 @@ MainLabel::MainLabel(String s, String text) : Label(), id(0), name(s)
     setName(name);
     setText(text, dontSendNotification);
 }
+
+MainComboBox::MainComboBox(String s) : ComboBox(""), id(0), name(s)
+{
+    setName(name);
+    setJustificationType(Justification::Flags::centred);
+}

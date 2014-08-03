@@ -63,6 +63,16 @@ private:
     String name;
 };
 
+class MainComboBox : public ComboBox
+{
+public:
+    MainComboBox(String);
+    int getId(){return id;}
+private:
+    int id;
+    String name;
+};
+
 
 
 

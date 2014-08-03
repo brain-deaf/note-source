@@ -144,6 +144,47 @@ static int l_makeLabel(lua_State* L){
     return 1;
 }
 
+static int l_makeComboBox(lua_State* L){
+    String name = lua_tostring(L, 1);
+    
+    auto s = new MainComboBox(name);
+    s->addListener(luaScript);
+    s->setSize(160, 25);
+    
+    staticMainPage->getComponents()[name] = s;
+    staticMainPage->addNewComponent(name);
+    
+    lua_pushstring(L, name.toRawUTF8());
+    
+    return 1;
+}
+
+static int l_addComboBoxItem(lua_State* L){
+    String name    = lua_tostring(L, 1);
+    String itemstr = lua_tostring(L, 2);
+    int id         = lua_tonumber(L, 3);
+    
+    MainComboBox* c = (MainComboBox*)(staticMainPage->getComponents()[name]);
+    c->addItem(itemstr, id);
+    
+    return 0;
+}
+    
+
+static int l_setFont(lua_State* L){
+    String name = lua_tostring(L, 1);
+    int font = lua_tonumber(L, 2);
+    if (font < 0) font = 0;
+    if (font > luaScript->getFonts().size())
+        font = luaScript->getFonts().size() - 1;
+    
+    MainLabel* l = (MainLabel*)(staticMainPage->getComponents()[name]);
+    if (l != nullptr)
+        l->setFont(luaScript->getFonts()[font]);
+        
+    return 0;
+}
+
 static int l_setSize(lua_State* L){
     String name = lua_tostring(L, 1);
     double width = lua_tonumber(L, 2);
@@ -233,6 +274,12 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "makeButton");
     lua_pushcfunction(L, l_makeLabel);
     lua_setglobal(L, "makeLabel");
+    lua_pushcfunction(L, l_makeComboBox);
+    lua_setglobal(L, "makeComboBox");
+    lua_pushcfunction(L, l_addComboBoxItem);
+    lua_setglobal(L, "addComboBoxItem");
+    lua_pushcfunction(L, l_setFont);
+    lua_setglobal(L, "setFont");
     
     lua_pushcfunction(L, l_setSize);
     lua_setglobal(L, "setSize");
@@ -248,6 +295,8 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "Hide");
     lua_pushcfunction(L, l_Show);
     lua_setglobal(L, "Show");
+    
+    Font::findFonts(fonts);
     
     luaScript = this;
 }
@@ -295,5 +344,12 @@ void LuaScript::buttonClicked(Button* b){
     lua_pushnumber(L, b->getToggleState());
     if (lua_pcall(L, 1, 0, 0) != 0)
         std::cout<<"error running function `on" + b->getName() + "Clicked' : "<<lua_tostring(L, -1)<<std::endl;
+}
+
+void LuaScript::comboBoxChanged(ComboBox* c){
+    lua_getglobal(L, String("on" + c->getName() + "Changed").toRawUTF8());
+    lua_pushnumber(L, c->getSelectedId());
+    if (lua_pcall(L, 1, 0, 0) != 0)
+        std::cout<<"error running function `on" + c->getName() + "Changed' : "<<lua_tostring(L, -1)<<std::endl;
 }
     
