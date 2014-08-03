@@ -53,7 +53,6 @@ static int l_setGroup(lua_State* L){
         if (e->getId() == id){
             e->getGroups().add(group);
         }
-        
     }
     
     return 0;
