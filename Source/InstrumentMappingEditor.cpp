@@ -66,7 +66,8 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     numColumns(nc), draggedZone(nullptr), dragging(false), 
     lasso(), lassoSource(this), instrument(i), midiCallback(this), 
     keyboardState(), zones(), sampler(&(getNotesHeld())), source_player(),
-    keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard)
+    keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard),
+    luaScript(nullptr)
 {
     keyboardState.addListener(this);
     addAndMakeVisible(&keyboard);
@@ -158,7 +159,26 @@ void MappingEditorGraph::resized()
 
 void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
     notesHeld.addToSelection(std::pair<int, int>(midiNoteNumber, velocity*128));
-    sampler.getSynth()->noteOn(midiChannel, midiNoteNumber, velocity/**128*/);
+    //sampler.getSynth()->noteOn(midiChannel, midiNoteNumber, velocity/**128*/);
+    if (luaScript == nullptr)
+        luaScript = instrument.getTabWindow().getScriptBin()->getLuaScript();
+        
+    MidiMessage* m = new MidiMessage(MidiMessage::noteOn(1, midiNoteNumber, velocity));
+    m->setTimeStamp(10);
+    
+    auto n = std::make_shared<NoteEvent>();
+    n->setTriggerNote(-1);
+    n->setNoteNumber(midiNoteNumber);
+    n->setVelocity(velocity);
+    n->setId(sampler.getIdCount());
+    
+    for (int i=0; i<groups.size(); i++){
+        n->getGroups().add(i);
+    }
+    
+    sampler.incIdCount();
+    sampler.getIncomingEvents().add(n);
+    sampler.getMidiCollector().addMessageToQueue(*m);
 }
 
 void MappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){

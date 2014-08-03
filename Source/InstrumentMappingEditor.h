@@ -239,6 +239,7 @@ public:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingEditorGraph)
         Sampler sampler;
         AudioSourcePlayer source_player;
+        LuaScript* luaScript;
         
     };
     InstrumentMappingEditor(const String& componentName,
