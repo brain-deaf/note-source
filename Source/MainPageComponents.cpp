@@ -41,3 +41,9 @@ MainButton::MainButton(String s) : TextButton(""), id(0), name(s)
 {
     setName(name);
 }
+
+MainLabel::MainLabel(String s, String text) : Label(), id(0), name(s)
+{
+    setName(name);
+    setText(text, dontSendNotification);
+}

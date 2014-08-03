@@ -129,6 +129,21 @@ static int l_makeButton(lua_State* L){
     return 1;
 }
 
+static int l_makeLabel(lua_State* L){
+    String name = lua_tostring(L, 1);
+    String text = lua_tostring(L, 2);
+    
+    auto s = new MainLabel(name, text);
+    s->setSize(150, 15);
+    
+    staticMainPage->getComponents()[name] = s;
+    staticMainPage->addNewComponent(name);
+    
+    lua_pushstring(L, name.toRawUTF8());
+    
+    return 1;
+}
+
 static int l_setSize(lua_State* L){
     String name = lua_tostring(L, 1);
     double width = lua_tonumber(L, 2);
@@ -216,6 +231,8 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "makeKnob");
     lua_pushcfunction(L, l_makeButton);
     lua_setglobal(L, "makeButton");
+    lua_pushcfunction(L, l_makeLabel);
+    lua_setglobal(L, "makeLabel");
     
     lua_pushcfunction(L, l_setSize);
     lua_setglobal(L, "setSize");

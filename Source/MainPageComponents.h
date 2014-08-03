@@ -53,6 +53,16 @@ private:
     String name;
 };
 
+class MainLabel: public Label
+{
+public:
+    MainLabel(String, String);
+    int getId(){return id;}
+private:
+    int id;
+    String name;
+};
+
 
 
 
