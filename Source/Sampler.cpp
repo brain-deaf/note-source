@@ -106,8 +106,6 @@ void SampleVoice::startNote(const int midiNoteNumber,
                 break;
             }
         }
-        std::cout<<sound->getSampler()->getIncomingEvents().size()<<std::endl;
-    
         
         Array<int> groups_for_note = sound->getGroups();
         for (auto i : groups_for_note){
@@ -176,7 +174,9 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             float* outL = buffer.getWritePointer(0, startSample);
             float* outR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1, startSample) : nullptr;
             
-            if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()) && releaseStart == 0.0f){
+            if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote())
+                && noteEvent->getTriggerNote() != -1
+                && releaseStart == 0.0f){
                 releaseStart = samplePosition;
             }
             double release_sample_length = releaseTime/1000*s->getSampleRate();
