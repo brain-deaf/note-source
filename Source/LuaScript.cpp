@@ -121,6 +121,18 @@ static int l_makeVerticalSlider(lua_State* L){
     return 1;
 }
 
+static int l_setImage(lua_State* L){
+    String name = lua_tostring(L, 1);
+    String imageName = lua_tostring(L, 2);
+    int numFrames = lua_tonumber(L, 3);
+    
+    Component* c = staticMainPage->getComponents()[name];
+    MainVerticalSlider* m = static_cast<MainVerticalSlider*>(c);
+    m->setImage(imageName, numFrames);
+    
+    return 0;
+}
+
 static int l_makeKnob(lua_State* L){
     String name = lua_tostring(L, 1);
     double min = lua_tonumber(L, 2);
@@ -309,6 +321,8 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "addComboBoxItem");
     lua_pushcfunction(L, l_setFont);
     lua_setglobal(L, "setFont");
+    lua_pushcfunction(L, l_setImage);
+    lua_setglobal(L, "setImage");
     
     lua_pushcfunction(L, l_setSize);
     lua_setglobal(L, "setSize");

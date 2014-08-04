@@ -28,8 +28,15 @@ class MainVerticalSlider : public Slider
 public:
     MainVerticalSlider(String, double, double, double);
     int getId(){return id;}
+    void paint(Graphics&);
+    void setImage(String, int);
+    Image* getImage(){return image;}
+    void setNumFrames(int i){frames = i;}
+    int getNumFrames(){return frames;}
 private:
     int id;
+    Image* image;
+    int frames;
     String name;
 };
 
