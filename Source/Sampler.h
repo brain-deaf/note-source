@@ -34,8 +34,8 @@ public:
     void setVelocity(float v){velocity=v;}
     void setTriggerNote(int n){triggerNote=n;}
     void setGroups(Array<int> g){groups=g;}
-    void setVolume(float f){volume=f;}
-    float getVolume(){return volume;}
+    void setVolume(double d){volume=d;}
+    double getVolume(){return volume;}
     int getId(){return id;}
     void setId(int i){id=i;}
 private:
@@ -107,6 +107,7 @@ private:
     float releaseStart;
     
     std::shared_ptr<NoteEvent> noteEvent;
+    double volume;
 };
 
 class SampleSound : public SamplerSound

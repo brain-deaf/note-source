@@ -60,12 +60,24 @@ static int l_setGroup(lua_State* L){
 
 static int l_setEventVolume(lua_State* L){
     int id = lua_tonumber(L, 1);
-    float volume = lua_tonumber(L, 2);
+    double volume = lua_tonumber(L, 2);
+    if (volume < 0.0) volume = 0.0;
     
     for (auto e : staticSampler->getIncomingEvents()){
         if (e != nullptr){
             if (e->getId() == id){
                 e->setVolume(volume);
+                //std::cout<<"event volume set"<<std::endl;
+                return 0;
+            }
+        }
+    }
+    for (auto e : staticSampler->getEvents()){
+        if (e != nullptr){
+            if (e->getId() == id){
+                e->setVolume(volume);
+                //std::cout<<"event volume set2"<<std::endl;
+                return 0;
             }
         }
     }

@@ -78,7 +78,7 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 
 SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
                              attackTime(10.0), attackCurve(0.05), releaseTime(50.0), 
-                             sampleStart(0.0), releaseCurve(0.01),
+                             sampleStart(0.0), releaseCurve(0.01), volume(1.0),
                              noteEvent(nullptr)
 {
     //filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
@@ -161,11 +161,12 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             return;
         }
             
-        
+        double vol = noteEvent->getVolume();
+        double vol_difference = vol - volume;
+        double difference_per_sample = vol_difference/numSamples;
         //example of how to not process a sound for a particular Group
         //if (groups_for_note[0] == 0){return;}
         
-        float gain = 1.0f;
         double sample_length = s->getAudioData()->getNumSamples();
         int num_channels = s->getAudioData()->getNumChannels();
         if (getCurrentlyPlayingSound().get()){
@@ -220,6 +221,8 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             //int pxn = (int)(pitchRatio*numSamples);
             
             //std::cout<<"start"<<std::endl;
+            
+            
             for (int i= start; i<numSamples+start; i++){
                 double x = (samplePosition - sampleStart)/s->getSampleRate()*1000;
                 double attack_multiplier = x<attackTime ? getAttackMultiplier(attackTime, attackCurve, x) : 1.0;                      
@@ -250,9 +253,10 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 //r = filter2.processSingleSampleRaw(r);*/
 
                 //std::cout<<noteEvent->getVolume()<<std::endl;
+                *outL += l*attack_multiplier*release_multiplier*(volume+difference_per_sample*(i-start));
+                *outR += r*attack_multiplier*release_multiplier*(volume+difference_per_sample*(i-start));
                 
-                *outL += l*attack_multiplier*release_multiplier*noteEvent->getVolume();
-                *outR += r*attack_multiplier*release_multiplier*noteEvent->getVolume();
+                //std::cout<<*outL<<std::endl;
                 
                 outL++;
                 outR++;
@@ -266,6 +270,8 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     break;
                 }
             }
+            
+            volume = vol;
             /*fftw_destroy_plan(pFFTW);
             fftw_destroy_plan(pFFTWR);
             fftw_destroy_plan(p2FFTW);
