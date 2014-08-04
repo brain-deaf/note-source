@@ -13,10 +13,10 @@ void MainPage::resized(){}
 
 void MainPage::broughtToFront() {}
 
-void MainPage::addNewComponent(String s){
-    addAndMakeVisible(components[s]);
-    components[s]->setTopLeftPosition(0, 0);
-    components[s]->setSize(components[s]->getWidth(), components[s]->getHeight());
+void MainPage::addNewComponent(int i){
+    addAndMakeVisible(components[i]);
+    components[i]->setTopLeftPosition(0, 0);
+    components[i]->setSize(components[i]->getWidth(), components[i]->getHeight());
 }
 
 void MainPage::resetComponents(){

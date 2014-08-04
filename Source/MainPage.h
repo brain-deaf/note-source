@@ -16,11 +16,11 @@ public:
     void changeListenerCallback(ChangeBroadcaster * src);
     void broughtToFront() override;
     void resized();
-    void addNewComponent(String);
+    void addNewComponent(int);
     void resetComponents();
-    std::map<String, Component*>& getComponents(){return components;}
+    std::map<int, Component*>& getComponents(){return components;}
 private:
-    std::map<String, Component*> components;
+    std::map<int, Component*> components;
     int idCount;
 };
 

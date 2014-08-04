@@ -16,17 +16,17 @@
 class MainHorizontalSlider : public Slider
 {
 public:
-    MainHorizontalSlider(String, double, double, double);
+    MainHorizontalSlider(String, int, double, double, double);
     int getId(){return id;}
 private:
     int id;
-    String name;
 };
 
 class MainVerticalSlider : public Slider
 {
 public:
-    MainVerticalSlider(String, double, double, double);
+    MainVerticalSlider(String, int, double, double, double);
+    ~MainVerticalSlider(){if (image != nullptr) delete image;}
     int getId(){return id;}
     void paint(Graphics&);
     void setImage(String, int);
@@ -37,47 +37,42 @@ private:
     int id;
     Image* image;
     int frames;
-    String name;
 };
 
 class MainKnob : public Slider
 {
 public:
-    MainKnob(String, double, double, double);
+    MainKnob(String, int, double, double, double);
     int getId(){return id;}
 private:
     int id;
-    String name;
 };
 
 class MainButton : public TextButton
 {
 public:
-    MainButton(String);
+    MainButton(String, int);
     int getId(){return id;}
 private:
     int id;
-    String name;
 };
 
 class MainLabel: public Label
 {
 public:
-    MainLabel(String, String);
+    MainLabel(int, String);
     int getId(){return id;}
 private:
     int id;
-    String name;
 };
 
 class MainComboBox : public ComboBox
 {
 public:
-    MainComboBox(String);
+    MainComboBox(String, int);
     int getId(){return id;}
 private:
     int id;
-    String name;
 };
 
 

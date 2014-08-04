@@ -25,6 +25,7 @@ static int l_playNote(lua_State* L){
     double velocity = lua_tonumber(L, 2);
     double timestamp = lua_tonumber(L, 3);
     double triggered_note = lua_tonumber(L, 4);
+    lua_pop(L, 4);
     
     MidiMessage* m = new MidiMessage(MidiMessage::noteOn(1, (int)note, (float)velocity));
     m->setTimeStamp(timestamp);
@@ -48,6 +49,7 @@ static int l_playNote(lua_State* L){
 static int l_setGroup(lua_State* L){
     int id = lua_tonumber(L, 1);
     int group = lua_tonumber(L, 2);
+    lua_pop(L, 2);
     
     for (auto e : staticSampler->getIncomingEvents()){
         if (e->getId() == id){
@@ -60,6 +62,7 @@ static int l_setGroup(lua_State* L){
 
 static int l_setEventVolume(lua_State* L){
     int id = lua_tonumber(L, 1);
+    lua_pop(L, 1);
     double volume = lua_tonumber(L, 2);
     if (volume < 0.0) volume = 0.0;
     
@@ -85,166 +88,291 @@ static int l_setEventVolume(lua_State* L){
     return 0;
 }
 
+static int l_makeTable(lua_State* L){
+    double min = lua_tonumber(L, 1);
+    const char* name = lua_tostring(L, 2);
+    
+    lua_newtable(L);
+    
+    lua_pushstring(L, "id");
+    lua_pushnumber(L, min);
+    lua_settable(L, -3);
+    
+    lua_pushstring(L, "name");
+    lua_pushstring(L, name);
+    lua_settable(L, -3);
+    
+    return 1;
+}
+
+static int l_getTable(lua_State* L){
+    int guiId;
+    if (!lua_istable(L, -1)){
+        std::cout<<"first parameter must be a table!"<<std::endl;
+        return 0;
+    }else{
+        lua_pushstring(L, "id");
+        lua_gettable(L, -2);
+        int id = lua_tonumber(L, -1);
+        
+        lua_pop(L, 1);
+    }
+    
+    return 0;
+}
+
 static int l_makeHorizontalSlider(lua_State* L){
-    String name = lua_tostring(L, 1);
+    const char* name = lua_tostring(L, 1);
     double min = lua_tonumber(L, 2);
     double max = lua_tonumber(L, 3);
     double interval = lua_tonumber(L, 4);
+    lua_pop(L, 4);
     
-    auto s = new MainHorizontalSlider(name, min, max, interval);
+    auto s = new MainHorizontalSlider(name, luaScript->getGuiId(), min, max, interval);
     s->setSize(250, 30);
     s->addListener(luaScript);
     
-    staticMainPage->getComponents()[name] = s;
-    staticMainPage->addNewComponent(name);
+    staticMainPage->getComponents()[luaScript->getGuiId()] = s;
+    staticMainPage->addNewComponent(luaScript->getGuiId());
     
-    lua_pushstring(L, name.toRawUTF8());
+    lua_newtable(L);
+    
+    lua_pushstring(L, "id");
+    lua_pushnumber(L, luaScript->getGuiId());
+    lua_settable(L, -3);
+    
+    lua_pushstring(L, "type");
+    lua_pushnumber(L, LuaScript::LUA_TYPES::HSLIDER);
+    lua_settable(L, -3);
+    luaScript->getGuiId()++;
     
     return 1;
 }
 
 static int l_makeVerticalSlider(lua_State* L){
-    String name = lua_tostring(L, 1);
+    const char* name = lua_tostring(L, 1);
     double min = lua_tonumber(L, 2);
     double max = lua_tonumber(L, 3);
     double interval = lua_tonumber(L, 4);
+    lua_pop(L, 4);
     
-    auto s = new MainVerticalSlider(name, min, max, interval);
+    auto s = new MainVerticalSlider(name, luaScript->getGuiId(), min, max, interval);
     s->setSize(30, 250);
     s->addListener(luaScript);
     
-    staticMainPage->getComponents()[name] = s;
-    staticMainPage->addNewComponent(name);
+    staticMainPage->getComponents()[luaScript->getGuiId()] = s;
+    staticMainPage->addNewComponent(luaScript->getGuiId());
     
-    lua_pushstring(L, name.toRawUTF8());
+    lua_newtable(L);
+    
+    lua_pushstring(L, "id");
+    lua_pushnumber(L, luaScript->getGuiId());
+    lua_settable(L, -3);
+    
+    lua_pushstring(L, "type");
+    lua_pushnumber(L, LuaScript::LUA_TYPES::VSLIDER);
+    lua_settable(L, -3);
+    luaScript->getGuiId()++;
     
     return 1;
 }
 
-static int l_setImage(lua_State* L){
-    String name = lua_tostring(L, 1);
-    String imageName = lua_tostring(L, 2);
-    int numFrames = lua_tonumber(L, 3);
-    
-    Component* c = staticMainPage->getComponents()[name];
-    MainVerticalSlider* m = static_cast<MainVerticalSlider*>(c);
-    m->setImage(imageName, numFrames);
-    
-    return 0;
-}
+
 
 static int l_makeKnob(lua_State* L){
-    String name = lua_tostring(L, 1);
+    const char* name = lua_tostring(L, 1);
     double min = lua_tonumber(L, 2);
     double max = lua_tonumber(L, 3);
     double interval = lua_tonumber(L, 4);
+    lua_pop(L, 4);
     
-    auto s = new MainKnob(name, min, max, interval);
-    s->setSize(30, 250);
+    auto s = new MainKnob(name, luaScript->getGuiId(), min, max, interval);
+    s->setSize(50, 50);
     s->addListener(luaScript);
     
-    staticMainPage->getComponents()[name] = s;
-    staticMainPage->addNewComponent(name);
+    staticMainPage->getComponents()[luaScript->getGuiId()] = s;
+    staticMainPage->addNewComponent(luaScript->getGuiId());
     
-    lua_pushstring(L, name.toRawUTF8());
+    lua_newtable(L);
+    
+    lua_pushstring(L, "id");
+    lua_pushnumber(L, luaScript->getGuiId());
+    lua_settable(L, -3);
+    
+    lua_pushstring(L, "type");
+    lua_pushnumber(L, LuaScript::LUA_TYPES::KNOB);
+    lua_settable(L, -3);
+    
+    luaScript->getGuiId()++;
     
     return 1;
 }
 
 static int l_makeButton(lua_State* L){
-    String name = lua_tostring(L, 1);
+    const char* name = lua_tostring(L, 1);
     bool toggle = lua_toboolean(L, 2);
+    lua_pop(L, 2);
     
-    auto s = new MainButton(name);
+    auto s = new MainButton(name, luaScript->getGuiId());
     s->setSize(80, 50);
     s->addListener(luaScript);
     s->setClickingTogglesState(toggle);
     
-    staticMainPage->getComponents()[name] = s;
-    staticMainPage->addNewComponent(name);
+    staticMainPage->getComponents()[luaScript->getGuiId()] = s;
+    staticMainPage->addNewComponent(luaScript->getGuiId());
     
-    lua_pushstring(L, name.toRawUTF8());
+    lua_newtable(L);
+    
+    lua_pushstring(L, "id");
+    lua_pushnumber(L, luaScript->getGuiId());
+    lua_settable(L, -3);
+    
+    lua_pushstring(L, "type");
+    lua_pushnumber(L, LuaScript::LUA_TYPES::BUTTON);
+    lua_settable(L, -3);
+    
+    luaScript->getGuiId()++;
     
     return 1;
 }
 
 static int l_makeLabel(lua_State* L){
-    String name = lua_tostring(L, 1);
-    String text = lua_tostring(L, 2);
+    String text = lua_tostring(L, 1);
+    lua_pop(L, 1);
     
-    auto s = new MainLabel(name, text);
+    auto s = new MainLabel(luaScript->getGuiId(), text);
     s->setSize(150, 15);
     
-    staticMainPage->getComponents()[name] = s;
-    staticMainPage->addNewComponent(name);
+    staticMainPage->getComponents()[luaScript->getGuiId()] = s;
+    staticMainPage->addNewComponent(luaScript->getGuiId());
     
-    lua_pushstring(L, name.toRawUTF8());
+    lua_newtable(L);
+    
+    lua_pushstring(L, "id");
+    lua_pushnumber(L, luaScript->getGuiId());
+    lua_settable(L, -3);
+    
+    lua_pushstring(L, "type");
+    lua_pushnumber(L, LuaScript::LUA_TYPES::LABEL);
+    lua_settable(L, -3);
+    
+    luaScript->getGuiId()++;
     
     return 1;
 }
 
 static int l_makeComboBox(lua_State* L){
-    String name = lua_tostring(L, 1);
+    const char* name = lua_tostring(L, 1);
+    lua_pop(L, 1);
     
-    auto s = new MainComboBox(name);
+    auto s = new MainComboBox(name, luaScript->getGuiId());
     s->addListener(luaScript);
     s->setSize(160, 25);
     
-    staticMainPage->getComponents()[name] = s;
-    staticMainPage->addNewComponent(name);
+    staticMainPage->getComponents()[luaScript->getGuiId()] = s;
+    staticMainPage->addNewComponent(luaScript->getGuiId());
     
-    lua_pushstring(L, name.toRawUTF8());
+    lua_newtable(L);
+    
+    lua_pushstring(L, "id");
+    lua_pushnumber(L, luaScript->getGuiId());
+    lua_settable(L, -3);
+    
+    lua_pushstring(L, "type");
+    lua_pushnumber(L, LuaScript::LUA_TYPES::MENU);
+    lua_settable(L, -3);
+    
+    luaScript->getGuiId()++;
     
     return 1;
 }
 
 static int l_addComboBoxItem(lua_State* L){
-    String name    = lua_tostring(L, 1);
     String itemstr = lua_tostring(L, 2);
     int id         = lua_tonumber(L, 3);
+    int guiId;
+    if (!lua_istable(L, 1)){
+        std::cout<<"first parameter must be a table!"<<std::endl;
+        return 0;
+    }else{
+        std::cout<<itemstr<<" "<<id<<std::endl;
+        lua_pushstring(L, "id");
+        lua_gettable(L, -4);
+        guiId = lua_tonumber(L, -1);
+    }
     
-    MainComboBox* c = (MainComboBox*)(staticMainPage->getComponents()[name]);
+    MainComboBox* c = (MainComboBox*)(staticMainPage->getComponents()[guiId]);
     c->addItem(itemstr, id);
     
+    lua_pop(L, 4);
     return 0;
 }
     
 
 static int l_setFont(lua_State* L){
-    String name = lua_tostring(L, 1);
     int font = lua_tonumber(L, 2);
     if (font < 0) font = 0;
     if (font > luaScript->getFonts().size())
         font = luaScript->getFonts().size() - 1;
+    int guiId;
+    if (!lua_istable(L, 1)){
+        std::cout<<"first parameter must be a table!"<<std::endl;
+        return 0;
+    }else{
+        lua_pushstring(L, "id");
+        lua_gettable(L, -3);
+        guiId = lua_tonumber(L, -1);
+    }
     
-    MainLabel* l = (MainLabel*)(staticMainPage->getComponents()[name]);
+    MainLabel* l = (MainLabel*)(staticMainPage->getComponents()[guiId]);
     if (l != nullptr)
         l->setFont(luaScript->getFonts()[font]);
-        
+    
+    lua_pop(L, 3);
     return 0;
 }
 
 static int l_setSize(lua_State* L){
-    String name = lua_tostring(L, 1);
     double width = lua_tonumber(L, 2);
     double height = lua_tonumber(L, 3);
     
-    Component* c = staticMainPage->getComponents()[name];
+    int guiId;
+    if (!lua_istable(L, 1)){
+        std::cout<<"first parameter must be a table!"<<std::endl;
+        return 0;
+    }else{
+        lua_pushstring(L, "id");
+        lua_gettable(L, -4);
+        guiId = lua_tonumber(L, -1);
+    }
+    
+    Component* c = staticMainPage->getComponents()[guiId];
     if (c != nullptr)
         c->setSize(width, height);
     
+    lua_pop(L, 4);
     return 0;
 }
 
 static int l_setPosition(lua_State* L){
-    String name = lua_tostring(L, 1);
     double x = lua_tonumber(L, 2);
     double y= lua_tonumber(L, 3);
     
-    Component* c = staticMainPage->getComponents()[name];
+    int guiId;
+    if (!lua_istable(L, 1)){
+        std::cout<<"first parameter must be a table!"<<std::endl;
+        return 0;
+    }else{
+        lua_pushstring(L, "id");
+        lua_gettable(L, -4);
+        guiId = lua_tonumber(L, -1);
+    }
+    
+    Component* c = staticMainPage->getComponents()[guiId];
     if (c != nullptr)
         c->setTopLeftPosition(x, y);
     
+    lua_pop(L, 4);
     return 0;
 }
 
@@ -254,23 +382,43 @@ static int l_getPageWidth(lua_State* L){
 }
 
 static int l_getWidth(lua_State* L){
-    String name = lua_tostring(L, 1);
-    Component* c = staticMainPage->getComponents()[name];
+    int guiId;
+    if (!lua_istable(L, 1)){
+        std::cout<<"first parameter must be a table!"<<std::endl;
+        return 0;
+    }else{
+        lua_pushstring(L, "id");
+        lua_gettable(L, -2);
+        guiId = lua_tonumber(L, -1);
+    }
     
+    Component* c = staticMainPage->getComponents()[guiId];
+    lua_pop(L, 1);
     if (c != nullptr){
-        lua_pushnumber(L, staticMainPage->getComponents()[name]->getWidth());
+        lua_pushnumber(L, staticMainPage->getComponents()[guiId]->getWidth());
     }else{
         lua_pushnumber(L, -1);
     }
+    
     return 1;
 }
 
 static int l_getHeight(lua_State* L){
-    String name = lua_tostring(L, 1);
-    Component* c = staticMainPage->getComponents()[name];
+    int guiId;
+    if (!lua_istable(L, 1)){
+        std::cout<<"first parameter must be a table!"<<std::endl;
+        return 0;
+    }else{
+        lua_pushstring(L, "id");
+        lua_gettable(L, -2);
+        guiId = lua_tonumber(L, -1);
+    }
+    lua_pop(L, 1);
+
+    Component* c = staticMainPage->getComponents()[guiId];
     
     if (c != nullptr){
-        lua_pushnumber(L, staticMainPage->getComponents()[name]->getHeight());
+        lua_pushnumber(L, staticMainPage->getComponents()[guiId]->getHeight());
     }else{
         lua_pushnumber(L, -1);
     }
@@ -278,26 +426,76 @@ static int l_getHeight(lua_State* L){
 }
 
 static int l_Hide(lua_State* L){
-    String name = lua_tostring(L, 1);
-    Component* c = staticMainPage->getComponents()[name];
+    int guiId;
+    if (!lua_istable(L, 1)){
+        std::cout<<"first parameter must be a table!"<<std::endl;
+        return 0;
+    }else{
+        lua_pushstring(L, "id");
+        lua_gettable(L, -2);
+        guiId = lua_tonumber(L, -1);
+    }
+    lua_pop(L, 1);
+
+    Component* c = staticMainPage->getComponents()[guiId];
     
     if (c != nullptr){
         c->setVisible(false);
     }
+    return 0;
 }
 
 static int l_Show(lua_State* L){
-    String name = lua_tostring(L, 1);
-    Component* c = staticMainPage->getComponents()[name];
+    int guiId;
+    if (!lua_istable(L, 1)){
+        std::cout<<"first parameter must be a table!"<<std::endl;
+        return 0;
+    }else{
+        lua_pushstring(L, "id");
+        lua_gettable(L, -2);
+        guiId = lua_tonumber(L, -1);
+    }
+    lua_pop(L, 1);
+
+    Component* c = staticMainPage->getComponents()[guiId];
     
     if (c != nullptr){
         c->setVisible(true);
     }
+    return 0;
 }
 
-LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastPlayedNote(0){
+static int l_setImage(lua_State* L){
+    String imageName = lua_tostring(L, 2);
+    int numFrames = lua_tonumber(L, 3);
+    
+    int guiId;
+    if (!lua_istable(L, 1)){
+        std::cout<<"first parameter must be a table!"<<std::endl;
+        return 0;
+    }else{
+        lua_pushstring(L, "id");
+        lua_gettable(L, -4);
+        guiId = lua_tonumber(L, -1);
+    }
+    lua_pop(L, 1);
+    
+    Component* c = staticMainPage->getComponents()[guiId];
+    MainVerticalSlider* m = static_cast<MainVerticalSlider*>(c);
+    m->setImage(imageName, numFrames);
+    
+    return 0;
+}
+
+LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), guiId(1), lastPlayedNote(0){
     L = lua_open();
     luaL_openlibs(L);
+    
+    lua_pushcfunction(L, l_makeTable);
+    lua_setglobal(L, "makeTable");
+    lua_pushcfunction(L, l_getTable);
+    lua_setglobal(L, "getTable");
+    
     lua_pushcfunction(L, l_playNote);
     lua_setglobal(L, "playNote");
     lua_pushcfunction(L, l_setGroup);
@@ -361,6 +559,18 @@ void LuaScript::loadScript(String f){
     lua_getglobal(L, "Initialize");
     if (lua_pcall(L, 0, 0, 0) != 0)
         std::cout<<"error running function `Initialize' : "<<lua_tostring(L, -1)<<std::endl;
+}
+
+int LuaScript::getfield(const char* key){
+    int result;
+    lua_pushstring(L, key);
+    lua_gettable(L, -2);
+    if (!lua_isnumber(L, -1))
+        std::cout<<"field value isn't a number"<<std::endl;
+    result = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    
+    return result;
 }
 
 void LuaScript::onNote(int note, double velocity, double timestamp){

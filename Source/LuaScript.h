@@ -22,6 +22,16 @@ class LuaScript : public Slider::Listener, public Button::Listener,
                   public ComboBox::Listener
 {
 public:
+
+    enum LUA_TYPES{
+        VSLIDER = 1,
+        HSLIDER = 2,
+        MENU    = 3,
+        BUTTON  = 4,
+        LABEL   = 5,
+        KNOB    = 6
+    };
+
     LuaScript(MappingEditorBin*);
     lua_State* getLuaState(){return L;}
     void loadScript(String);
@@ -31,10 +41,13 @@ public:
     void buttonClicked(Button*) override;
     void comboBoxChanged(ComboBox*) override;
     Array<Font>& getFonts(){return fonts;}
+    int& getGuiId(){return guiId;}
+    int getfield(const char*);
 private:
     lua_State* L;
     MappingEditorBin* mapping_editor;
     int lastPlayedNote;
+    int guiId;
     Array<Font> fonts;
 };
 

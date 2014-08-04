@@ -10,22 +10,22 @@
 
 #include "MainPageComponents.h"
 
-MainHorizontalSlider::MainHorizontalSlider(String s, double minimum, double maximum, double interval) 
- : Slider(), id(0), name(s)
+MainHorizontalSlider::MainHorizontalSlider(String n, int i, double minimum, double maximum, double interval) 
+ : Slider(), id(i)
 {
     setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     setRange(minimum, maximum, interval);
-    setName(name);
+    setName(n);
 }
 
-MainVerticalSlider::MainVerticalSlider(String s, double minimum, double maximum, double interval) : 
-                                       Slider(), id(0), name(s), image(nullptr)
+MainVerticalSlider::MainVerticalSlider(String n, int i, double minimum, double maximum, double interval) : 
+                                       Slider(), id(i), image(nullptr)
 {
     setSliderStyle(Slider::SliderStyle::LinearVertical);
     setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     setRange(minimum, maximum, interval);
-    setName(name);
+    setName(n);
 }
 
 void MainVerticalSlider::setImage(String imagePath, int numFrames){
@@ -41,7 +41,7 @@ void MainVerticalSlider::setImage(String imagePath, int numFrames){
 }
 
 void MainVerticalSlider::paint(Graphics& g){
-    if (getImage()->isNull()){
+    if (getImage() == nullptr){
         Slider::paint(g);
     }else{
         double slider_range = getMaximum() - getMinimum();
@@ -55,28 +55,27 @@ void MainVerticalSlider::paint(Graphics& g){
     }       
 }
 
-MainKnob::MainKnob(String s, double minimum, double maximum, double interval) : 
-                                           Slider(), id(0), name(s)
+MainKnob::MainKnob(String n, int i, double minimum, double maximum, double interval) : 
+                                           Slider(), id(i)
 {
     setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     setRange(minimum, maximum, interval);
-    setName(name);
+    setName(n);
 }
 
-MainButton::MainButton(String s) : TextButton(""), id(0), name(s)
+MainButton::MainButton(String n, int i) : TextButton(""), id(i)
 {
-    setName(name);
+    setName(n);
 }
 
-MainLabel::MainLabel(String s, String text) : Label(), id(0), name(s)
+MainLabel::MainLabel(int i, String text) : Label(), id(i)
 {
-    setName(name);
     setText(text, dontSendNotification);
 }
 
-MainComboBox::MainComboBox(String s) : ComboBox(""), id(0), name(s)
+MainComboBox::MainComboBox(String n, int i) : ComboBox(""), id(i)
 {
-    setName(name);
     setJustificationType(Justification::Flags::centred);
+    setName(n);
 }
