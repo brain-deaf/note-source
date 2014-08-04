@@ -23,6 +23,7 @@ public:
                   triggerNote(0),
                   velocity(1.0),
                   id(0),
+                  volume(1.0),
                   groups(){}
     int getNoteNumber(){return noteNumber;}
     float getVelocity(){return velocity;}
@@ -33,12 +34,15 @@ public:
     void setVelocity(float v){velocity=v;}
     void setTriggerNote(int n){triggerNote=n;}
     void setGroups(Array<int> g){groups=g;}
+    void setVolume(float f){volume=f;}
+    float getVolume(){return volume;}
     int getId(){return id;}
     void setId(int i){id=i;}
 private:
     int noteNumber;
     int triggerNote;
     float velocity;
+    float volume;
     int id;
     Array<int> groups;
 };

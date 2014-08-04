@@ -249,8 +249,10 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 //l = filter1.processSingleSampleRaw(l);
                 //r = filter2.processSingleSampleRaw(r);*/
 
-                *outL += l*attack_multiplier*release_multiplier;
-                *outR += r*attack_multiplier*release_multiplier;
+                //std::cout<<noteEvent->getVolume()<<std::endl;
+                
+                *outL += l*attack_multiplier*release_multiplier*noteEvent->getVolume();
+                *outR += r*attack_multiplier*release_multiplier*noteEvent->getVolume();
                 
                 outL++;
                 outR++;

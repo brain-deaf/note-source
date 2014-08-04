@@ -58,6 +58,21 @@ static int l_setGroup(lua_State* L){
     return 0;
 }
 
+static int l_setEventVolume(lua_State* L){
+    int id = lua_tonumber(L, 1);
+    float volume = lua_tonumber(L, 2);
+    
+    for (auto e : staticSampler->getIncomingEvents()){
+        if (e != nullptr){
+            if (e->getId() == id){
+                e->setVolume(volume);
+            }
+        }
+    }
+    
+    return 0;
+}
+
 static int l_makeHorizontalSlider(lua_State* L){
     String name = lua_tostring(L, 1);
     double min = lua_tonumber(L, 2);
@@ -263,6 +278,8 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), lastP
     lua_setglobal(L, "playNote");
     lua_pushcfunction(L, l_setGroup);
     lua_setglobal(L, "setGroup");
+    lua_pushcfunction(L, l_setEventVolume);
+    lua_setglobal(L, "setEventVolume");
     
     lua_pushcfunction(L, l_makeHorizontalSlider);
     lua_setglobal(L, "makeHorizontalSlider");
