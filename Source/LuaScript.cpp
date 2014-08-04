@@ -470,6 +470,7 @@ static int l_setImage(lua_State* L){
     int numFrames = lua_tonumber(L, 3);
     
     int guiId;
+    int type;
     if (!lua_istable(L, 1)){
         std::cout<<"first parameter must be a table!"<<std::endl;
         return 0;
@@ -477,12 +478,19 @@ static int l_setImage(lua_State* L){
         lua_pushstring(L, "id");
         lua_gettable(L, -4);
         guiId = lua_tonumber(L, -1);
+        lua_pushstring(L, "type");
+        lua_gettable(L, -5);
+        type = lua_tonumber(L, -1);
     }
-    lua_pop(L, 1);
-    
-    Component* c = staticMainPage->getComponents()[guiId];
-    MainVerticalSlider* m = static_cast<MainVerticalSlider*>(c);
-    m->setImage(imageName, numFrames);
+    lua_pop(L, 4);
+
+    switch (type){
+        case LuaScript::LUA_TYPES::VSLIDER :{
+            Component* c = staticMainPage->getComponents()[guiId];
+            MainVerticalSlider* m = static_cast<MainVerticalSlider*>(c);
+            m->setImage(imageName, numFrames);
+        }
+    }
     
     return 0;
 }
