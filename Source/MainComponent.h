@@ -11,6 +11,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MenuBar.h"
 #include "InstrumentBin.h"
+#include "MasterComponents.h"
 
 
 //==============================================================================
@@ -27,6 +28,7 @@ private:
     SharedResourcePointer<AudioDeviceManager> deviceManager;
     MenuBar menuBar;
     InstrumentBin instrumentBin;
+    TransportComponent transport;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 

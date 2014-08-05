@@ -61,6 +61,10 @@
           file="Source/MappingEditorBin.h"/>
     <FILE id="JmEM47" name="MappingEditorBin.cpp" compile="1" resource="0"
           file="Source/MappingEditorBin.cpp"/>
+    <FILE id="aA4wP2" name="MasterComponents.h" compile="0" resource="0"
+          file="Source/MasterComponents.h"/>
+    <FILE id="Jel0yh" name="MasterComponents.cpp" compile="1" resource="0"
+          file="Source/MasterComponents.cpp"/>
     <FILE id="H3OXF4" name="MenuBar.h" compile="0" resource="0" file="Source/MenuBar.h"/>
     <FILE id="NYiBrA" name="MenuBar.cpp" compile="1" resource="0" file="Source/MenuBar.cpp"/>
     <FILE id="dnEE5F" name="Metronome.h" compile="0" resource="0" file="Source/Metronome.h"/>
