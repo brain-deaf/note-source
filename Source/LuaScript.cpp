@@ -40,7 +40,11 @@ static int l_playNote(lua_State* L){
     
     staticSampler->incIdCount();
     
-    staticSampler->getIncomingEvents().add(n);
+    for (int i=0; i<staticSampler->getSynth()->getNumSounds(); i++){
+        if (staticSampler->getSynth()->getSound(i)->appliesToNote(note)){
+            staticSampler->getIncomingEvents().add(n);
+        }
+    }
     staticSampler->getMidiCollector().addMessageToQueue(*m);
     
     return 1;

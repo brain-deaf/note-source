@@ -88,7 +88,8 @@ SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePos
 void SampleVoice::startNote(const int midiNoteNumber,
                             const float velocity,
                             SynthesiserSound* s,
-                            const int pitchWheelPosition){
+                            const int pitchWheelPosition)
+{
     if (SampleSound* sound = (SampleSound*)s){
         const double a = pow(2.0, 1.0/12.0);
         double old_frequency = 440.0 * pow(a, (double)sound->getRootNote() - 69.0);
@@ -106,7 +107,6 @@ void SampleVoice::startNote(const int midiNoteNumber,
                 break;
             }
         }
-        
         Array<int> groups_for_note = sound->getGroups();
         for (auto i : groups_for_note){
             FxGroup* fx_group = sound->getFxSelector()->getGroups()[i];
@@ -143,7 +143,6 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
     if (s != nullptr){
         Array<int> groups_for_note = s->getGroups();
         Array<int> groups_for_event = noteEvent->getGroups();
-        
         bool return_flag = true;
         if (groups_for_event.size() > 0){
             for (auto i : groups_for_note){
