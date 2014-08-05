@@ -17,9 +17,17 @@ class MainHorizontalSlider : public Slider
 {
 public:
     MainHorizontalSlider(String, int, double, double, double);
+    ~MainHorizontalSlider(){if (image != nullptr) delete image;}
     int getId(){return id;}
+    void paint(Graphics&);
+    void setImage(String, int);
+    Image* getImage(){return image;}
+    void setNumFrames(int i){frames = i;}
+    int getNumFrames(){return frames;}
 private:
     int id;
+    Image* image;
+    int frames;
 };
 
 class MainVerticalSlider : public Slider

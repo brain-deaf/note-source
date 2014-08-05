@@ -295,14 +295,15 @@ static int l_addComboBoxItem(lua_State* L){
         std::cout<<"first parameter must be a table!"<<std::endl;
         return 0;
     }else{
-        std::cout<<itemstr<<" "<<id<<std::endl;
         lua_pushstring(L, "id");
         lua_gettable(L, -4);
         guiId = lua_tonumber(L, -1);
     }
     
+    std::cout<<"adding combo item"<<std::endl;
     MainComboBox* c = (MainComboBox*)(staticMainPage->getComponents()[guiId]);
     c->addItem(itemstr, id);
+    std::cout<<"combo item added"<<std::endl;
     
     lua_pop(L, 4);
     return 0;
@@ -484,10 +485,15 @@ static int l_setImage(lua_State* L){
     }
     lua_pop(L, 4);
 
+    Component* c = staticMainPage->getComponents()[guiId];
+    
     switch (type){
         case LuaScript::LUA_TYPES::VSLIDER :{
-            Component* c = staticMainPage->getComponents()[guiId];
             MainVerticalSlider* m = static_cast<MainVerticalSlider*>(c);
+            m->setImage(imageName, numFrames);
+        }
+        case LuaScript::LUA_TYPES::HSLIDER :{
+            MainHorizontalSlider* m = static_cast<MainHorizontalSlider*>(c);
             m->setImage(imageName, numFrames);
         }
     }
@@ -557,7 +563,10 @@ void LuaScript::loadScript(String f){
     if (staticMainPage == nullptr)
         staticMainPage = mapping_editor->getMappingEditor()->graph->
                          getInstrument().getTabWindow().getMainPage();
+                         
+    std::cout<<"load script"<<std::endl;
     staticMainPage->resetComponents();
+    std::cout<<"script loaded"<<std::endl;
         
     if (luaL_loadfile(L, f.toRawUTF8()) || lua_pcall(L, 0, 0, 0)){
         std::cout<<"error: "<<lua_tostring(L, -1)<<std::endl;
@@ -596,21 +605,28 @@ void LuaScript::onNote(int note, double velocity, double timestamp){
 void LuaScript::sliderValueChanged(Slider* s){
     lua_getglobal(L, String("on" + s->getName() + "Changed").toRawUTF8());
     lua_pushnumber(L, s->getValue());
-    if (lua_pcall(L, 1, 0, 0) != 0)
+    if (lua_pcall(L, 1, 0, 0) != 0){
         std::cout<<"error running function `on" + s->getName() + "Changed' : "<<lua_tostring(L, -1)<<std::endl;
+        lua_pop(L, 1);
+    }
 }
 
 void LuaScript::buttonClicked(Button* b){
     lua_getglobal(L, String("on" + b->getName() + "Clicked").toRawUTF8());
     lua_pushnumber(L, b->getToggleState());
-    if (lua_pcall(L, 1, 0, 0) != 0)
+    if (lua_pcall(L, 1, 0, 0) != 0){
         std::cout<<"error running function `on" + b->getName() + "Clicked' : "<<lua_tostring(L, -1)<<std::endl;
+        lua_pop(L, 1);
+    }
+        
 }
 
 void LuaScript::comboBoxChanged(ComboBox* c){
     lua_getglobal(L, String("on" + c->getName() + "Changed").toRawUTF8());
     lua_pushnumber(L, c->getSelectedId());
-    if (lua_pcall(L, 1, 0, 0) != 0)
+    if (lua_pcall(L, 1, 0, 0) != 0){
         std::cout<<"error running function `on" + c->getName() + "Changed' : "<<lua_tostring(L, -1)<<std::endl;
+        lua_pop(L, 1);
+    }
 }
     
