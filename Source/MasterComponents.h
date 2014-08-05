@@ -12,13 +12,14 @@
 #define MASTERCOMPONENTS_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class TransportComponent : public Component
+class TransportComponent : public Component, public Button::Listener
 {
 public:
     TransportComponent();
     ~TransportComponent();
     void paint(Graphics&);
     void resized();
+    void buttonClicked(Button*);
 private:
     TextButton* playButton;
     TextButton* pauseButton;
