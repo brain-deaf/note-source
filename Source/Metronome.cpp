@@ -12,11 +12,12 @@
 #include <math.h>
 
 Metronome::Metronome() : AudioSource(), synth(new Synthesiser), midiCollector(),
-                         isOn(false)
+                         isOn(false), tempo(120.0)
 {
     MetronomeVoice* v;
     synth->addVoice(v = new MetronomeVoice());
     v->setMetronome(isOn);
+    v->setTempo(tempo);
     synth->addSound(new MetronomeSound());
 }
 
@@ -65,6 +66,8 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
     float* outL = outputBuffer.getWritePointer(0, start);
     float* outR = outputBuffer.getWritePointer(1, start);
     
+    double samples_per_beat = 44100.0 / (tempo/60.0);
+    
     if (isOn){
         for (int i=0; i<numSamples; i++){
             if (sampleCount >= beepLength - 100 && sampleCount < beepLength){
@@ -84,14 +87,14 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
             sampleCount++;
             measureCount++;
         
-            if (measureCount >= 44100*4){ 
+            if (measureCount >= samples_per_beat*4){ 
                 sampleCount = 0;
                 measureCount = 0;
                 currentAngle = 0.0;
                 double cyclesPerSecond = 440.0;
                 double cyclesPerSample = cyclesPerSecond/44100.0;
                 angleDelta = cyclesPerSample*2.0*M_PI*double_Pi;
-            }else if (sampleCount >= 44100*1){ 
+            }else if (sampleCount >= samples_per_beat){ 
                 sampleCount = 0;
                 currentAngle = 0.0;
                 double cyclesPerSecond = 220.0;

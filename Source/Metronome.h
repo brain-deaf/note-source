@@ -36,6 +36,7 @@ public:
     void pitchWheelMoved(int i){}
     void controllerMoved(int i, int d){}
     void setMetronome(bool b){isOn=b;}
+    void setTempo(double d){tempo=d;}
     void renderNextBlock(AudioSampleBuffer& outputBuffer, int start, int numSamples) override;
 private:
     int sampleCount;
@@ -44,6 +45,7 @@ private:
     double angleDelta;
     int beepLength;
     double releaseMultiplier;
+    double tempo;
     bool isOn;
 };
 
@@ -59,6 +61,7 @@ private:
     double sampleRate;
     double sampleCount;
     bool isOn;
+    double tempo;
     Synthesiser* synth;
     MidiMessageCollector midiCollector;
 };
