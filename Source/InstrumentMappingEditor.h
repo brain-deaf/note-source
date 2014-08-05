@@ -15,6 +15,8 @@
 #include "GroupEditor.h"
 #include "Sampler.h"
 #include "LuaScript.h"
+#include "Metronome.h"
+
 
 class InstrumentComponent;
 
@@ -238,7 +240,9 @@ public:
         GroupEditor* group_editor;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingEditorGraph)
         Sampler sampler;
+        Metronome metronome;
         AudioSourcePlayer source_player;
+        AudioSourcePlayer metronome_player;
         LuaScript* luaScript;
         
     };

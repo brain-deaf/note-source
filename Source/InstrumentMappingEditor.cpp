@@ -10,6 +10,7 @@
 #include <memory>
 #include "InstrumentComponent.h"
 #include "InstrumentMappingEditor.h"
+#include "Metronome.h"
 
 
 class BadFormatException : public std::runtime_error{
@@ -65,7 +66,8 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
 : Component(), width(w), height(h), keyboardHeight(kh), group_editor(g),
     numColumns(nc), draggedZone(nullptr), dragging(false), 
     lasso(), lassoSource(this), instrument(i), midiCallback(this), 
-    keyboardState(), zones(), sampler(&(getNotesHeld())), source_player(),
+    keyboardState(), zones(), sampler(&(getNotesHeld())), metronome(), metronome_player(),
+    source_player(),
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard),
     luaScript(nullptr)
 {
@@ -73,6 +75,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     addAndMakeVisible(&keyboard);
     SharedResourcePointer<AudioDeviceManager> dm;
     dm->addAudioCallback(&source_player);
+    dm->addAudioCallback(&metronome_player);
     dm->addMidiInputCallback("",&midiCallback);
 
     setBounds(0, 0, getWidth(), getHeight() + getKeyboardHeight());
@@ -83,7 +86,9 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     groups.add(new Group());
     
     source_player.setSource(&sampler);
+    metronome_player.setSource(&metronome);
     sampler.prepareToPlay(0, 44100.0);
+    metronome.prepareToPlay(0, 44100.0);
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){

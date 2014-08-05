@@ -70,7 +70,6 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
     midiCollector.removeNextBlockOfMessages(incomingMidi, bufferToFill.numSamples);
 
     synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, 0, bufferToFill.numSamples);
-    
     //add filter processing to the output channels 1 and 2
     //filter1.processSamples(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getNumSamples());
     //filter2.processSamples(bufferToFill.buffer->getWritePointer(1), bufferToFill.buffer->getNumSamples());
