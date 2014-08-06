@@ -71,4 +71,31 @@ void TransportComponent::buttonClicked(Button* source){
         pauseButton->setToggleState(false, dontSendNotification);
     }
 }
+
+MetronomeComponent::MetronomeComponent() : Component()
+{
+    clickButton = new TextButton("click");
+    clickButton->setClickingTogglesState(true);
+    volumeSlider = new Slider();
+    volumeSlider->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    volumeSlider->setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 0, 0);
+    volumeSlider->setRange(0.0, 1.0);
+    volumeSlider->setValue(0.5);
+    
+    addAndMakeVisible(clickButton);
+    addAndMakeVisible(volumeSlider);
+}
+
+MetronomeComponent::~MetronomeComponent(){
+    delete clickButton;
+    delete volumeSlider;
+}
+
+void MetronomeComponent::resized(){
+    volumeSlider->setBounds(0, 5, getWidth(), getHeight() - 28);
+    clickButton->setBounds(0, getHeight()-20, getWidth(), 20);
+}
+
+void MetronomeComponent::paint(Graphics& g){
+}
     

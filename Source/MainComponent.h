@@ -29,6 +29,7 @@ private:
     MenuBar menuBar;
     InstrumentBin instrumentBin;
     TransportComponent transport;
+    MetronomeComponent metronome;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 
