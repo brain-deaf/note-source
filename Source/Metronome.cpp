@@ -49,8 +49,8 @@ MetronomeSound::MetronomeSound() : SynthesiserSound(), data()
     }*/
 }
 
-MetronomeVoice::MetronomeVoice() : SynthesiserVoice(), sampleCount(0), 
-                         beepLength(4410), measureCount(0), releaseMultiplier(1.0) 
+MetronomeVoice::MetronomeVoice() : SynthesiserVoice(), sampleCount(0), volume(0.5),
+                         beepLength(4410), measureCount(4), releaseMultiplier(1.0) 
 {
     currentAngle = 0.0;
     double cyclesPerSecond = 440.0;
@@ -68,8 +68,8 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
     float* outL = outputBuffer.getWritePointer(0, start);
     float* outR = outputBuffer.getWritePointer(1, start);
     
-    double samples_per_beat = 44100.0 / (tempo/60.0);
     
+    double samples_per_beat = 44100.0 / (tempo/60.0);
     if (transportRunning){
         //std::cout<<"running"<<std::endl;
         for (int i=0; i<numSamples; i++){
@@ -83,16 +83,16 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
         
             if (sampleCount < beepLength){
                 if (clickOn){
-                    *outL += (float)(sin(currentAngle))*releaseMultiplier;
-                    *outR += (float)(sin(currentAngle))*releaseMultiplier;
+                    *outL += (float)(sin(currentAngle))*releaseMultiplier*volume;
+                    *outR += (float)(sin(currentAngle))*releaseMultiplier*volume;
                     currentAngle += angleDelta;
                 }
             }
         
             sampleCount++;
-            measureCount++;
+            
         
-            if (measureCount >= samples_per_beat*4){ 
+            if (measureCount >= 4){ 
                 sampleCount = 0;
                 measureCount = 0;
                 currentAngle = 0.0;
@@ -100,6 +100,7 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
                 double cyclesPerSample = cyclesPerSecond/44100.0;
                 angleDelta = cyclesPerSample*2.0*M_PI*double_Pi;
             }else if (sampleCount >= samples_per_beat){ 
+                measureCount++;
                 sampleCount = 0;
                 currentAngle = 0.0;
                 double cyclesPerSecond = 220.0;

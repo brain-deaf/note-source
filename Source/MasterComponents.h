@@ -14,7 +14,7 @@
 #include "MasterComponents.h"
 #include "Metronome.h"
 
-class TransportComponent : public Component, public Button::Listener
+class TransportComponent : public Component, public Button::Listener, public Slider::Listener
 {
 public:
     TransportComponent();
@@ -23,6 +23,7 @@ public:
     void resized();
     void buttonClicked(Button*);
     void setMetronome(Metronome* m){metronome=m;}
+    void sliderValueChanged(Slider*);
 private:
     TextButton* playButton;
     TextButton* pauseButton;
@@ -31,7 +32,7 @@ private:
     Metronome* metronome;
 };
 
-class MetronomeComponent : public Component, public Button::Listener
+class MetronomeComponent : public Component, public Button::Listener, public Slider::Listener
 {
 public:
     MetronomeComponent();
@@ -42,6 +43,7 @@ public:
     void buttonClicked(Button*);
     TextButton* getClickButton(){return clickButton;}
     Slider* getVolumeSlider(){return volumeSlider;}
+    void sliderValueChanged(Slider*);
 private:
     TextButton* clickButton;
     Slider* volumeSlider;

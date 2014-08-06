@@ -38,6 +38,8 @@ public:
     void setClick(bool b){clickOn=b;}
     void setTransport(bool b){transportRunning=b;}
     void setTempo(double d){tempo=d;}
+    void setVolume(double v){volume=v;}
+    void reset(){sampleCount=0; measureCount=4;}
     void renderNextBlock(AudioSampleBuffer& outputBuffer, int start, int numSamples) override;
 private:
     int sampleCount;
@@ -49,6 +51,7 @@ private:
     double tempo;
     bool transportRunning;
     bool clickOn;
+    double volume;
 };
 
 class Metronome : public AudioSource

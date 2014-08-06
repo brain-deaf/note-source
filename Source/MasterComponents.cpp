@@ -23,9 +23,11 @@ TransportComponent::TransportComponent() : Component()
     tempoSlider->setTextBoxIsEditable(true);
     tempoSlider->setRange(0.1, 300.0);
     tempoSlider->setValue(120.0);
+    
     playButton->addListener(this);
     pauseButton->addListener(this);
     stopButton->addListener(this);
+    tempoSlider->addListener(this);
     
     addAndMakeVisible(playButton);
     addAndMakeVisible(stopButton);
@@ -57,8 +59,17 @@ void TransportComponent::resized(){
 void TransportComponent::buttonClicked(Button* source){
     if (source == pauseButton){
         if (pauseButton->getToggleState()){
-            playButton->setToggleState(false, dontSendNotification);
+            if (playButton->getToggleState()){
+                playButton->setToggleState(false, dontSendNotification);
+                MetronomeVoice* m = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+                if (metronome != nullptr) m->setTransport(false);
+            }else{
+                pauseButton->setToggleState(false, dontSendNotification);
+            }
         }else{
+            playButton->setToggleState(true, dontSendNotification);
+            MetronomeVoice* m = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+            if (metronome != nullptr) m->setTransport(true);
         }
     }
     else if(source == playButton){
@@ -74,8 +85,21 @@ void TransportComponent::buttonClicked(Button* source){
     else if (source == stopButton){
         playButton->setToggleState(false, dontSendNotification);
         pauseButton->setToggleState(false, dontSendNotification);
+        MetronomeVoice* m = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+        if (metronome != nullptr){ 
+            m->setTransport(false);
+            m->reset();
+        }
     }
 }
+
+void TransportComponent::sliderValueChanged(Slider* s){
+    if (s == tempoSlider){
+        MetronomeVoice* m = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+        if (metronome != nullptr) m->setTempo(s->getValue());
+    }
+}
+        
 
 MetronomeComponent::MetronomeComponent() : Component()
 {
@@ -88,6 +112,7 @@ MetronomeComponent::MetronomeComponent() : Component()
     volumeSlider->setValue(0.5);
     
     clickButton->addListener(this);
+    volumeSlider->addListener(this);
     
     addAndMakeVisible(clickButton);
     addAndMakeVisible(volumeSlider);
@@ -114,6 +139,16 @@ void MetronomeComponent::buttonClicked(Button* source){
         }
     }
 }
+
+void MetronomeComponent::sliderValueChanged(Slider* s){
+    if (s == volumeSlider){
+        if (metronome != nullptr){
+            MetronomeVoice* m = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+            m->setVolume(s->getValue());
+        }
+    }
+}
+        
 
 
     
