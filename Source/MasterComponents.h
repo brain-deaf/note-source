@@ -41,6 +41,7 @@ public:
     void resized();
     void setMetronome(Metronome* m){metronome=m;}
     void buttonClicked(Button*);
+    Metronome* getMetronome(){return metronome;}
     TextButton* getClickButton(){return clickButton;}
     Slider* getVolumeSlider(){return volumeSlider;}
     void sliderValueChanged(Slider*);

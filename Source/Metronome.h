@@ -12,6 +12,8 @@
 #define METRONOME_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
 
+class LuaScript;
+
 class MetronomeSound : public SynthesiserSound
 {
 public:
@@ -39,7 +41,8 @@ public:
     void setTransport(bool b){transportRunning=b;}
     void setTempo(double d){tempo=d;}
     void setVolume(double v){volume=v;}
-    void reset(){sampleCount=0; measureCount=4;}
+    void reset(){sampleCount=0; measureCount=4; firstFlag = true;}
+    void setLuaScript(LuaScript* l){luaScript=l;}
     void renderNextBlock(AudioSampleBuffer& outputBuffer, int start, int numSamples) override;
 private:
     int sampleCount;
@@ -52,6 +55,8 @@ private:
     bool transportRunning;
     bool clickOn;
     double volume;
+    LuaScript* luaScript;
+    bool firstFlag;
 };
 
 class Metronome : public AudioSource

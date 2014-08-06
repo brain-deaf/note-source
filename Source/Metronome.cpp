@@ -10,6 +10,7 @@
 
 #include "Metronome.h"
 #include <math.h>
+#include "LuaScript.h"
 
 Metronome::Metronome() : AudioSource(), synth(new Synthesiser), midiCollector(),
                          clickOn(false), transportRunning(false), tempo(120.0)
@@ -50,7 +51,8 @@ MetronomeSound::MetronomeSound() : SynthesiserSound(), data()
 }
 
 MetronomeVoice::MetronomeVoice() : SynthesiserVoice(), sampleCount(0), volume(0.5),
-                         beepLength(4410), measureCount(4), releaseMultiplier(1.0) 
+                         beepLength(4410), measureCount(4), releaseMultiplier(1.0),
+                         luaScript(nullptr), firstFlag(true)
 {
     currentAngle = 0.0;
     double cyclesPerSecond = 440.0;
@@ -67,6 +69,7 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
     }
     float* outL = outputBuffer.getWritePointer(0, start);
     float* outR = outputBuffer.getWritePointer(1, start);
+    
     
     
     double samples_per_beat = 44100.0 / (tempo/60.0);
@@ -92,14 +95,25 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
             sampleCount++;
             
         
-            if (measureCount >= 4){ 
+            if (measureCount >= 4){         
                 sampleCount = 0;
                 measureCount = 0;
                 currentAngle = 0.0;
+                
+                if (luaScript != nullptr && firstFlag){
+                    luaScript->onBeat();
+                    firstFlag = false;
+                }
+                
                 double cyclesPerSecond = 440.0;
                 double cyclesPerSample = cyclesPerSecond/44100.0;
                 angleDelta = cyclesPerSample*2.0*M_PI*double_Pi;
+                
             }else if (sampleCount >= samples_per_beat){ 
+                if (luaScript != nullptr){
+                    luaScript->onBeat();
+                }
+            
                 measureCount++;
                 sampleCount = 0;
                 currentAngle = 0.0;

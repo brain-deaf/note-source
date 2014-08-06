@@ -15,6 +15,8 @@
 #include <memory>
 #include "MainPageComponents.h"
 #include "InstrumentComponent.h"
+#include "InstrumentBin.h"
+#include "MainComponent.h"
 
 static LuaScript* luaScript = nullptr;
 static Sampler* staticSampler = nullptr;
@@ -468,6 +470,15 @@ static int l_Show(lua_State* L){
     return 0;
 }
 
+static int l_setBeatListener(lua_State* L){
+    bool b = lua_toboolean(L, 1);
+    lua_pop(L, 1);
+
+    luaScript->setBeatListener(b);
+    
+    return 0;
+}
+
 static int l_setImage(lua_State* L){
     String imageName = lua_tostring(L, 2);
     int numFrames = lua_tonumber(L, 3);
@@ -503,7 +514,8 @@ static int l_setImage(lua_State* L){
     return 0;
 }
 
-LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), guiId(1), lastPlayedNote(0){
+LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), metronome(nullptr),
+                                            guiId(1), lastPlayedNote(0), beatListening(false){
     L = lua_open();
     luaL_openlibs(L);
     
@@ -511,6 +523,9 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), guiId
     lua_setglobal(L, "makeTable");
     lua_pushcfunction(L, l_getTable);
     lua_setglobal(L, "getTable");
+    
+    lua_pushcfunction(L, l_setBeatListener);
+    lua_setglobal(L, "setBeatListener");
     
     lua_pushcfunction(L, l_playNote);
     lua_setglobal(L, "playNote");
@@ -555,6 +570,14 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), guiId
     
     Font::findFonts(fonts);
     
+    metronome = mapping_editor->getMappingEditor()->graph
+                ->getInstrument().getParent()->getParent()
+                ->getMetronome()->getMetronome();
+                
+    MetronomeVoice* metrovoice = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+    metrovoice->setLuaScript(this);
+    
+    
     luaScript = this;
 }
 
@@ -566,9 +589,7 @@ void LuaScript::loadScript(String f){
         staticMainPage = mapping_editor->getMappingEditor()->graph->
                          getInstrument().getTabWindow().getMainPage();
                          
-    std::cout<<"load script"<<std::endl;
     staticMainPage->resetComponents();
-    std::cout<<"script loaded"<<std::endl;
         
     if (luaL_loadfile(L, f.toRawUTF8()) || lua_pcall(L, 0, 0, 0)){
         std::cout<<"error: "<<lua_tostring(L, -1)<<std::endl;
@@ -602,6 +623,15 @@ void LuaScript::onNote(int note, double velocity, double timestamp){
         std::cout<<"error running function `onNote' : "<<lua_tostring(L, -1)<<std::endl;
         
     //lua_pop(L, 1); no results to pop
+}
+
+void LuaScript::onBeat(){
+    lua_getglobal(L, "onBeat");
+    
+    if (beatListening){
+        if (lua_pcall(L, 0, 0, 0) != 0)
+            std::cout<<"error running function `onBeat' : "<<lua_tostring(L, -1)<<std::endl;
+    }
 }
 
 void LuaScript::sliderValueChanged(Slider* s){

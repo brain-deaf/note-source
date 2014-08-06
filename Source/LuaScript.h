@@ -15,6 +15,7 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
+#include "Metronome.h"
 
 class MappingEditorBin;
 
@@ -36,9 +37,11 @@ public:
     lua_State* getLuaState(){return L;}
     void loadScript(String);
     void onNote(int, double, double);
+    void onBeat();
     int getLastPlayedNote(){return lastPlayedNote;}
     void sliderValueChanged(Slider*) override;
     void buttonClicked(Button*) override;
+    void setBeatListener(bool b){beatListening=b;}
     void comboBoxChanged(ComboBox*) override;
     Array<Font>& getFonts(){return fonts;}
     int& getGuiId(){return guiId;}
@@ -46,6 +49,8 @@ public:
 private:
     lua_State* L;
     MappingEditorBin* mapping_editor;
+    Metronome* metronome;
+    bool beatListening;
     int lastPlayedNote;
     int guiId;
     Array<Font> fonts;

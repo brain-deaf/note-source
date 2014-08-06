@@ -13,9 +13,7 @@
 MainContentComponent::MainContentComponent() : deviceManager{},
     transport(), metronome(new MetronomeComponent())
 {
-    std::cout<<metronome<<std::endl;
     instrumentBin = new InstrumentBin(TabbedButtonBar::TabsAtTop, this);
-    std::cout<<metronome<<std::endl;
     menuBar = new MenuBar(instrumentBin);
     XmlDocument xml_file(File::getCurrentWorkingDirectory().getChildFile("audio_settings.xml"));
     deviceManager->initialise (0,2,xml_file.getDocumentElement(),true);
