@@ -23,14 +23,16 @@ class MainContentComponent : public Component
 {
 public:
     MainContentComponent();
-    ~MainContentComponent(){delete instrumentBin; delete menuBar;}
+    ~MainContentComponent(){delete instrumentBin; delete menuBar; delete metronome;}
+    MetronomeComponent* getMetronome(){return metronome;}
+    TransportComponent* getTransport(){return &transport;}
     void resized();
 private:
     SharedResourcePointer<AudioDeviceManager> deviceManager;
     MenuBar* menuBar;
-    InstrumentBin* instrumentBin;
+    MetronomeComponent* metronome;
     TransportComponent transport;
-    MetronomeComponent metronome;
+    InstrumentBin* instrumentBin;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 

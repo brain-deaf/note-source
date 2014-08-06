@@ -22,14 +22,16 @@ public:
     void paint(Graphics&);
     void resized();
     void buttonClicked(Button*);
+    void setMetronome(Metronome* m){metronome=m;}
 private:
     TextButton* playButton;
     TextButton* pauseButton;
     TextButton* stopButton;
     Slider* tempoSlider;
+    Metronome* metronome;
 };
 
-class MetronomeComponent : public Component
+class MetronomeComponent : public Component, public Button::Listener
 {
 public:
     MetronomeComponent();
@@ -37,6 +39,7 @@ public:
     void paint(Graphics&);
     void resized();
     void setMetronome(Metronome* m){metronome=m;}
+    void buttonClicked(Button*);
     TextButton* getClickButton(){return clickButton;}
     Slider* getVolumeSlider(){return volumeSlider;}
 private:

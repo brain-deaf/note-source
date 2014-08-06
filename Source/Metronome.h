@@ -35,7 +35,8 @@ public:
     void stopNote(bool t){}
     void pitchWheelMoved(int i){}
     void controllerMoved(int i, int d){}
-    void setMetronome(bool b){isOn=b;}
+    void setClick(bool b){clickOn=b;}
+    void setTransport(bool b){transportRunning=b;}
     void setTempo(double d){tempo=d;}
     void renderNextBlock(AudioSampleBuffer& outputBuffer, int start, int numSamples) override;
 private:
@@ -46,7 +47,8 @@ private:
     int beepLength;
     double releaseMultiplier;
     double tempo;
-    bool isOn;
+    bool transportRunning;
+    bool clickOn;
 };
 
 class Metronome : public AudioSource
@@ -57,10 +59,12 @@ public:
     void releaseResources(){}
     void getNextAudioBlock(const AudioSourceChannelInfo&) override;
     void prepareToPlay(int, double) override;
+    Synthesiser* getSynth(){return synth;}
 private:
     double sampleRate;
     double sampleCount;
-    bool isOn;
+    bool clickOn;
+    bool transportRunning;
     double tempo;
     Synthesiser* synth;
     MidiMessageCollector midiCollector;

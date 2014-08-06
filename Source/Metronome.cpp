@@ -12,11 +12,12 @@
 #include <math.h>
 
 Metronome::Metronome() : AudioSource(), synth(new Synthesiser), midiCollector(),
-                         isOn(false), tempo(120.0)
+                         clickOn(false), transportRunning(false), tempo(120.0)
 {
     MetronomeVoice* v;
     synth->addVoice(v = new MetronomeVoice());
-    v->setMetronome(isOn);
+    v->setClick(clickOn);
+    v->setTransport(transportRunning);
     v->setTempo(tempo);
     synth->addSound(new MetronomeSound());
 }
@@ -55,6 +56,7 @@ MetronomeVoice::MetronomeVoice() : SynthesiserVoice(), sampleCount(0),
     double cyclesPerSecond = 440.0;
     double cyclesPerSample = cyclesPerSecond/44100.0;
     angleDelta = cyclesPerSample*2.0*M_PI*double_Pi;
+    //y = sin(2PI*frequency*x)
 }
 MetronomeVoice::~MetronomeVoice(){}
 
@@ -68,7 +70,8 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
     
     double samples_per_beat = 44100.0 / (tempo/60.0);
     
-    if (isOn){
+    if (transportRunning){
+        //std::cout<<"running"<<std::endl;
         for (int i=0; i<numSamples; i++){
             if (sampleCount >= beepLength - 100 && sampleCount < beepLength){
                 releaseMultiplier = 1.0 - (100.0-(beepLength - sampleCount)) / 100.0;
@@ -79,9 +82,11 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
             //std::cout<<releaseMultiplier<<" beep length: "<<beepLength<<" sample count: "<<sampleCount<<std::endl;
         
             if (sampleCount < beepLength){
-                *outL += (float)(sin(currentAngle))*releaseMultiplier;
-                *outR += (float)(sin(currentAngle))*releaseMultiplier;
-                currentAngle += angleDelta;
+                if (clickOn){
+                    *outL += (float)(sin(currentAngle))*releaseMultiplier;
+                    *outR += (float)(sin(currentAngle))*releaseMultiplier;
+                    currentAngle += angleDelta;
+                }
             }
         
             sampleCount++;
@@ -104,5 +109,7 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
             outL++;
             outR++;
         }
+    }else{
+        //std::cout<<"not running"<<std::endl;
     }
 }

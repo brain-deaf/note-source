@@ -25,7 +25,7 @@ public:
     void addFilePlayer(FilePlayer*);
     StringArray& getSampleNames() {return sampleNames;}
     InstrumentTabWindow& getTabWindow(){return tabs;}
-    InstrumentBin* getParent(){std::cout<<"getting parent"<<std::endl;return parent;}
+    InstrumentBin* getParent(){std::cout<<"getting parent "<<parent<<std::endl;return parent;}
 private:
     SharedResourcePointer<AudioDeviceManager> deviceManager;
     AudioSourcePlayer sourcePlayer;

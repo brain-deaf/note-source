@@ -25,10 +25,11 @@ public:
     Array<InstrumentComponent*> getInstruments(){return instruments;}
     MainContentComponent* getParent(){return parent;}
 private:
+    MainContentComponent* parent;
     InstrumentComponent* instrumentComponent;
     Array<InstrumentComponent*> instruments;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentBin)
-    MainContentComponent* parent;
+    
 };
 
 #endif  // INSTRUMENTBIN_H_INCLUDED

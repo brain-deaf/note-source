@@ -63,7 +63,12 @@ void TransportComponent::buttonClicked(Button* source){
     }
     else if(source == playButton){
         if (playButton->getToggleState()){
+            MetronomeVoice* m = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+            if (metronome != nullptr) m->setTransport(true);
             pauseButton->setToggleState(false, dontSendNotification);
+        }else{
+            MetronomeVoice* m = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+            if (metronome != nullptr) m->setTransport(false);
         }
     }
     else if (source == stopButton){
@@ -82,6 +87,8 @@ MetronomeComponent::MetronomeComponent() : Component()
     volumeSlider->setRange(0.0, 1.0);
     volumeSlider->setValue(0.5);
     
+    clickButton->addListener(this);
+    
     addAndMakeVisible(clickButton);
     addAndMakeVisible(volumeSlider);
 }
@@ -98,4 +105,15 @@ void MetronomeComponent::resized(){
 
 void MetronomeComponent::paint(Graphics& g){
 }
+
+void MetronomeComponent::buttonClicked(Button* source){
+    if (source == clickButton){
+        if (metronome != nullptr){
+            MetronomeVoice* m = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+            m->setClick(clickButton->getToggleState());
+        }
+    }
+}
+
+
     

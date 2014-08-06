@@ -11,6 +11,7 @@
 #include "InstrumentComponent.h"
 #include "InstrumentMappingEditor.h"
 #include "InstrumentBin.h"
+#include "MainComponent.h"
 
 
 class BadFormatException : public std::runtime_error{
@@ -89,8 +90,11 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     metronome_player.setSource(&metronome);
     sampler.prepareToPlay(0, 44100.0);
     metronome.prepareToPlay(0, 44100.0);
-    
-    std::cout<<(&instrument)->getParent()<<" asdf"<<std::endl;//->getParent();
+    MainContentComponent* m = static_cast<MainContentComponent*>((&instrument)->getParent()->getParent());
+    //std::cout<<"post parent: "<<m<<std::endl;
+    //std::cout<<"asdf: "<< m->getMetronome()<<" asdd"<<std::endl;
+    (&instrument)->getParent()->getParent()->getMetronome()->setMetronome(&metronome);
+    (&instrument)->getParent()->getParent()->getTransport()->setMetronome(&metronome);
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
