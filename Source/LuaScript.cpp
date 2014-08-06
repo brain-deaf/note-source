@@ -304,10 +304,8 @@ static int l_addComboBoxItem(lua_State* L){
         guiId = lua_tonumber(L, -1);
     }
     
-    std::cout<<"adding combo item"<<std::endl;
     MainComboBox* c = (MainComboBox*)(staticMainPage->getComponents()[guiId]);
     c->addItem(itemstr, id);
-    std::cout<<"combo item added"<<std::endl;
     
     lua_pop(L, 4);
     return 0;

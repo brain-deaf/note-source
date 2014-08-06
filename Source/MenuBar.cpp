@@ -16,8 +16,8 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-MenuBar::MenuBar(InstrumentBin * i) : menuBar{this}, scriptBin(nullptr), deviceManager(), file{}, view{}, edit{},
-    audioSettingsWindow{nullptr}, parent{i} {
+MenuBar::MenuBar(InstrumentBin * i) : menuBar(this), scriptBin(nullptr), deviceManager(), file{}, view{}, edit{},
+    audioSettingsWindow{nullptr}, parent(i) {
     addAndMakeVisible(menuBar);
     
     file.addItem(ID_New, "New Instrument");

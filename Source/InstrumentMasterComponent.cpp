@@ -10,8 +10,9 @@
 
 #include "InstrumentMasterComponent.h"
 #include "InstrumentComponent.h"
+#include "InstrumentBin.h"
 
-InstrumentMasterComponent::InstrumentMasterComponent(TabbedComponent* p, InstrumentComponent* i)
+InstrumentMasterComponent::InstrumentMasterComponent(InstrumentBin* p, InstrumentComponent* i)
 : Component{}, parent{p}, midi_input_menu(new ComboBox()),
     instrument_parent(i),
     instrumentLabel{"component name", "New Instrument", p},

@@ -15,24 +15,26 @@
 #include "InstrumentTabWindow.h"
 #include "InstrumentMasterComponent.h"
 #include "FilePlayer.h"
+class InstrumentBin;
 
 class InstrumentComponent : public Component
 {
 public:
-    InstrumentComponent(TabbedComponent* Parent);
+    InstrumentComponent(InstrumentBin*);
     void resized();
     void addFilePlayer(FilePlayer*);
     StringArray& getSampleNames() {return sampleNames;}
     InstrumentTabWindow& getTabWindow(){return tabs;}
+    InstrumentBin* getParent(){std::cout<<"getting parent"<<std::endl;return parent;}
 private:
     SharedResourcePointer<AudioDeviceManager> deviceManager;
     AudioSourcePlayer sourcePlayer;
     MixerAudioSource mixer;
     Array<FilePlayer*> sources;
     StringArray sampleNames;
+    InstrumentBin* parent;
     InstrumentTabWindow tabs;
     InstrumentMasterComponent master;
-    TabbedComponent* parent;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentComponent)
 };
 

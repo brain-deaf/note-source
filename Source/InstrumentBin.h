@@ -14,18 +14,21 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentComponent.h"
 
+class MainContentComponent;
+
 class InstrumentBin : public TabbedComponent {
 public:
-    InstrumentBin(TabbedButtonBar::Orientation orientation);
+    InstrumentBin(TabbedButtonBar::Orientation orientation, MainContentComponent*);
     ~InstrumentBin();
     void registerTab(InstrumentComponent* c);
     InstrumentComponent* getInstrumentComponent(){return instrumentComponent;}
     Array<InstrumentComponent*> getInstruments(){return instruments;}
-
+    MainContentComponent* getParent(){return parent;}
 private:
     InstrumentComponent* instrumentComponent;
     Array<InstrumentComponent*> instruments;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentBin)
+    MainContentComponent* parent;
 };
 
 #endif  // INSTRUMENTBIN_H_INCLUDED

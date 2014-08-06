@@ -7,13 +7,14 @@
 */
 
 #include "MainComponent.h"
-
+#include "MenuBar.h"
 
 //==============================================================================
 MainContentComponent::MainContentComponent() : deviceManager{},
-    instrumentBin{TabbedButtonBar::TabsAtTop}, transport{}, metronome{},
-    menuBar{&instrumentBin} 
+    transport{}, metronome{}
 {
+    instrumentBin = new InstrumentBin(TabbedButtonBar::TabsAtTop, this);
+    menuBar = new MenuBar(instrumentBin);
     XmlDocument xml_file(File::getCurrentWorkingDirectory().getChildFile("audio_settings.xml"));
     deviceManager->initialise (0,2,xml_file.getDocumentElement(),true);
     
@@ -26,8 +27,8 @@ MainContentComponent::MainContentComponent() : deviceManager{},
 
 void MainContentComponent::resized()
 {
-    menuBar.setBounds(0, 0, getWidth(), 20);
-    instrumentBin.setBounds(0, 80, getWidth(), getHeight() - 80);
+    menuBar->setBounds(0, 0, getWidth(), 20);
+    instrumentBin->setBounds(0, 80, getWidth(), getHeight() - 80);
     transport.setBounds(getWidth()/3*2, 20, getWidth()/3, 80);
     metronome.setBounds(getWidth()/5*3, 20, getWidth()/3*2 - (getWidth()/5*3) - 10, 80);
 }

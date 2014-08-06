@@ -214,6 +214,7 @@ public:
         SelectedItemSet<std::pair<int, int> >& getNotesHeld() { return notesHeld;}
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
         GroupEditor*& getGroupEditor(){return group_editor;}
+        Metronome& getMetronome(){return metronome;}
         
 
     private:

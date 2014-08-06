@@ -10,11 +10,11 @@
 
 #include "InstrumentComponent.h"
 
-InstrumentComponent::InstrumentComponent(TabbedComponent* p)
-: Component{}, deviceManager{}, mixer{}, 
-    sourcePlayer{}, tabs{*this,TabbedButtonBar::TabsAtBottom},
-    parent{p}, master{p, this}{
-   
+InstrumentComponent::InstrumentComponent(InstrumentBin* p)
+: Component(), deviceManager(), mixer(), 
+    sourcePlayer(), parent(p), 
+    tabs(*this,TabbedButtonBar::TabsAtBottom),
+    master(p, this){
     addAndMakeVisible(tabs);
     addAndMakeVisible(master);
 }

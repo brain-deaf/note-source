@@ -9,9 +9,10 @@
 */
 
 #include "InstrumentBin.h"
+#include "MainComponent.h"
 
-InstrumentBin::InstrumentBin(TabbedButtonBar::Orientation orientation)
-: TabbedComponent{orientation}, instrumentComponent{new InstrumentComponent(this)}{
+InstrumentBin::InstrumentBin(TabbedButtonBar::Orientation orientation, MainContentComponent* m)
+: TabbedComponent{orientation}, parent(m), instrumentComponent(new InstrumentComponent(this)){
     addTab("New Instrument", Colour(100, 100, 100), instrumentComponent, false);
     instruments.add(instrumentComponent);
 }

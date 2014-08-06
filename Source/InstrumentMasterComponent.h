@@ -14,6 +14,7 @@
 #include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 class InstrumentComponent;
+class InstrumentBin;
 
 class InstrumentMasterComponent : public Component, public Button::Listener,
       public ComboBox::Listener{
@@ -62,14 +63,14 @@ public:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentButton)
     };
 
-    InstrumentMasterComponent(TabbedComponent* p, InstrumentComponent*);
+    InstrumentMasterComponent(InstrumentBin* p, InstrumentComponent*);
     ~InstrumentMasterComponent(){delete midi_input_menu;}
     void paint(Graphics& g);
     void resized();
     void buttonClicked(Button* button);
     void comboBoxChanged(ComboBox*);
 private:
-    TabbedComponent* parent;
+    InstrumentBin* parent;
     InstrumentComponent* instrument_parent;
     InstrumentLabel instrumentLabel;
     InstrumentButton xButton;
