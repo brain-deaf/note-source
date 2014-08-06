@@ -514,6 +514,15 @@ static int l_setImage(lua_State* L){
     return 0;
 }
 
+static int l_sleep(lua_State* L){
+    int n = lua_tonumber(L, 1);
+    lua_pop(L, 1);
+
+    Thread::sleep(n);
+    
+    return 0;
+}
+
 LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), metronome(nullptr),
                                             guiId(1), lastPlayedNote(0), beatListening(false){
     L = lua_open();
@@ -526,6 +535,9 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), metro
     
     lua_pushcfunction(L, l_setBeatListener);
     lua_setglobal(L, "setBeatListener");
+    
+    lua_pushcfunction(L, l_sleep);
+    lua_setglobal(L, "Sleep");
     
     lua_pushcfunction(L, l_playNote);
     lua_setglobal(L, "playNote");
