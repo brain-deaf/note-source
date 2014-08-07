@@ -178,8 +178,6 @@ void FxButton::mouseDown(const MouseEvent& e){
         FxSelector* selector = box->getParent();
         FxBin* bin = (FxBin*)selector->getParentComponent();
         
-        std::cout<<"fx button clicked"<<std::endl;
-        
         SparseSet<int> s = selector->getGroupEditor()->getListBox()->getSelectedRows();
         
         for (int i=0; i<s.size(); i++){
@@ -187,14 +185,12 @@ void FxButton::mouseDown(const MouseEvent& e){
             
             switch (fx->getFxType()){
             case FX::ADSR:{
-                std::cout<<"cool2"<<std::endl;
                 if (fx->getFxType() == FX::ADSR){
                     bin->getFxComponent()->loadFx(FX::ADSR, fx->getContent());
                     return;
                 }
             }
             case FX::FILTER:{
-                std::cout<<"cool3"<<std::endl;
                 if (fx->getFxType() == FX::FILTER){
                     bin->getFxComponent()->loadFx(FX::FILTER, fx->getContent());
                     return;
@@ -202,7 +198,6 @@ void FxButton::mouseDown(const MouseEvent& e){
             }
             
             case FX::NONE:{
-                std::cout<<"load none"<<std::endl;
                 bin->getFxComponent()->loadFx(FX::NONE, nullptr);
                 return;}
             }
