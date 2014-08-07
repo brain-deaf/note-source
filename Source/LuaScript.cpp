@@ -638,9 +638,9 @@ void LuaScript::onNote(int note, double velocity, double timestamp){
 }
 
 void LuaScript::onBeat(){
-    lua_getglobal(L, "onBeat");
     
     if (beatListening){
+        lua_getglobal(L, "onBeat");
         if (lua_pcall(L, 0, 0, 0) != 0)
             std::cout<<"error running function `onBeat' : "<<lua_tostring(L, -1)<<std::endl;
     }
