@@ -16,13 +16,16 @@
 
 class MappingEditorBin : public Component
 {
-    std::shared_ptr<InstrumentMappingEditor> mapping_editor;
-    ZoneInfo zone_info;
-    int mapping_editor_height;
 public:
     MappingEditorBin(InstrumentComponent& instrument);
     std::shared_ptr<InstrumentMappingEditor> getMappingEditor(){return mapping_editor;}
     void resized();
+    float groupEditorHeight;
+    float fileBrowserHeight;
+private:
+    std::shared_ptr<InstrumentMappingEditor> mapping_editor;
+    ZoneInfo zone_info;
+    int mapping_editor_height;
 };
 
 #endif  // MAPPINGEDITORBIN_H_INCLUDED

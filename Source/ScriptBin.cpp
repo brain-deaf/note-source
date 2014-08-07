@@ -38,7 +38,6 @@ ScriptBin::~ScriptBin(){
     codeDocument = nullptr;
     delete luaScript;
     luaScript = nullptr;
-    
 }
 
 void ScriptBin::paint(Graphics& g){

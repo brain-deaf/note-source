@@ -69,6 +69,10 @@
     <FILE id="NYiBrA" name="MenuBar.cpp" compile="1" resource="0" file="Source/MenuBar.cpp"/>
     <FILE id="dnEE5F" name="Metronome.h" compile="0" resource="0" file="Source/Metronome.h"/>
     <FILE id="sz0J8C" name="Metronome.cpp" compile="1" resource="0" file="Source/Metronome.cpp"/>
+    <FILE id="rJTlZV" name="SampleFileBrowser.h" compile="0" resource="0"
+          file="Source/SampleFileBrowser.h"/>
+    <FILE id="zugikw" name="SampleFileBrowser.cpp" compile="1" resource="0"
+          file="Source/SampleFileBrowser.cpp"/>
     <FILE id="gmMdRS" name="Sampler.h" compile="0" resource="0" file="Source/Sampler.h"/>
     <FILE id="h7Ax0F" name="Sampler.cpp" compile="1" resource="0" file="Source/Sampler.cpp"/>
     <FILE id="RGwk8W" name="ScriptBin.h" compile="0" resource="0" file="Source/ScriptBin.h"/>

@@ -51,6 +51,11 @@ private:
     Metronome* metronome;
 };
 
+class BrowserButton : public TextButton{
+public:
+    BrowserButton();
+};
+
 
 
 #endif  // MASTERCOMPONENTS_H_INCLUDED

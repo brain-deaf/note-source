@@ -148,6 +148,10 @@ void MetronomeComponent::sliderValueChanged(Slider* s){
         }
     }
 }
+
+BrowserButton::BrowserButton() : TextButton("Browser"){
+    setClickingTogglesState(true);
+}
         
 
 

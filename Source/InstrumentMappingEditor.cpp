@@ -65,7 +65,7 @@ typedef InstrumentMappingEditor::MappingEditorGraph MappingEditorGraph;
 MappingEditorGraph::MappingEditorGraph(float w, float h,
     float kh, int nc, InstrumentComponent& i, GroupEditor* g)
 : Component(), width(w), height(h), keyboardHeight(kh), group_editor(g),
-    numColumns(nc), draggedZone(nullptr), dragging(false), 
+    numColumns(nc), draggedZone(nullptr), dragging(false), groupEditorY(0),
     lasso(), lassoSource(this), instrument(i), midiCallback(this), 
     keyboardState(), zones(), sampler(&(getNotesHeld())), metronome(), metronome_player(),
     source_player(),
@@ -95,6 +95,8 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     //std::cout<<"asdf: "<< m->getMetronome()<<" asdd"<<std::endl;
     (&instrument)->getParent()->getParent()->getMetronome()->setMetronome(&metronome);
     (&instrument)->getParent()->getParent()->getTransport()->setMetronome(&metronome);
+    
+    groupEditorY = getHeight();
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
@@ -165,7 +167,7 @@ void MappingEditorGraph::resized()
 {
     keyboard.setBounds(
         0, getHeight(), getWidth(), getKeyboardHeight());
-    keyboard.setKeyWidth(getWidth() / numColumns * 1.715);
+    keyboard.setKeyWidth(getWidth() / numColumns * 1.715); 
 }
 
 void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){

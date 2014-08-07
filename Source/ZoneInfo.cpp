@@ -56,7 +56,7 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
     velocityMax->addListener(this);
     addAndMakeVisible(velocityMax);
     
-    audio_thumbnail->setBounds(500, 25, 400, 100);
+    //audio_thumbnail->setBounds(500, 25, 400, 100);
     addAndMakeVisible(audio_thumbnail);
     
     
@@ -84,6 +84,7 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
 
 void ZoneInfo::changeListenerCallback(ChangeBroadcaster* source){
     if (zone->getSelectedItem(0) != nullptr){
+        audio_thumbnail->setBounds(getWidth() - 410, 50, 400, 100);
         audio_thumbnail->updateWaveformForFilePlayer(zone->getSelectedItem(0));
         fileName->setText((zone->getSelectedItem(0))->getName(), dontSendNotification);
         fileNameLabel->setText("Sample: ", dontSendNotification);
@@ -102,7 +103,7 @@ void ZoneInfo::resize(){
     noteNumber->setBounds(80, 30, 30, 20);
     noteNumberLabel->setBounds(5, 30, 70, 20);
     noteName->setBounds(110, 30, 40, 20);
-    audio_thumbnail->setBounds(300, 50, 400, 100);
+    audio_thumbnail->setBounds(getWidth() - 410, 50, 400, 100);
 }
 
 void ZoneInfo::paint(Graphics& g){

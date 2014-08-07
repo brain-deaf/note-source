@@ -215,7 +215,6 @@ public:
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
         GroupEditor*& getGroupEditor(){return group_editor;}
         Metronome& getMetronome(){return metronome;}
-        
 
     private:
         float width;
@@ -225,6 +224,7 @@ public:
         bool dragging;
         int startDragY;
         int startDragX;
+        int groupEditorY;
         
         InstrumentComponent& instrument;
         MidiDeviceCallback midiCallback;

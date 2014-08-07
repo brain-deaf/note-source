@@ -11,7 +11,8 @@
 
 //==============================================================================
 MainContentComponent::MainContentComponent() : deviceManager{},
-    transport(), metronome(new MetronomeComponent())
+    transport(), metronome(new MetronomeComponent()), browser(new SampleFileBrowser()),
+    toggleBrowser(new BrowserButton())
 {
     instrumentBin = new InstrumentBin(TabbedButtonBar::TabsAtTop, this);
     menuBar = new MenuBar(instrumentBin);
@@ -23,12 +24,42 @@ MainContentComponent::MainContentComponent() : deviceManager{},
     addAndMakeVisible (menuBar);
     addAndMakeVisible(metronome);
     addAndMakeVisible(&transport);
+    //addAndMakeVisible(browser);
+    addAndMakeVisible(toggleBrowser);
+    toggleBrowser->addListener(this);
 }
 
 void MainContentComponent::resized()
 {
-    menuBar->setBounds(0, 0, getWidth(), 20);
-    instrumentBin->setBounds(0, 80, getWidth(), getHeight() - 80);
-    transport.setBounds(getWidth()/3*2, 20, getWidth()/3, 80);
-    metronome->setBounds(getWidth()/5*3, 20, getWidth()/3*2 - (getWidth()/5*3) - 10, 80);
+    
+    if (!toggleBrowser->getToggleState()){
+        menuBar->setBounds(0, 0, getWidth(), 20);
+        instrumentBin->setBounds(0, 80, getWidth(), getHeight() - 80);
+        transport.setBounds(getWidth()/3*2, 20, getWidth()/3, 80);
+        metronome->setBounds(getWidth()/5*3, 20, getWidth()/3*2 - (getWidth()/5*3) - 10, 80);
+        toggleBrowser->setBounds(5, 25, 50, 20);
+    }else{
+        setSize(1000+browser->getWidth(), getHeight());
+        menuBar->setBounds(0+browser->getWidth(), 0, getWidth(), 20);
+        instrumentBin->setBounds(0+browser->getWidth(), 80, getWidth(), getHeight() - 80);
+        transport.setBounds((getWidth() - browser->getWidth())/3*2+browser->getWidth(), 20, (getWidth()-browser->getWidth())/3, 80);
+        metronome->setBounds((getWidth() - browser->getWidth())/5*3+browser->getWidth(), 20, (getWidth()-browser->getWidth())/3*2 - ((getWidth()-browser->getWidth())/5*3) - 10, 80);
+        toggleBrowser->setBounds(5+browser->getWidth(), 25, 50, 20);
+    }
+    
+}
+
+void MainContentComponent::buttonClicked(Button* source){
+    if (source == toggleBrowser){
+        if (toggleBrowser->getToggleState()){
+            setSize(1000+browser->getWidth(), getHeight());
+            addAndMakeVisible(browser);
+            browser->setBounds(0, 0, 150, getHeight());
+            resized();
+        }else{
+            setSize(1000, getHeight());
+            removeChildComponent(browser);
+            resized();
+        }
+    }
 }
