@@ -18,7 +18,7 @@ MainContentComponent::MainContentComponent() : deviceManager{},
     XmlDocument xml_file(File::getCurrentWorkingDirectory().getChildFile("audio_settings.xml"));
     deviceManager->initialise (0,2,xml_file.getDocumentElement(),true);
     
-    setSize (1000, 830);
+    setSize (1000, 829);
     addAndMakeVisible (instrumentBin);
     addAndMakeVisible (menuBar);
     addAndMakeVisible(metronome);

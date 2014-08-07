@@ -178,28 +178,36 @@ void FxButton::mouseDown(const MouseEvent& e){
         FxSelector* selector = box->getParent();
         FxBin* bin = (FxBin*)selector->getParentComponent();
         
+        std::cout<<"fx button clicked"<<std::endl;
+        
         SparseSet<int> s = selector->getGroupEditor()->getListBox()->getSelectedRows();
+        
         for (int i=0; i<s.size(); i++){
             Fx* fx = selector->getGroups()[s[i]]->group_fx[selector->getBoxes().indexOf(box)];
+            
             switch (fx->getFxType()){
             case FX::ADSR:{
+                std::cout<<"cool2"<<std::endl;
                 if (fx->getFxType() == FX::ADSR){
                     bin->getFxComponent()->loadFx(FX::ADSR, fx->getContent());
                     return;
                 }
             }
             case FX::FILTER:{
+                std::cout<<"cool3"<<std::endl;
                 if (fx->getFxType() == FX::FILTER){
                     bin->getFxComponent()->loadFx(FX::FILTER, fx->getContent());
                     return;
                 }
             }
-            }
-            /*case FX::NONE:{
+            
+            case FX::NONE:{
+                std::cout<<"load none"<<std::endl;
                 bin->getFxComponent()->loadFx(FX::NONE, nullptr);
-                return;}*/
+                return;}
+            }
         }
-        bin->getFxComponent()->loadFx(FX::NONE, nullptr);
+        //bin->getFxComponent()->loadFx(FX::NONE, nullptr);
     }
 }
 
@@ -359,7 +367,13 @@ void FxChooser::callButtonClick(FxChoiceButton* b){
         }
     }
     else{ 
-        delete selector->fxButtonChoice->get_component();
+            
+        int fx_index = selector->getBoxes().indexOf((FxBox*)(selector->fxButtonChoice->getParentComponent()));
+        for (int i=s.size()-1; i>=0; i--){
+            selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = NONE;
+            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(nullptr);
+        }
+            
         selector->fxButtonChoice->setFx(NONE);
         bin->getFxComponent()->loadFx(NONE, nullptr);
     }
