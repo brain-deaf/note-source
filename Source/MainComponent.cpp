@@ -54,7 +54,7 @@ void MainContentComponent::buttonClicked(Button* source){
         if (toggleBrowser->getToggleState()){
             setSize(1000+browser->getWidth(), getHeight());
             addAndMakeVisible(browser);
-            browser->setBounds(0, 0, 150, getHeight());
+            browser->setBounds(0, 0, 300, getHeight());
             resized();
         }else{
             setSize(1000, getHeight());
