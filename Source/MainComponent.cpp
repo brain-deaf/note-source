@@ -11,9 +11,10 @@
 
 //==============================================================================
 MainContentComponent::MainContentComponent() : deviceManager{},
-    transport(), metronome(new MetronomeComponent()), browser(new SampleFileBrowser()),
+    transport(), metronome(new MetronomeComponent()),
     toggleBrowser(new BrowserButton())
 {
+    browser = new SampleFileBrowser();
     instrumentBin = new InstrumentBin(TabbedButtonBar::TabsAtTop, this);
     menuBar = new MenuBar(instrumentBin);
     XmlDocument xml_file(File::getCurrentWorkingDirectory().getChildFile("audio_settings.xml"));
@@ -41,7 +42,7 @@ void MainContentComponent::resized()
     }else{
         setSize(1000+browser->getWidth(), getHeight());
         menuBar->setBounds(0+browser->getWidth(), 0, getWidth(), 20);
-        instrumentBin->setBounds(0+browser->getWidth(), 80, getWidth(), getHeight() - 80);
+        instrumentBin->setBounds(0+browser->getWidth(), 80, getWidth()-browser->getWidth(), getHeight() - 80);
         transport.setBounds((getWidth() - browser->getWidth())/3*2+browser->getWidth(), 20, (getWidth()-browser->getWidth())/3, 80);
         metronome->setBounds((getWidth() - browser->getWidth())/5*3+browser->getWidth(), 20, (getWidth()-browser->getWidth())/3*2 - ((getWidth()-browser->getWidth())/5*3) - 10, 80);
         toggleBrowser->setBounds(5+browser->getWidth(), 25, 50, 20);

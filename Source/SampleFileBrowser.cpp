@@ -42,7 +42,9 @@ void SampleFileBrowser::mouseDrag(const MouseEvent& m){
     int x = m.getPosition().getX();
     MouseCursor mc = getMouseCursor();
     if (mc == MouseCursor::LeftRightResizeCursor){
-        setSize(x, getHeight());
-        getParentComponent()->resized();
+        if (x < 400 & x >= 100){
+            setSize(x, getHeight());
+            getParentComponent()->resized();
+        }
     }
 }
