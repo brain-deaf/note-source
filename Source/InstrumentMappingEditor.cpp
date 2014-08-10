@@ -289,6 +289,25 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
    getGroupEditor()->getGroupView()->refreshRows();
 }
 
+void MappingEditorGraph::itemDropped(const SourceDetails& details){
+    std::cout<<details.description.toString()<<std::endl;
+    
+    if (details.description.toString() == "file name"){
+        StringArray s;
+        DragButton* d = static_cast<DragButton*>(details.sourceComponent.get());
+        for (int i=0; i<d->getFileList().size(); i++){
+            std::cout<<d->getFileList()[i]<<std::endl;
+            if (File(d->getFileList()[i]).getFileExtension() != ".lua")
+                s.add(d->getFileList()[i]);
+        }
+        
+        if (s.size() > 0){
+            std::cout<<"add file"<<std::endl;
+            filesDropped(s, details.localPosition.getX(), details.localPosition.getY());
+        }
+    }
+}
+
 void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
     float gridOutline = 1.0f;
     float gridWidth = width / numColumns;

@@ -25,6 +25,7 @@ class InstrumentMappingEditor : public Component
 public:
     class MappingEditorGraph : public Component,
                                public FileDragAndDropTarget,
+                               public DragAndDropTarget,
                                public ButtonListener,
                                public MidiKeyboardStateListener,
                                public ChangeListener,
@@ -188,6 +189,8 @@ public:
         void mouseUp(const MouseEvent& event);
         void mouseDown(const MouseEvent& event);
         void filesDropped(const StringArray& files, int x, int y);
+        bool isInterestedInDragSource(const SourceDetails&){return true;}
+        void itemDropped(const SourceDetails&);
         void updateZones();
         bool isInterestedInFileDrag(const StringArray& files){return true;}
         void loadPatch(XmlElement* i);
@@ -215,6 +218,7 @@ public:
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
         GroupEditor*& getGroupEditor(){return group_editor;}
         Metronome& getMetronome(){return metronome;}
+        
 
     private:
         float width;

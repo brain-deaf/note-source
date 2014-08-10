@@ -14,7 +14,7 @@ MainContentComponent::MainContentComponent() : deviceManager{},
     transport(), metronome(new MetronomeComponent()),
     toggleBrowser(new BrowserButton())
 {
-    browser = new SampleFileBrowser();
+    browser = new SampleBrowserBin();
     instrumentBin = new InstrumentBin(TabbedButtonBar::TabsAtTop, this);
     menuBar = new MenuBar(instrumentBin);
     XmlDocument xml_file(File::getCurrentWorkingDirectory().getChildFile("audio_settings.xml"));

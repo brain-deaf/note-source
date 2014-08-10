@@ -12,7 +12,7 @@
 #include "MenuBar.h"
 #include "InstrumentBin.h"
 #include "MasterComponents.h"
-#include "SampleFileBrowser.h"
+#include "SampleBrowserBin.h"
 
 
 //==============================================================================
@@ -20,11 +20,11 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public Component, public Button::Listener
+class MainContentComponent : public Component, public Button::Listener, public DragAndDropContainer
 {
 public:
     MainContentComponent();
-    ~MainContentComponent(){delete instrumentBin; delete menuBar; delete metronome; delete browser;}
+    ~MainContentComponent(){delete instrumentBin; delete menuBar; delete metronome;}
     MetronomeComponent* getMetronome(){return metronome;}
     TransportComponent* getTransport(){return &transport;}
     void resized();
@@ -35,7 +35,7 @@ private:
     MetronomeComponent* metronome;
     TransportComponent transport;
     InstrumentBin* instrumentBin;
-    SampleFileBrowser* browser;
+    ScopedPointer<SampleBrowserBin> browser;
     BrowserButton* toggleBrowser;
     int browserWidth;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)

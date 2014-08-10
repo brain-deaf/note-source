@@ -211,6 +211,9 @@ FxBox::FxBox(FxButton* button, FxSelector* _parent): _button(button), parent(_pa
 }
 
 void FxBox::itemDropped(const SourceDetails& dragSourceDetails){
+    String details = dragSourceDetails.description.toString();
+    if (details == "file name") return;
+    
     Array<FxBox*> boxes = parent->getBoxes();
     
     FxBox* dragged_box;

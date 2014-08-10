@@ -11,13 +11,17 @@
 #include "SampleFileBrowser.h"
 #include "MappingEditorBin.h"
 #include "InstrumentMappingEditor.h"
+#include "SampleBrowserBin.h"
 
 SampleFileBrowser::SampleFileBrowser() : FileBrowserComponent(FileBrowserComponent::openMode|
                                          FileBrowserComponent::canSelectFiles|
-                                         FileBrowserComponent::useTreeView,
+                                         FileBrowserComponent::canSelectDirectories|
+                                         FileBrowserComponent::useTreeView|
+                                         FileBrowserComponent::canSelectMultipleItems,
                                          File::getCurrentWorkingDirectory(),
                                          nullptr,
                                          nullptr),
+                                         dragButton(nullptr),
                                          player(new FilePlayer(""))
 {      
     setSize(300, getHeight());
@@ -70,5 +74,18 @@ void SampleFileBrowser::fileDoubleClicked(const File& f){
         player->changeState(FilePlayer::Starting);
     }else if (f.getFullPathName() == filename){
         player->toggleState();
+    }
+}
+
+void SampleFileBrowser::fileClicked(const File& f, const MouseEvent& e){
+    if (dragButton != nullptr){
+        dragButton->getFileList().clear();
+        
+        for (int i=0; i<getNumSelectedFiles(); i++){
+            if (!(getSelectedFile(i).isDirectory())){
+                dragButton->getFileList().add(getSelectedFile(i).getFullPathName());
+                std::cout<<"file added"<<std::endl;
+            }
+        }
     }
 }
