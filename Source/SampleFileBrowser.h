@@ -11,6 +11,7 @@
 #ifndef SAMPLEFILEBROWSER_H_INCLUDED
 #define SAMPLEFILEBROWSER_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "FilePlayer.h"
 
 class SampleFileBrowser : public FileBrowserComponent
 {
@@ -21,7 +22,10 @@ public:
     void mouseMove(const MouseEvent&);
     void mouseDrag(const MouseEvent&);
     bool isFileSuitable(const File&)const override;
+    void fileDoubleClicked(const File&)override;
 private:
+    ScopedPointer<FilePlayer> player;
+    String filename;
 };
 
 

@@ -17,7 +17,8 @@ SampleFileBrowser::SampleFileBrowser() : FileBrowserComponent(FileBrowserCompone
                                          FileBrowserComponent::useTreeView,
                                          File::getCurrentWorkingDirectory(),
                                          nullptr,
-                                         nullptr)
+                                         nullptr),
+                                         player(new FilePlayer(""))
 {      
     setSize(300, getHeight());
 }
@@ -60,4 +61,14 @@ bool SampleFileBrowser::isFileSuitable(const File& f) const{
         return true;
     }
     return false;
+}
+
+void SampleFileBrowser::fileDoubleClicked(const File& f){
+    if (!f.isDirectory() && filename != f.getFullPathName() && f.getFileExtension() != ".lua"){
+        filename = f.getFullPathName();
+        player = new FilePlayer(filename);
+        player->changeState(FilePlayer::Starting);
+    }else if (f.getFullPathName() == filename){
+        player->toggleState();
+    }
 }
