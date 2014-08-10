@@ -12,12 +12,12 @@
 #include "MappingEditorBin.h"
 #include "InstrumentMappingEditor.h"
 
-SampleFileBrowser::SampleFileBrowser() : fileFilter(new SampleFileFilter("sample")), FileBrowserComponent(FileBrowserComponent::openMode|
-                                                              FileBrowserComponent::canSelectFiles|
-                                                              FileBrowserComponent::useTreeView,
-                                                              File::getCurrentWorkingDirectory(),
-                                                              fileFilter,
-                                                              nullptr)
+SampleFileBrowser::SampleFileBrowser() : FileBrowserComponent(FileBrowserComponent::openMode|
+                                         FileBrowserComponent::canSelectFiles|
+                                         FileBrowserComponent::useTreeView,
+                                         File::getCurrentWorkingDirectory(),
+                                         nullptr,
+                                         nullptr)
 {      
     setSize(300, getHeight());
 }
@@ -47,4 +47,17 @@ void SampleFileBrowser::mouseDrag(const MouseEvent& m){
             getParentComponent()->resized();
         }
     }
+}
+
+bool SampleFileBrowser::isFileSuitable(const File& f) const{
+    if (f.getFileExtension() == ".lua"){
+        return true;
+    }else if (f.getFileExtension() == ".wav"){
+        return true;
+    }else if (f.getFileExtension() == ".aif"){
+        return true;
+    }else if (f.getFileExtension() == ".ogg"){
+        return true;
+    }
+    return false;
 }

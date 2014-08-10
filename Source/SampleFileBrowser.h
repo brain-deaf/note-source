@@ -12,25 +12,16 @@
 #define SAMPLEFILEBROWSER_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class SampleFileFilter : public FileFilter, public DragAndDropContainer
-{
-public:
-    SampleFileFilter(const String& description) : FileFilter(description){}
-    ~SampleFileFilter(){}
-    bool isFileSuitable(const File& f) const {return true;}
-    bool isDirectorySuitable(const File& f) const {return true;}
-};
-
 class SampleFileBrowser : public FileBrowserComponent
 {
 public:
     SampleFileBrowser();
-    ~SampleFileBrowser(){delete fileFilter;}
+    ~SampleFileBrowser(){}
     void paint(Graphics&);
     void mouseMove(const MouseEvent&);
     void mouseDrag(const MouseEvent&);
+    bool isFileSuitable(const File&)const override;
 private:
-    SampleFileFilter* fileFilter;
 };
 
 
