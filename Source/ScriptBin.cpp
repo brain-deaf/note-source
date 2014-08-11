@@ -64,7 +64,7 @@ void ScriptBin::buttonClicked(Button* source){
     }
     
     if (source == saveAsButton){
-        FileChooser script_saver("Please select the patch destination.",
+        FileChooser script_saver("Please select the script destination.",
                                 File::getCurrentWorkingDirectory(),
                                 "*.lua");
             
