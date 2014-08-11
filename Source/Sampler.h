@@ -13,6 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FxSelector.h"
+#include "TransformSelector.h"
 #include "IIR_Filter.h"
 #include <memory>
 //#include <fftw3.h>
@@ -60,6 +61,7 @@ public:
     void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override;
     void setMidiChannel(int i){midi_input_id = i;}
     void setFxSelector(FxSelector* f){fx_selector=f;}
+    void setTransformSelector(TransformSelector* f){transform_selector=f;}
     FxSelector* getFxSelector(){return fx_selector;}
     IIR_Filter* getFilter(){return &filter1;}
     
@@ -79,6 +81,7 @@ private:
     IIR_Filter filter1;
     IIR_Filter filter2;
     FxSelector* fx_selector;
+    TransformSelector* transform_selector;
     Array<std::shared_ptr<NoteEvent> > events;
     Array<std::shared_ptr<NoteEvent> > incomingEvents;
     SelectedItemSet<std::pair<int, int> >* notesHeld;

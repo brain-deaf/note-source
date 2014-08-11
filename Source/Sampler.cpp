@@ -25,7 +25,7 @@ static bool isNoteHeld(SelectedItemSet<std::pair<int, int> > s, int n){
 Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s) 
     : AudioSource(), synth(), idCount(0), notesHeld(s), formatManager(), 
       events(), incomingEvents(),
-      filter1(), filter2(), fx_selector(nullptr) 
+      filter1(), filter2(), fx_selector(nullptr), transform_selector(nullptr) 
 {
     for (int i=0; i<256; i++){
         synth.addVoice(new SampleVoice());

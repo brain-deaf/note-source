@@ -14,6 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class FxBin;
+class TransformBin;
 class InstrumentMappingEditor;
 class GroupEditor;
 class GroupView;
@@ -64,6 +65,7 @@ public:
     InstrumentMappingEditor* getMappingEditor(){return mapping_editor;}
     GroupView* getGroupView(){return group_view;}
     void setFxBin(FxBin*);
+    void setTransformBin(TransformBin*);
     void setGroupView(GroupView* g){group_view=g;}
     FxBin* getFxBin(){return fx_bin;}
     
@@ -84,6 +86,7 @@ private:
     InstrumentMappingEditor* mapping_editor;
     String temp;
     FxBin* fx_bin;
+    TransformBin* transform_bin;
     GroupView* group_view;
 };
 

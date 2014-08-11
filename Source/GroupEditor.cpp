@@ -11,6 +11,7 @@
 #include "GroupEditor.h"
 #include "InstrumentMappingEditor.h"
 #include "FxBin.h"
+#include "TransformBin.h"
 #include "GroupEditorZ.h"
 
 GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component(), width(w), height(h), row_height(30),
@@ -80,6 +81,11 @@ GroupEditor::~GroupEditor(){
 void GroupEditor::setFxBin(FxBin* f){
     fx_bin = f;
     mapping_editor->graph->getSampler().setFxSelector(fx_bin->getFxSelector());
+}
+
+void GroupEditor::setTransformBin(TransformBin* f){
+    transform_bin = f;
+    mapping_editor->graph->getSampler().setTransformSelector(transform_bin->getTransformSelector());
 }
 
 void GroupEditor::paint(Graphics& g){

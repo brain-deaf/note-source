@@ -16,6 +16,7 @@
 #include "MainPage.h"
 #include "MappingEditorBin.h"
 #include "FxBin.h"
+#include "TransformBin.h"
 #include "WaveBin.h"
 #include "ScriptBin.h"
 
@@ -34,6 +35,7 @@ private:
     ScopedPointer<MappingEditorBin> mappingEditor;
     ScopedPointer<WaveBin> waveBin;
     ScopedPointer<FxBin> fxbin;
+    ScopedPointer<TransformBin> transformBin;
     ScopedPointer<ScriptBin> scriptBin;
     ScopedPointer<TextButton> zoomButton;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentTabWindow)

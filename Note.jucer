@@ -81,6 +81,19 @@
     <FILE id="h7Ax0F" name="Sampler.cpp" compile="1" resource="0" file="Source/Sampler.cpp"/>
     <FILE id="RGwk8W" name="ScriptBin.h" compile="0" resource="0" file="Source/ScriptBin.h"/>
     <FILE id="k4EU9I" name="ScriptBin.cpp" compile="1" resource="0" file="Source/ScriptBin.cpp"/>
+    <FILE id="DFNy5S" name="Transforms.h" compile="0" resource="0" file="Source/Transforms.h"/>
+    <FILE id="rUeFAF" name="Transforms.cpp" compile="1" resource="0" file="Source/Transforms.cpp"/>
+    <FILE id="hLst53" name="TransformBin.h" compile="0" resource="0" file="Source/TransformBin.h"/>
+    <FILE id="V7RZne" name="TransformBin.cpp" compile="1" resource="0"
+          file="Source/TransformBin.cpp"/>
+    <FILE id="BLsIDJ" name="TransformComponent.h" compile="0" resource="0"
+          file="Source/TransformComponent.h"/>
+    <FILE id="TH1i4P" name="TransformComponent.cpp" compile="1" resource="0"
+          file="Source/TransformComponent.cpp"/>
+    <FILE id="RAaQdB" name="TransformSelector.h" compile="0" resource="0"
+          file="Source/TransformSelector.h"/>
+    <FILE id="ROYNP2" name="TransformSelector.cpp" compile="1" resource="0"
+          file="Source/TransformSelector.cpp"/>
     <FILE id="AYWK7r" name="WaveBin.h" compile="0" resource="0" file="Source/WaveBin.h"/>
     <FILE id="hX2aW8" name="WaveBin.cpp" compile="1" resource="0" file="Source/WaveBin.cpp"/>
     <FILE id="m8jQtt" name="WaveformView.h" compile="0" resource="0" file="Source/WaveformView.h"/>
