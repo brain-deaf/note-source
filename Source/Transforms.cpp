@@ -19,7 +19,8 @@ LinearTransform::LinearTransform() : Component(),
                                      sourceBox(new ComboBox()),
                                      targetBox(new ComboBox()),
                                      combo_items(),
-                                     midiCallback(new MidiTransformCallback())
+                                     midiCallback(new MidiTransformCallback()),
+                                     tValue(-1)
 {
     startSlider->setSliderStyle(Slider::RotaryVerticalDrag);
     startSlider->setTextBoxStyle(Slider::NoTextBox, false, 50, 20);

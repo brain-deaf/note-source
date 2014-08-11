@@ -32,6 +32,7 @@ private:
     ScopedPointer<ComboBox> targetBox;
     ScopedPointer<MidiTransformCallback> midiCallback;
     StringArray combo_items;
+    int tValue;
 };
 
 class LinearGraph : public Component, public Slider::Listener
