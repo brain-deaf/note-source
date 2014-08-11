@@ -98,6 +98,9 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             fx_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getFxBin();
             
+            scriptBin = parent->getInstruments()[parent->getCurrentTabIndex()]
+            ->getTabWindow().getScriptBin();
+            
             FileChooser patch_loader("Please select the patch you want to load",
                                      File::getCurrentWorkingDirectory(),
                                      "*.xml");
@@ -109,6 +112,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             
                 mapping_editor->graph->loadPatch(instrument);
                 fx_bin->getFxSelector()->loadPatch(instrument);
+                scriptBin->loadPatch(instrument);
             }
             break;
         }
@@ -120,9 +124,17 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             fx_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getFxBin();
             
+            scriptBin = parent->getInstruments()[parent->getCurrentTabIndex()]
+            ->getTabWindow().getScriptBin();
+            
             Array<FxGroup*> fx_group_list = fx_bin->getFxSelector()->getGroups();
             
             XmlElement instrument("INSTRUMENT");
+            
+            XmlElement* script_element = new XmlElement("SCRIPT");
+            script_element->setAttribute("path", scriptBin->getScriptPath());
+            instrument.addChildElement(script_element);
+            
             for (int i=0; i<mapping_editor->graph->getGroups().size(); i++){
                 XmlElement* group = new XmlElement("GROUP");
                 group->setAttribute("name", mapping_editor->graph->getGroupEditor()->getModel()->getGroupNames()[i]);

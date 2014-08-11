@@ -22,12 +22,16 @@ public:
     void resized();
     LuaScript* getLuaScript(){return luaScript;}
     void buttonClicked(Button*);
+    void loadPatch(XmlElement*);
+    String getScriptPath(){return scriptPath;}
 private:
     CodeDocument* codeDocument;
     CodeEditorComponent* codeEditor;
     TextButton* compileButton;
+    TextButton* saveAsButton;
     LuaScript* luaScript;
     MappingEditorBin* mapping_editor;
+    String scriptPath;
 };
 
 
