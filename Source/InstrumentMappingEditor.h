@@ -60,6 +60,7 @@ public:
             int getX(){return _x;}
             int getY(){return _y;}
             std::pair<int, int>& getVelocity(){return velocity;}
+            void setVelocity(std::pair<float, float> v){velocity=v;}
             int getNote(){return _note;}
             void setHeight(int h){_height = h;}
             int getHeight(){return _height;}

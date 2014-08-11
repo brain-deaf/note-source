@@ -54,7 +54,7 @@ class Sampler : public AudioSource
 {
 public:
     Sampler(SelectedItemSet<std::pair<int, int> >*);
-    void addSample(String path, int root_note, int note_low, int note_high, Array<int>&, double);
+    void addSample(String path, int root_note, int note_low, int note_high, Array<int>&, double, std::pair<int, int>);
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
     void releaseResources() override;
     void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override;
@@ -125,10 +125,12 @@ public:
                 double maxSampleLengthSeconds,
                 Array<int> group,
                 FxSelector* fx,
-                Sampler* s) : 
+                Sampler* s,
+                std::pair<int, int> v) : 
                     SamplerSound(name, source, midiNotes, midiNoteForNormalPitch, 
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
-                    groups(group), fx_selector(fx), sampleStart(0.0), sampler(s)
+                                 groups(group), fx_selector(fx), sampleStart(0.0), sampler(s),
+                                 velocity(v)
     {
         sampleRate = source.sampleRate;
         rootNote = midiNoteForNormalPitch;
@@ -137,11 +139,13 @@ public:
     typedef ReferenceCountedObjectPtr<SampleSound> Ptr;
     double getSampleRate(){return sampleRate;}
     int getRootNote(){return rootNote;}
+    std::pair<int, int> getVelocity(){return velocity;}
     FxSelector* getFxSelector(){return fx_selector;}
     void setSampleStart(double d){sampleStart=d;}
     double getSampleStart(){return sampleStart;}
     Sampler* getSampler(){return sampler;}
 private:
+    std::pair<int, int> velocity;
     Array<int> groups;
     double sampleRate;
     int rootNote;

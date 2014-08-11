@@ -266,8 +266,18 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
 
                 new_zone->setX(zone->getIntAttribute("x"));
                 new_zone->setNote(zone->getIntAttribute("note"));
+                
                 new_zone->setY(zone->getIntAttribute("y"));
                 new_zone->setHeight(zone->getIntAttribute("height"));
+                
+                float px_per_velocity = getHeight() / 128;
+                int velocity_low = (getHeight() - (new_zone->getHeight()+new_zone->getY())) / px_per_velocity;
+                int velocity_high = (getHeight() - new_zone->getY()) / px_per_velocity;
+                std::pair<int, int> velocity;
+                velocity.first = velocity_low;
+                velocity.second = velocity_high;
+                new_zone->setVelocity(velocity);
+                
                 new_zone->set_width(zone->getIntAttribute("width"));
                 new_zone->getPlaySettings().setSampleStart(zone->getDoubleAttribute("sample_start"));
 
@@ -280,7 +290,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 Array<int> groups_for_zone;
                 groups_for_zone.add(j-1);
         
-                getSampler().addSample(new_zone->getName(), new_zone->getNote(), round(new_zone->getX()/gridWidth), round(new_zone->getX()/gridWidth) + new_zone->get_width(), groups_for_zone, new_zone->getPlaySettings().getSampleStart());
+                getSampler().addSample(new_zone->getName(), new_zone->getNote(), round(new_zone->getX()/gridWidth), round(new_zone->getX()/gridWidth) + new_zone->get_width(), groups_for_zone, new_zone->getPlaySettings().getSampleStart(), new_zone->getVelocity());
             }
         }
      }
@@ -347,9 +357,15 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
             gridWidth - gridOutline, newZone->getHeight());
         addAndMakeVisible(newZone);
         newZone->set_width(1);
+        
+        std::pair<int, int> velocity;
+        velocity.first = 0;
+        velocity.second = 127;
+        newZone->setVelocity(velocity);
+        
         lassoSource.getZones().add(newZone);
         
-        sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1, groups_for_zone, newZone->getPlaySettings().getSampleStart());
+        sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1, groups_for_zone, newZone->getPlaySettings().getSampleStart(), newZone->getVelocity());
         
     }
     getZoneInfoSet().selectOnly(newZone);
@@ -382,6 +398,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                 new_zone->setBounds(new_zone->getX(), new_zone->getY(), 
                                     gridWidth * new_zone->get_width() - gridOutline, new_zone->getHeight());
                 new_zone->getPlaySettings().setSampleStart(zone->getPlaySettings().getSampleStart());
+                new_zone->setVelocity(zone->getVelocity());
                 
                 copied_zones.add(new_zone);
             }
@@ -404,7 +421,8 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                                   round(zone->getX()/gridWidth), 
                                   round(zone->getX()/gridWidth) + zone->get_width(),
                                   groups_for_zone,
-                                  zone->getPlaySettings().getSampleStart());
+                                  zone->getPlaySettings().getSampleStart(),
+                                  zone->getVelocity());
 
                                    
                 zones.add(zone);
@@ -581,12 +599,22 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                         }
                     }
                     
+                    float px_per_velocity = getHeight() / 128;
+                    int velocity_low = (getHeight() - (i->getHeight()+i->getY())) / px_per_velocity;
+                    int velocity_high = (getHeight() - i->getY()) / px_per_velocity;
+                    std::pair<int, int> velocity;
+                    velocity.first = velocity_low;
+                    velocity.second = velocity_high;
+                    
+                    i->setVelocity(velocity);
+                    
                     sampler.addSample(i->getName(), 
                                       i->getNote(), 
                                       round(i->getX()/gridWidth), 
                                       round(i->getX()/gridWidth) + i->get_width(),
                                       groups_for_zone,
-                                      i->getPlaySettings().getSampleStart());
+                                      i->getPlaySettings().getSampleStart(),
+                                      i->getVelocity());
                 }
             }else{
                 auto Y = getMouseXYRelative().getY();
@@ -615,12 +643,22 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                         groups_for_zone.add(s[i]);
                     }
                 }
+                
+                float px_per_velocity = getHeight() / 128;
+                int velocity_low = (getHeight() - (draggedZone->getHeight()+draggedZone->getY())) / px_per_velocity;
+                int velocity_high = (getHeight() - draggedZone->getY()) / px_per_velocity;
+                std::pair<int, int> velocity;
+                velocity.first = velocity_low;
+                velocity.second = velocity_high;
+                draggedZone->setVelocity(velocity);
+                
                 sampler.addSample(draggedZone->getName(), 
                                   draggedZone->getNote(), 
                                   round(draggedZone->getX()/gridWidth), 
                                   round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
                                   groups_for_zone,
-                                  draggedZone->getPlaySettings().getSampleStart());
+                                  draggedZone->getPlaySettings().getSampleStart(),
+                                  draggedZone->getVelocity());
             }
         }
         else if (cursor == MouseCursor::TopEdgeResizeCursor){
@@ -636,6 +674,35 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                     }
                     i->setHeight(newHeight);
                     i->setY(newY);
+                    
+                    int zone_index = zones.indexOf(i);
+                    zones.remove(zone_index);
+                    sampler.getSynth()->removeSound(zone_index);
+                    zones.add(i);
+                    
+                    Array<int> groups_for_zone;
+                    SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                    for (int j=0; j<s.size(); j++){
+                        if (groups[s[j]]->getZones()->contains(i)){
+                            groups_for_zone.add(s[j]);
+                        }
+                    }
+                    
+                    float px_per_velocity = getHeight() / 128;
+                    int velocity_low = (getHeight() - (i->getHeight()+i->getY())) / px_per_velocity;
+                    int velocity_high = (getHeight() - i->getY()) / px_per_velocity;
+                    std::pair<int, int> velocity;
+                    velocity.first = velocity_low;
+                    velocity.second = velocity_high;
+                    i->setVelocity(velocity);
+                    
+                    sampler.addSample(i->getName(), 
+                                      i->getNote(), 
+                                      round(i->getX()/gridWidth), 
+                                      round(i->getX()/gridWidth) + i->get_width(),
+                                      groups_for_zone,
+                                      i->getPlaySettings().getSampleStart(),
+                                      i->getVelocity());
                 }
             } else {
                 int newY = draggedZone->getY() + 
@@ -650,6 +717,35 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                 }
                 draggedZone->setHeight(newHeight);
                 draggedZone->setY(newY);
+                
+                int zone_index = zones.indexOf(draggedZone);
+                zones.remove(zone_index);
+                sampler.getSynth()->removeSound(zone_index);
+                zones.add(draggedZone);
+                
+                Array<int> groups_for_zone;
+                SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                for (int i=0; i<s.size(); i++){
+                    if (groups[s[i]]->getZones()->contains(draggedZone)){
+                        groups_for_zone.add(s[i]);
+                    }
+                }
+                
+                float px_per_velocity = getHeight() / 128;
+                int velocity_low = (getHeight() - (draggedZone->getHeight()+draggedZone->getY())) / px_per_velocity;
+                int velocity_high = (getHeight() - draggedZone->getY()) / px_per_velocity;
+                std::pair<int, int> velocity;
+                velocity.first = velocity_low;
+                velocity.second = velocity_high;
+                draggedZone->setVelocity(velocity);
+                
+                sampler.addSample(draggedZone->getName(), 
+                                  draggedZone->getNote(), 
+                                  round(draggedZone->getX()/gridWidth), 
+                                  round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
+                                  groups_for_zone,
+                                  draggedZone->getPlaySettings().getSampleStart(),
+                                  draggedZone->getVelocity());
             }
         }
         else if (cursor == MouseCursor::BottomEdgeResizeCursor){
@@ -662,6 +758,35 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                             i->getHeight();
                     }
                     i->setHeight(newHeight);
+                    
+                    int zone_index = zones.indexOf(i);
+                    zones.remove(zone_index);
+                    sampler.getSynth()->removeSound(zone_index);
+                    zones.add(i);
+                    
+                    Array<int> groups_for_zone;
+                    SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                    for (int j=0; j<s.size(); j++){
+                        if (groups[s[j]]->getZones()->contains(i)){
+                            groups_for_zone.add(s[j]);
+                        }
+                    }
+                    
+                    float px_per_velocity = getHeight() / 128;
+                    int velocity_low = (getHeight() - (i->getHeight()+i->getY())) / px_per_velocity;
+                    int velocity_high = (getHeight() - i->getY()) / px_per_velocity;
+                    std::pair<int, int> velocity;
+                    velocity.first = velocity_low;
+                    velocity.second = velocity_high;
+                    i->setVelocity(velocity);
+                    
+                    sampler.addSample(i->getName(), 
+                                      i->getNote(), 
+                                      round(i->getX()/gridWidth), 
+                                      round(i->getX()/gridWidth) + i->get_width(),
+                                      groups_for_zone,
+                                      i->getPlaySettings().getSampleStart(),
+                                      i->getVelocity());
                 }
             } else {
                 int newHeight = draggedZone->getHeight() +
@@ -671,6 +796,35 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                         draggedZone->getHeight()) + draggedZone->getHeight();
                 }
                 draggedZone->setHeight(newHeight);
+                
+                int zone_index = zones.indexOf(draggedZone);
+                zones.remove(zone_index);
+                sampler.getSynth()->removeSound(zone_index);
+                zones.add(draggedZone);
+                
+                Array<int> groups_for_zone;
+                SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+                for (int i=0; i<s.size(); i++){
+                    if (groups[s[i]]->getZones()->contains(draggedZone)){
+                        groups_for_zone.add(s[i]);
+                    }
+                }
+                
+                float px_per_velocity = getHeight() / 128;
+                int velocity_low = (getHeight() - (draggedZone->getHeight()+draggedZone->getY())) / px_per_velocity;
+                int velocity_high = (getHeight() - draggedZone->getY()) / px_per_velocity;
+                std::pair<int, int> velocity;
+                velocity.first = velocity_low;
+                velocity.second = velocity_high;
+                draggedZone->setVelocity(velocity);
+                
+                sampler.addSample(draggedZone->getName(), 
+                                  draggedZone->getNote(), 
+                                  round(draggedZone->getX()/gridWidth), 
+                                  round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
+                                  groups_for_zone,
+                                  draggedZone->getPlaySettings().getSampleStart(),
+                                  draggedZone->getVelocity());
             }
         }
         else if (cursor == MouseCursor::RightEdgeResizeCursor){
@@ -692,12 +846,21 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                 groups_for_zone.add(s[j]);
                             }
                         }
+                        float px_per_velocity = getHeight() / 128;
+                        int velocity_low = (getHeight() - (i->getHeight()+i->getY())) / px_per_velocity;
+                        int velocity_high = (getHeight() - i->getY()) / px_per_velocity;
+                        std::pair<int, int> velocity;
+                        velocity.first = velocity_low;
+                        velocity.second = velocity_high;
+                        i->setVelocity(velocity);
+                        
                         sampler.addSample(i->getName(), 
                                           i->getNote(), 
                                           round(i->getX()/gridWidth), 
                                           round(i->getX()/gridWidth) + i->get_width(),
                                           groups_for_zone,
-                                          i->getPlaySettings().getSampleStart());
+                                          i->getPlaySettings().getSampleStart(),
+                                          i->getVelocity());
                     }
                 }
             } else {
@@ -716,12 +879,22 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                             groups_for_zone.add(s[i]);
                         }
                     }
+                    
+                    float px_per_velocity = getHeight() / 128;
+                    int velocity_low = (getHeight() - (draggedZone->getHeight()+draggedZone->getY())) / px_per_velocity;
+                    int velocity_high = (getHeight() - draggedZone->getY()) / px_per_velocity;
+                    std::pair<int, int> velocity;
+                    velocity.first = velocity_low;
+                    velocity.second = velocity_high;
+                    draggedZone->setVelocity(velocity);
+                    
                     sampler.addSample(draggedZone->getName(), 
                                       draggedZone->getNote(), 
                                       round(draggedZone->getX()/gridWidth), 
                                       round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
                                       groups_for_zone,
-                                      draggedZone->getPlaySettings().getSampleStart());
+                                      draggedZone->getPlaySettings().getSampleStart(),
+                                      draggedZone->getVelocity());
                 }
             }
         }
@@ -748,12 +921,21 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                 }
                             }
                             
+                            float px_per_velocity = getHeight() / 128;
+                            int velocity_low = (getHeight() - (i->getHeight()+i->getY())) / px_per_velocity;
+                            int velocity_high = (getHeight() - i->getY()) / px_per_velocity;
+                            std::pair<int, int> velocity;
+                            velocity.first = velocity_low;
+                            velocity.second = velocity_high;
+                            i->setVelocity(velocity);
+                            
                             sampler.addSample(i->getName(), 
                                               i->getNote(), 
                                               round(i->getX()/gridWidth), 
                                               round(i->getX()/gridWidth) + i->get_width(),
                                               groups_for_zone,
-                                              i->getPlaySettings().getSampleStart());
+                                              i->getPlaySettings().getSampleStart(),
+                                              i->getVelocity());
                         }
                     }
                 }
@@ -777,12 +959,22 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                             groups_for_zone.add(s[i]);
                         }
                     }
+                    
+                    float px_per_velocity = getHeight() / 128;
+                    int velocity_low = (getHeight() - (draggedZone->getHeight()+draggedZone->getY())) / px_per_velocity;
+                    int velocity_high = (getHeight() - draggedZone->getY()) / px_per_velocity;
+                    std::pair<int, int> velocity;
+                    velocity.first = velocity_low;
+                    velocity.second = velocity_high;
+                    draggedZone->setVelocity(velocity);
+                    
                     sampler.addSample(draggedZone->getName(), 
                                       draggedZone->getNote(), 
                                       round(draggedZone->getX()/gridWidth), 
                                       round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
                                       groups_for_zone,
-                                      draggedZone->getPlaySettings().getSampleStart());
+                                      draggedZone->getPlaySettings().getSampleStart(),
+                                      draggedZone->getVelocity());
                 }
             }
         }

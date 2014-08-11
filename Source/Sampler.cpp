@@ -43,7 +43,7 @@ Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s)
     //filter2.setCoefficients(IIRCoefficients());
 }
     
-void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups, double sampleStart){
+void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups, double sampleStart, std::pair<int, int> v){
     ScopedPointer<AudioFormatReader> audioReader(formatManager.createReaderFor(File(path)));
         
     BigInteger allNotes;
@@ -53,8 +53,10 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
     SampleSound* ss;
     synth.addSound(ss = new SampleSound("demo sound", *audioReader,
                                     allNotes, root_note,
-                                    0.0, 0.0, 10.0, groups, fx_selector, this));
+                                    0.0, 0.0, 10.0, groups, fx_selector, this, v));
     ss->setSampleStart(sampleStart);
+    
+    //std::cout<<v.first<<" "<<v.second<<std::endl;
 }
     
 void Sampler::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
@@ -152,6 +154,11 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 }
             }
         }
+        
+        if ((int)noteEvent->getVelocity() < s->getVelocity().first || (int)noteEvent->getVelocity() > s->getVelocity().second){
+            return_flag = true;
+        }
+        
         if (return_flag){ 
             s->getSampler()->getEvents().removeFirstMatchingValue(noteEvent);
             noteEvent = nullptr;
