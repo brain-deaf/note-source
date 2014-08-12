@@ -55,7 +55,6 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
                                     allNotes, root_note,
                                     0.0, 0.0, 10.0, groups, fx_selector, tf_selector, this, v));
     ss->setSampleStart(sampleStart);
-    std::cout<<"tf "<<tf_selector<<std::endl;
     
     //std::cout<<v.first<<" "<<v.second<<std::endl;
 }
@@ -173,9 +172,11 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             for (auto fx : tf_group->group_fx){
                 if (fx->getFxType() == TransformChooser::FX::LINEAR){
                     LinearTransform* ltf= (LinearTransform*)fx->getContent();
-                    int gValue = ltf->getGraph()->getGValue();
-                    if (gValue != -1)
-                        tf_vol_multiplier *= ltf->getGraph()->getTValue();
+                    if (ltf->getTargetBox()->getSelectedId() == 33){
+                        int gValue = ltf->getGraph()->getGValue();
+                        if (gValue != -1)
+                            tf_vol_multiplier *= ltf->getGraph()->getTValue();
+                    }
                 }
             }
         }

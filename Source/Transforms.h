@@ -55,6 +55,7 @@ public:
     LinearTransform();
     ~LinearTransform(){}
     ComboBox* getSourceBox(){return sourceBox.get();}
+    ComboBox* getTargetBox(){return targetBox.get();}
     LinearGraph* getGraph(){return graph.get();}
     void paint(Graphics&);
     void resized();
