@@ -23,7 +23,7 @@ InstrumentTabWindow::InstrumentTabWindow(InstrumentComponent& i,
     addTab("FX", Colour(100, 110, 100), fxbin, false);
     addTab("Mapping", Colour(120, 100, 100), mappingEditor , false);
     addTab("Wave", Colour(100, 130, 100), waveBin, false);
-    addTab("Mod", Colour(100, 140, 100), transformBin, false);
+    addTab("Mod", Colour(100, 100, 100), transformBin, false);
     addTab("Script", Colour(100, 100, 100), scriptBin, false);
 }
 

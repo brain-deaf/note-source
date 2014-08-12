@@ -13,15 +13,48 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class MidiTransformCallback;
-class LinearGraph;
 
-class LinearTransform : public Component
+enum TransformType{
+    LINEAR=0
+};
+
+class Transformation{
+public:
+    Transformation() : tValue(-1){}
+    void setTValue(int t){tValue = t;}
+    int getTValue(){return tValue;}
+private:
+    int tValue;
+
+};
+
+class LinearGraph : public Component, public Slider::Listener
+{
+public:
+    LinearGraph(Slider* s, Slider* e) : Component(), 
+                                        startSlider(s),
+                                        endSlider(e),
+                                        gValue(-1){}
+    ~LinearGraph(){}
+    void paint(Graphics&);
+    void sliderValueChanged(Slider*);
+    void setGValue(int g){gValue=g;}
+private:
+    Slider* startSlider;
+    Slider* endSlider;
+    int gValue;
+};
+
+class LinearTransform : public Transformation, public Component
 {
 public:
     LinearTransform();
     ~LinearTransform(){}
+    ComboBox* getSourceBox(){return sourceBox.get();}
+    LinearGraph* getGraph(){return graph.get();}
     void paint(Graphics&);
     void resized();
+    void setGValue(int g){graph->setGValue(g);}
 private:
     ScopedPointer<Slider> startSlider;
     ScopedPointer<Slider> endSlider;
@@ -31,29 +64,23 @@ private:
     ScopedPointer<ComboBox> sourceBox;
     ScopedPointer<ComboBox> targetBox;
     ScopedPointer<MidiTransformCallback> midiCallback;
+    
     StringArray combo_items;
-    int tValue;
 };
 
-class LinearGraph : public Component, public Slider::Listener
-{
-public:
-    LinearGraph(Slider* s, Slider* e) : Component(), 
-                                        startSlider(s),
-                                        endSlider(e){}
-    ~LinearGraph(){}
-    void paint(Graphics&);
-    void sliderValueChanged(Slider*);
-private:
-    Slider* startSlider;
-    Slider* endSlider;
-};
+
 
 class MidiTransformCallback : public MidiInputCallback
 {
 public:
-    MidiTransformCallback(){}        
+    MidiTransformCallback(int type, Transformation* t) 
+        : midi_input_id(-1), transformType(type), parent(t){}        
     void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message);
+    void setMidiChannel(int i){midi_input_id = i;}
+private:
+    Transformation* parent;
+    int midi_input_id;
+    int transformType;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiTransformCallback)
 };
 

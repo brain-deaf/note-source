@@ -19,8 +19,7 @@ LinearTransform::LinearTransform() : Component(),
                                      sourceBox(new ComboBox()),
                                      targetBox(new ComboBox()),
                                      combo_items(),
-                                     midiCallback(new MidiTransformCallback()),
-                                     tValue(-1)
+                                     midiCallback(new MidiTransformCallback(TransformType::LINEAR, static_cast<Transformation*>(this)))
 {
     startSlider->setSliderStyle(Slider::RotaryVerticalDrag);
     startSlider->setTextBoxStyle(Slider::NoTextBox, false, 50, 20);
@@ -33,13 +32,14 @@ LinearTransform::LinearTransform() : Component(),
     startSlider->addListener(graph);
     endSlider->addListener(graph);
     
+    for (int i=0; i<32; i++){
+        combo_items.add(String("CC# ") + String(i+1));
+    }
+    combo_items.add("Volume");
     combo_items.add("Note");
     combo_items.add("Velocity");
     combo_items.add("Pitch Wheel");
     combo_items.add("Tuning");
-    for (int i=0; i<128; i++){
-        combo_items.add(String("CC# ") + String(i+1));
-    }
     
     sourceBox->addItemList(combo_items, 1);
     targetBox->addItemList(combo_items, 1);
@@ -79,6 +79,13 @@ void LinearGraph::paint(Graphics& g){
         myPath.startNewSubPath(0, getHeight()-startSlider->getValue()*getHeight());
         myPath.lineTo(getWidth(), getHeight()-endSlider->getValue()*getHeight());    
         g.strokePath (myPath, PathStrokeType (1.0f));
+        
+        if (gValue != -1){
+            Point<float> intersection = myPath.getPointAlongPath(myPath.getLength()/128*gValue);
+            float ellipse_width = 10.0;
+            g.setColour(Colours::red);
+            g.drawEllipse(intersection.getX()-ellipse_width/2, intersection.getY()-ellipse_width/2, ellipse_width, ellipse_width, 2.0);
+        }
     }
 }
 
@@ -89,5 +96,52 @@ void LinearGraph::sliderValueChanged(Slider* source){
 
 void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
-    //std::cout<<"midi in!"<<std::endl;
+    if (message.getChannel() == midi_input_id || midi_input_id== -1){ 
+        switch (transformType){
+        case TransformType::LINEAR :
+            LinearTransform* t = static_cast<LinearTransform*>(parent);
+            if (message.isController() && message.getControllerNumber() 
+                == t->getSourceBox()->getSelectedId())
+            {
+                parent->setTValue(message.getControllerValue());
+                t->setGValue(message.getControllerValue());
+                const MessageManagerLock lock; //make component calls thread safe
+                t->getGraph()->repaint();
+            }
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
