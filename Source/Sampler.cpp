@@ -124,6 +124,20 @@ void SampleVoice::startNote(const int midiNoteNumber,
                     //return;
                 }
             }
+            /*TransformGroup* tf_group = sound->getTransformSelector()->getGroups()[i];
+            for (auto fx : fx_group->group_fx){
+                if (fx->getFxType() == FxChooser::FX::ADSR){
+                    Adsr* adsr  = (Adsr*)fx->getContent();
+                    attackTime  = adsr->getAttackTimeSlider()->getValue();
+                    attackCurve = adsr->getAttackCurveSlider()->getValue();
+                    decayTime   = adsr->getDecayTimeSlider()->getValue();
+                    decayCurve  = adsr->getDecayCurveSlider()->getValue();
+                    sustain     = adsr->getSustainSlider()->getValue();
+                    releaseTime = adsr->getReleaseTimeSlider()->getValue();
+                    releaseCurve= adsr->getReleaseCurveSlider()->getValue();
+                    //return;
+                }
+            }*/
         }
     }
 }
