@@ -39,10 +39,14 @@ public:
     void paint(Graphics&);
     void sliderValueChanged(Slider*);
     void setGValue(int g){gValue=g;}
+    int getGValue(){return gValue;}
+    double getTValue(){return tValue;}
+    void calculateTValue();
 private:
     Slider* startSlider;
     Slider* endSlider;
     int gValue;
+    double tValue;
 };
 
 class LinearTransform : public Transformation, public Component

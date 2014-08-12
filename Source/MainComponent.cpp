@@ -32,7 +32,6 @@ MainContentComponent::MainContentComponent() : deviceManager{},
 
 void MainContentComponent::resized()
 {
-    
     if (!toggleBrowser->getToggleState()){
         menuBar->setBounds(0, 0, getWidth(), 20);
         instrumentBin->setBounds(0, 80, getWidth(), getHeight() - 80);
@@ -47,7 +46,6 @@ void MainContentComponent::resized()
         metronome->setBounds((getWidth() - browser->getWidth())/5*3+browser->getWidth(), 20, (getWidth()-browser->getWidth())/3*2 - ((getWidth()-browser->getWidth())/5*3) - 10, 80);
         toggleBrowser->setBounds(5+browser->getWidth(), 25, 50, 20);
     }
-    
 }
 
 void MainContentComponent::buttonClicked(Button* source){

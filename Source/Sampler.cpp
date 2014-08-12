@@ -53,8 +53,9 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
     SampleSound* ss;
     synth.addSound(ss = new SampleSound("demo sound", *audioReader,
                                     allNotes, root_note,
-                                    0.0, 0.0, 10.0, groups, fx_selector, this, v));
+                                    0.0, 0.0, 10.0, groups, fx_selector, tf_selector, this, v));
     ss->setSampleStart(sampleStart);
+    std::cout<<"tf "<<tf_selector<<std::endl;
     
     //std::cout<<v.first<<" "<<v.second<<std::endl;
 }
@@ -80,7 +81,7 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
                              attackTime(10.0), attackCurve(0.05), releaseTime(50.0), 
                              sampleStart(0.0), releaseCurve(0.01), volume(1.0),
-                             noteEvent(nullptr)
+                             noteEvent(nullptr), tf_volume(1.0)
 {
     //filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
     //filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
@@ -124,20 +125,6 @@ void SampleVoice::startNote(const int midiNoteNumber,
                     //return;
                 }
             }
-            /*TransformGroup* tf_group = sound->getTransformSelector()->getGroups()[i];
-            for (auto fx : fx_group->group_fx){
-                if (fx->getFxType() == FxChooser::FX::ADSR){
-                    Adsr* adsr  = (Adsr*)fx->getContent();
-                    attackTime  = adsr->getAttackTimeSlider()->getValue();
-                    attackCurve = adsr->getAttackCurveSlider()->getValue();
-                    decayTime   = adsr->getDecayTimeSlider()->getValue();
-                    decayCurve  = adsr->getDecayCurveSlider()->getValue();
-                    sustain     = adsr->getSustainSlider()->getValue();
-                    releaseTime = adsr->getReleaseTimeSlider()->getValue();
-                    releaseCurve= adsr->getReleaseCurveSlider()->getValue();
-                    //return;
-                }
-            }*/
         }
     }
 }
@@ -179,7 +166,24 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             stopNote(false);
             return;
         }
+        
+        double tf_vol_multiplier = 1.0;
+        for (auto i : groups_for_note){
+            TransformGroup* tf_group = s->getTransformSelector()->getGroups()[i];
+            for (auto fx : tf_group->group_fx){
+                if (fx->getFxType() == TransformChooser::FX::LINEAR){
+                    LinearTransform* ltf= (LinearTransform*)fx->getContent();
+                    int gValue = ltf->getGraph()->getGValue();
+                    if (gValue != -1)
+                        tf_vol_multiplier *= ltf->getGraph()->getTValue();
+                }
+            }
+        }
+        
+        double tf_vol_difference = tf_vol_multiplier - tf_volume;
+        double tf_difference_per_sample = tf_vol_difference/numSamples;
             
+        
         double vol = noteEvent->getVolume();
         double vol_difference = vol - volume;
         double difference_per_sample = vol_difference/numSamples;
@@ -272,8 +276,12 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 //r = filter2.processSingleSampleRaw(r);*/
 
                 //std::cout<<noteEvent->getVolume()<<std::endl;
-                *outL += l*attack_multiplier*release_multiplier*(volume+difference_per_sample*(i-start));
-                *outR += r*attack_multiplier*release_multiplier*(volume+difference_per_sample*(i-start));
+                *outL += l*attack_multiplier*release_multiplier*
+                         (volume+difference_per_sample*(i-start))*
+                         (tf_volume+tf_difference_per_sample*(i-start));
+                *outR += r*attack_multiplier*release_multiplier*
+                         (volume+difference_per_sample*(i-start))*
+                         (tf_volume+tf_difference_per_sample*(i-start));
                 
                 //std::cout<<*outL<<std::endl;
                 
@@ -291,6 +299,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             }
             
             volume = vol;
+            tf_volume = tf_vol_multiplier;
             /*fftw_destroy_plan(pFFTW);
             fftw_destroy_plan(pFFTWR);
             fftw_destroy_plan(p2FFTW);

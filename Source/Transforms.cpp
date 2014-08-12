@@ -70,6 +70,21 @@ void LinearTransform::paint(Graphics& g){
     g.fillAll(Colours::green);
 }
 
+void LinearGraph::calculateTValue(){
+    Path myPath;
+    myPath.startNewSubPath(0, getHeight()-startSlider->getValue()*getHeight());
+    myPath.lineTo(getWidth(), getHeight()-endSlider->getValue()*getHeight());    
+        
+    if (gValue != -1){
+        Point<float> intersection = myPath.getPointAlongPath(myPath.getLength()/128*gValue);
+        tValue = (intersection.getY()) / getHeight();
+        if (tValue < 0)
+            tValue = 0.0;
+        tValue = 1.0 - tValue;
+    }
+}
+    
+
 void LinearGraph::paint(Graphics& g){
     g.fillAll(Colours::grey);
     
@@ -85,6 +100,10 @@ void LinearGraph::paint(Graphics& g){
             float ellipse_width = 10.0;
             g.setColour(Colours::red);
             g.drawEllipse(intersection.getX()-ellipse_width/2, intersection.getY()-ellipse_width/2, ellipse_width, ellipse_width, 2.0);
+            /*tValue = (intersection.getY()) / getHeight();
+            if (tValue < 0)
+                tValue = 0.0;
+            tValue = 1.0 - tValue;*/
         }
     }
 }
@@ -107,6 +126,7 @@ void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* source, const M
                 t->setGValue(message.getControllerValue());
                 const MessageManagerLock lock; //make component calls thread safe
                 t->getGraph()->repaint();
+                t->getGraph()->calculateTValue();
             }
         }
     }

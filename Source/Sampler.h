@@ -14,6 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FxSelector.h"
 #include "TransformSelector.h"
+#include "TransformSelector.h"
 #include "IIR_Filter.h"
 #include <memory>
 //#include <fftw3.h>
@@ -61,8 +62,9 @@ public:
     void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override;
     void setMidiChannel(int i){midi_input_id = i;}
     void setFxSelector(FxSelector* f){fx_selector=f;}
-    void setTransformSelector(TransformSelector* f){transform_selector=f;}
+    void setTransformSelector(TransformSelector* f){tf_selector=f;}
     FxSelector* getFxSelector(){return fx_selector;}
+    TransformSelector* getTransformSelector(){return tf_selector;}
     IIR_Filter* getFilter(){return &filter1;}
     
     Synthesiser* getSynth(){return &synth;}
@@ -81,6 +83,7 @@ private:
     IIR_Filter filter1;
     IIR_Filter filter2;
     FxSelector* fx_selector;
+    TransformSelector* tf_selector;
     TransformSelector* transform_selector;
     Array<std::shared_ptr<NoteEvent> > events;
     Array<std::shared_ptr<NoteEvent> > incomingEvents;
@@ -114,6 +117,7 @@ private:
     
     std::shared_ptr<NoteEvent> noteEvent;
     double volume;
+    double tf_volume;
 };
 
 class SampleSound : public SamplerSound
@@ -128,11 +132,13 @@ public:
                 double maxSampleLengthSeconds,
                 Array<int> group,
                 FxSelector* fx,
+                TransformSelector* tf,
                 Sampler* s,
                 std::pair<int, int> v) : 
                     SamplerSound(name, source, midiNotes, midiNoteForNormalPitch, 
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
-                                 groups(group), fx_selector(fx), sampleStart(0.0), sampler(s),
+                                 groups(group), fx_selector(fx), tf_selector(tf),
+                                 sampleStart(0.0), sampler(s),
                                  velocity(v)
     {
         sampleRate = source.sampleRate;
@@ -144,6 +150,7 @@ public:
     int getRootNote(){return rootNote;}
     std::pair<int, int> getVelocity(){return velocity;}
     FxSelector* getFxSelector(){return fx_selector;}
+    TransformSelector* getTransformSelector(){return tf_selector;}
     void setSampleStart(double d){sampleStart=d;}
     double getSampleStart(){return sampleStart;}
     Sampler* getSampler(){return sampler;}
@@ -153,6 +160,7 @@ private:
     double sampleRate;
     int rootNote;
     FxSelector* fx_selector;
+    TransformSelector* tf_selector;
     double sampleStart;
     Sampler* sampler;
 };
