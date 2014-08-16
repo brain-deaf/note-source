@@ -42,7 +42,10 @@ LinearTransform::LinearTransform() : Component(),
     combo_items.add("Tuning");
     
     sourceBox->addItemList(combo_items, 1);
-    targetBox->addItemList(combo_items, 1);
+
+    targetBox->addItem("Volume", TransformID::VOLUME);
+    targetBox->addItem("Velocity", TransformID::VELOCITY);
+    targetBox->addItem("Pitch Wheel", TransformID::PITCHWHEEL);
     
     addAndMakeVisible(startSlider);
     addAndMakeVisible(endSlider);
@@ -100,10 +103,6 @@ void LinearGraph::paint(Graphics& g){
             float ellipse_width = 10.0;
             g.setColour(Colours::red);
             g.drawEllipse(intersection.getX()-ellipse_width/2, intersection.getY()-ellipse_width/2, ellipse_width, ellipse_width, 2.0);
-            /*tValue = (intersection.getY()) / getHeight();
-            if (tValue < 0)
-                tValue = 0.0;
-            tValue = 1.0 - tValue;*/
         }
     }
 }
@@ -128,6 +127,15 @@ void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* source, const M
                 t->getGraph()->repaint();
                 t->getGraph()->calculateTValue();
             }
+            if (message.isNoteOn() && t->getSourceBox()->getSelectedId() == TransformID::VELOCITY)
+            {
+                parent->setTValue(message.getVelocity());
+                t->setGValue(message.getVelocity());
+                const MessageManagerLock lock; //make component calls thread safe
+                t->getGraph()->repaint();
+                t->getGraph()->calculateTValue();
+            }
+            
         }
     }
 }

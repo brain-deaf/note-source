@@ -18,6 +18,16 @@ enum TransformType{
     LINEAR=0
 };
 
+enum TransformID{
+    VOLUME=33,
+    NOTE=34,
+    VELOCITY=35,
+    PITCHWHEEL=36,
+    TUNING=37
+};
+    
+    
+
 class Transformation{
 public:
     Transformation() : tValue(-1){}
