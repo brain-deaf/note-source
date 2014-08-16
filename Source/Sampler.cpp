@@ -92,6 +92,7 @@ void SampleVoice::startNote(const int midiNoteNumber,
                             const int pitchWheelPosition)
 {
     if (SampleSound* sound = (SampleSound*)s){
+        std::cout<<"start note"<<std::endl;
         const double a = pow(2.0, 1.0/12.0);
         double old_frequency = 440.0 * pow(a, (double)sound->getRootNote() - 69.0);
         double new_frequency = old_frequency * pow(a, (float)midiNoteNumber - sound->getRootNote());
@@ -158,6 +159,7 @@ static double getReleaseMultiplier(float releaseTime, float releaseCurve, float 
 void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, int numSamples){
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
     if (s != nullptr){
+        std::cout<<"render next block"<<std::endl;
         Array<int> groups_for_note = s->getGroups();
         Array<int> groups_for_event = noteEvent->getGroups();
         bool return_flag = true;

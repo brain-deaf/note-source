@@ -63,7 +63,7 @@ class LinearTransform : public Transformation, public Component
 {
 public:
     LinearTransform();
-    ~LinearTransform(){}
+    ~LinearTransform(){midiCallback=nullptr;}
     ComboBox* getSourceBox(){return sourceBox.get();}
     ComboBox* getTargetBox(){return targetBox.get();}
     LinearGraph* getGraph(){return graph.get();}

@@ -195,7 +195,7 @@ void TransformButton::mouseDown(const MouseEvent& e){
                 return;}
             }
         }
-        //bin->getFxComponent()->loadFx(FX::NONE, nullptr);
+        bin->getTransformComponent()->loadFx(FX::NONE, nullptr);
     }
 }
 
