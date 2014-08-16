@@ -33,6 +33,7 @@ class SampleBrowserBin : public Component
 public:
     SampleBrowserBin();
     ~SampleBrowserBin(){}
+    SampleFileBrowser* getBrowser(){return browser.get();}
     void resized();
 private:
     ScopedPointer<DragButton> dragButton;

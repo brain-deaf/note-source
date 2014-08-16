@@ -24,7 +24,7 @@ SampleFileBrowser::SampleFileBrowser() : FileBrowserComponent(FileBrowserCompone
                                          dragButton(nullptr),
                                          player(new FilePlayer(""))
 {      
-    setSize(300, getHeight());
+
 }
 
 void SampleFileBrowser::paint(Graphics& g){
@@ -48,11 +48,11 @@ void SampleFileBrowser::mouseDrag(const MouseEvent& m){
     MouseCursor mc = getMouseCursor();
     if (mc == MouseCursor::LeftRightResizeCursor){
         if (x < 400 & x >= 100){
-            setSize(x, getHeight());
-            getParentComponent()->resized();
+            getParentComponent()->setSize(x, getParentComponent()->getHeight());
         }
     }
 }
+
 
 bool SampleFileBrowser::isFileSuitable(const File& f) const{
     if (f.getFileExtension() == ".lua"){

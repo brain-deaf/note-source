@@ -23,5 +23,6 @@ SampleBrowserBin::SampleBrowserBin() : Component(),
                                        
 void SampleBrowserBin::resized(){
     browser->setBounds(0, 0, getWidth(), getHeight() - buttonHeight);
-    dragButton->setBounds(0, getHeight() - buttonHeight, getWidth(), buttonHeight);
+    dragButton->setBounds(0, getHeight() - buttonHeight, browser->getWidth(), buttonHeight);
+    getParentComponent()->resized();
 }

@@ -31,6 +31,7 @@ private:
     ScopedPointer<FilePlayer> player;
     String filename;
     DragButton* dragButton;
+    int height;
 };
 
 
