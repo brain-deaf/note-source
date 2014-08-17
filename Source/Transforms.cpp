@@ -79,8 +79,11 @@ void LinearTransform::paint(Graphics& g){
 
 void LinearGraph::calculateTValue(){
     Path myPath;
-    /*myPath.startNewSubPath(0, getHeight()-startSlider->getValue()*getHeight());
-    myPath.lineTo(getWidth(), getHeight()-endSlider->getValue()*getHeight());    
+    Array<Point<int> > tPoints = *points;
+    myPath.startNewSubPath(tPoints[0].getX(), tPoints[0].getY());
+    for (int i=1; i<tPoints.size(); i++){
+        myPath.lineTo(tPoints[i].getX(), tPoints[i].getY());
+    }
         
     if (gValue != -1){
         Point<float> intersection = myPath.getPointAlongPath(myPath.getLength()/128*gValue);
@@ -88,7 +91,8 @@ void LinearGraph::calculateTValue(){
         if (tValue < 0)
             tValue = 0.0;
         tValue = 1.0 - tValue;
-    }*/
+        std::cout<<tValue<<std::endl;
+    }
 }
     
 
@@ -146,6 +150,8 @@ void LinearGraph::mouseDown(const MouseEvent& m){
     for (int i=0; i<tPoints.size(); i++){
         if (tPoints[i].getDistanceFrom(m.getMouseDownPosition()) <= pxThreshold){
             selectedPointIndex = i;
+            if (selectedPointIndex == 0 || selectedPointIndex == tPoints.size() - 1)
+                selectedPointIndex = -1;
             repaint();
         }
     }   
@@ -158,16 +164,23 @@ void LinearGraph::mouseUp(const MouseEvent& m){
 
 void LinearGraph::mouseDrag(const MouseEvent& m){
     if (selectedPointIndex != -1){
-        points->set(selectedPointIndex, m.getPosition());
-        repaint();
+        if (m.getPosition().getX() > 0 && m.getPosition().getY() > 0 
+            && m.getPosition().getX() < getWidth() && m.getPosition().getY() < getHeight()){
+            points->set(selectedPointIndex, m.getPosition());
+            repaint();
+        }
     }
 }
         
-    
-
 void LinearGraph::sliderValueChanged(Slider* source){
-    if (source == startSlider || source == endSlider)
+    if (source == startSlider){
+        points->set(0, Point<int>(0, getHeight() - startSlider->getValue()*getHeight()));
         repaint();
+    }
+    if (source == endSlider){
+        points->set(points->size()-1, Point<int>(getWidth(), getHeight() - endSlider->getValue()*getHeight()));
+        repaint();
+    }
 }
 
 void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)

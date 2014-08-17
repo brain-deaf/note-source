@@ -159,7 +159,6 @@ static double getReleaseMultiplier(float releaseTime, float releaseCurve, float 
 void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, int numSamples){
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
     if (s != nullptr){
-        std::cout<<"render next block"<<std::endl;
         Array<int> groups_for_note = s->getGroups();
         Array<int> groups_for_event = noteEvent->getGroups();
         bool return_flag = true;
