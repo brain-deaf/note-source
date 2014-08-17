@@ -60,7 +60,6 @@ LinearTransform::LinearTransform() : Component(),
 }
 
 void LinearTransform::resized(){
-    std::cout<<"resize 1"<<std::endl;
     sourceLabel->setBounds(80, 0, 50, 20);
     targetLabel->setBounds(getWidth()-130, 0, 50, 20);
     sourceBox->setBounds(40, 30, 130, 30);
@@ -68,7 +67,6 @@ void LinearTransform::resized(){
     graph->setBounds(0, 80, getWidth(), getHeight()/5*4 - 100);
     startSlider->setBounds(0, getHeight()/5*4, 100, 100);
     endSlider->setBounds(getWidth() - 100, getHeight()/5*4, 100, 100);
-    std::cout<<"resize 2"<<std::endl;
 }
 
 void LinearTransform::paint(Graphics& g){
@@ -76,7 +74,6 @@ void LinearTransform::paint(Graphics& g){
 }
 
 void LinearGraph::calculateTValue(){
-    std::cout<<"t value 1 "<<std::endl;
     Path myPath;
     myPath.startNewSubPath(0, getHeight()-startSlider->getValue()*getHeight());
     myPath.lineTo(getWidth(), getHeight()-endSlider->getValue()*getHeight());    
@@ -88,12 +85,10 @@ void LinearGraph::calculateTValue(){
             tValue = 0.0;
         tValue = 1.0 - tValue;
     }
-    std::cout<<"t value 2"<<std::endl;
 }
     
 
 void LinearGraph::paint(Graphics& g){
-    std::cout<<"paint 1"<<std::endl;
     g.fillAll(Colours::grey);
     
     g.setColour(Colours::black);
@@ -110,7 +105,6 @@ void LinearGraph::paint(Graphics& g){
             g.drawEllipse(intersection.getX()-ellipse_width/2, intersection.getY()-ellipse_width/2, ellipse_width, ellipse_width, 2.0);
         }
     }
-    std::cout<<"paint 2"<<std::endl;
 }
 
 void LinearGraph::sliderValueChanged(Slider* source){
@@ -120,37 +114,29 @@ void LinearGraph::sliderValueChanged(Slider* source){
 
 void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
-    /*if (message.getChannel() == midi_input_id || midi_input_id== -1){ 
+    if (message.getChannel() == midi_input_id || midi_input_id== -1){ 
         switch (transformType){
         case TransformType::LINEAR :
             LinearTransform* t = static_cast<LinearTransform*>(parent);
-            std::cout<<"parent "<<t<<std::endl;
-            std::cout<<t->getGraph()<<std::endl;
             if (message.isController() && message.getControllerNumber() 
                 == t->getSourceBox()->getSelectedId())
             {
-                std::cout<<"set t value"<<std::endl;
                 parent->setTValue(message.getControllerValue());
-                std::cout<<"set t value 2"<<std::endl;
                 t->setGValue(message.getControllerValue());
-                std::cout<<"set t value 3"<<std::endl;
                 const MessageManagerLock lock; //make component calls thread safe
                 t->getGraph()->repaint();
                 t->getGraph()->calculateTValue();
-                std::cout<<"set t value 4"<<std::endl;
             }
             if (message.isNoteOn() && t->getSourceBox()->getSelectedId() == TransformID::VELOCITY)
             {
-                std::cout<<"t 6"<<std::endl;
                 parent->setTValue(message.getVelocity());
                 t->setGValue(message.getVelocity());
                 const MessageManagerLock lock; //make component calls thread safe
                 t->getGraph()->repaint();
                 t->getGraph()->calculateTValue();
             }
-            std::cout<<"set t value 5"<<std::endl;
         }
-    }*/
+    }
 }
 
 

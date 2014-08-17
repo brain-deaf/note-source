@@ -90,9 +90,9 @@ void SampleVoice::startNote(const int midiNoteNumber,
                             const float velocity,
                             SynthesiserSound* s,
                             const int pitchWheelPosition)
-{
+{   
     if (SampleSound* sound = (SampleSound*)s){
-        std::cout<<"start note"<<std::endl;
+        
         const double a = pow(2.0, 1.0/12.0);
         double old_frequency = 440.0 * pow(a, (double)sound->getRootNote() - 69.0);
         double new_frequency = old_frequency * pow(a, (float)midiNoteNumber - sound->getRootNote());

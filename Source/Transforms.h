@@ -63,7 +63,11 @@ class LinearTransform : public Transformation, public Component
 {
 public:
     LinearTransform();
-    ~LinearTransform(){midiCallback=nullptr;}
+    ~LinearTransform(){
+        SharedResourcePointer<AudioDeviceManager> dm;
+        dm->removeMidiInputCallback("", (MidiInputCallback*)midiCallback.get());
+        midiCallback=nullptr;
+    }
     ComboBox* getSourceBox(){return sourceBox.get();}
     ComboBox* getTargetBox(){return targetBox.get();}
     LinearGraph* getGraph(){return graph.get();}

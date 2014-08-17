@@ -156,8 +156,6 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
             }
             parent->getSampler().getMidiCollector().addMessageToQueue(message);
         }
-        
-        
     }
     //SharedResourcePointer<AudioDeviceManager> dm;
     //std::cout<<dm->getCpuUsage()<<std::endl;
