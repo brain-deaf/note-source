@@ -84,7 +84,6 @@ void SampleFileBrowser::fileClicked(const File& f, const MouseEvent& e){
         for (int i=0; i<getNumSelectedFiles(); i++){
             if (!(getSelectedFile(i).isDirectory())){
                 dragButton->getFileList().add(getSelectedFile(i).getFullPathName());
-                std::cout<<"file added"<<std::endl;
             }
         }
     }

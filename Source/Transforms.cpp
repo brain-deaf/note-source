@@ -19,6 +19,7 @@ LinearTransform::LinearTransform() : Component(),
                                      sourceBox(new ComboBox()),
                                      targetBox(new ComboBox()),
                                      combo_items(),
+                                     points(),
                                      midiCallback(new MidiTransformCallback(TransformType::LINEAR, static_cast<Transformation*>(this)))
 {
     startSlider->setSliderStyle(Slider::RotaryVerticalDrag);
@@ -60,6 +61,9 @@ LinearTransform::LinearTransform() : Component(),
 }
 
 void LinearTransform::resized(){
+    
+    
+    
     sourceLabel->setBounds(80, 0, 50, 20);
     targetLabel->setBounds(getWidth()-130, 0, 50, 20);
     sourceBox->setBounds(40, 30, 130, 30);
@@ -75,7 +79,7 @@ void LinearTransform::paint(Graphics& g){
 
 void LinearGraph::calculateTValue(){
     Path myPath;
-    myPath.startNewSubPath(0, getHeight()-startSlider->getValue()*getHeight());
+    /*myPath.startNewSubPath(0, getHeight()-startSlider->getValue()*getHeight());
     myPath.lineTo(getWidth(), getHeight()-endSlider->getValue()*getHeight());    
         
     if (gValue != -1){
@@ -84,28 +88,82 @@ void LinearGraph::calculateTValue(){
         if (tValue < 0)
             tValue = 0.0;
         tValue = 1.0 - tValue;
-    }
+    }*/
 }
     
 
 void LinearGraph::paint(Graphics& g){
-    g.fillAll(Colours::grey);
+    if (init){
+        init = false;
+        points = (static_cast<LinearTransform*>(getParentComponent()))->getPoints();
+        points->add(Point<int>(0, getHeight()));
+        points->add(Point<int>(getWidth(), 0));
+    }
     
+    g.fillAll(Colours::grey);
     g.setColour(Colours::black);
-    if (startSlider != nullptr && endSlider != nullptr){
-        Path myPath;
-        myPath.startNewSubPath(0, getHeight()-startSlider->getValue()*getHeight());
-        myPath.lineTo(getWidth(), getHeight()-endSlider->getValue()*getHeight());    
-        g.strokePath (myPath, PathStrokeType (1.0f));
-        
-        if (gValue != -1){
-            Point<float> intersection = myPath.getPointAlongPath(myPath.getLength()/128*gValue);
-            float ellipse_width = 10.0;
-            g.setColour(Colours::red);
-            g.drawEllipse(intersection.getX()-ellipse_width/2, intersection.getY()-ellipse_width/2, ellipse_width, ellipse_width, 2.0);
+    
+    for (int i=0; i<points->size(); i++){
+        Array<Point<int> >tPoints = *points;
+        float ellipse_width = 10.0;
+        if (i == selectedPointIndex)
+            g.setColour(Colours::yellow);
+        g.drawEllipse(tPoints[i].getX()-ellipse_width/2, tPoints[i].getY()-ellipse_width/2, ellipse_width, ellipse_width, 2.0);
+        g.setColour(Colours::black);
+    }
+   
+    Path myPath;
+    Array<Point<int> >tPoints = *points;
+    myPath.startNewSubPath(tPoints[0].getX(), tPoints[0].getY());
+    for (int i=1; i<points->size(); i++){
+        myPath.lineTo(tPoints[i].getX(), tPoints[i].getY());
+    }
+    g.strokePath (myPath, PathStrokeType (1.0f));
+    
+    if (gValue != -1){
+        Point<float> intersection = myPath.getPointAlongPath(myPath.getLength()/128*gValue);
+        float ellipse_width = 10.0;
+        g.setColour(Colours::red);
+        g.drawEllipse(intersection.getX()-ellipse_width/2, intersection.getY()-ellipse_width/2, ellipse_width, ellipse_width, 2.0);
+    }
+    
+}
+
+void LinearGraph::mouseDown(const MouseEvent& m){
+    Array<Point<int> > tPoints = *points;
+    if (m.mods.isRightButtonDown()){
+        int x = m.getMouseDownX();
+        for (int i=1; i<points->size(); i++){
+            if (x < tPoints[i].getX() && x > tPoints[i-1].getX()){
+                points->insert(i, m.getMouseDownPosition());
+                break;
+            }
         }
+        repaint();
+        return;
+    }
+    
+    for (int i=0; i<tPoints.size(); i++){
+        if (tPoints[i].getDistanceFrom(m.getMouseDownPosition()) <= pxThreshold){
+            selectedPointIndex = i;
+            repaint();
+        }
+    }   
+}
+
+void LinearGraph::mouseUp(const MouseEvent& m){
+    selectedPointIndex = -1;
+    repaint();
+}
+
+void LinearGraph::mouseDrag(const MouseEvent& m){
+    if (selectedPointIndex != -1){
+        points->set(selectedPointIndex, m.getPosition());
+        repaint();
     }
 }
+        
+    
 
 void LinearGraph::sliderValueChanged(Slider* source){
     if (source == startSlider || source == endSlider)

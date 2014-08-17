@@ -37,6 +37,7 @@ private:
     int tValue;
 
 };
+    
 
 class LinearGraph : public Component, public Slider::Listener
 {
@@ -44,6 +45,10 @@ public:
     LinearGraph(Slider* s, Slider* e) : Component(), 
                                         startSlider(s),
                                         endSlider(e),
+                                        init(true),
+                                        points(nullptr),
+                                        pxThreshold(10),
+                                        selectedPointIndex(-1),
                                         gValue(-1){}
     ~LinearGraph(){}
     void paint(Graphics&);
@@ -52,11 +57,18 @@ public:
     int getGValue(){return gValue;}
     double getTValue(){return tValue;}
     void calculateTValue();
+    void mouseDown(const MouseEvent&);
+    void mouseUp(const MouseEvent&);
+    void mouseDrag(const MouseEvent&);
 private:
     Slider* startSlider;
     Slider* endSlider;
     int gValue;
     double tValue;
+    bool init;
+    Array<Point<int> >* points;
+    int pxThreshold;
+    int selectedPointIndex;
 };
 
 class LinearTransform : public Transformation, public Component
@@ -74,6 +86,7 @@ public:
     void paint(Graphics&);
     void resized();
     void setGValue(int g){graph->setGValue(g);}
+    Array<Point<int> >* getPoints(){return &points;}
 private:
     ScopedPointer<Slider> startSlider;
     ScopedPointer<Slider> endSlider;
@@ -85,6 +98,7 @@ private:
     ScopedPointer<MidiTransformCallback> midiCallback;
     
     StringArray combo_items;
+    Array<Point<int> > points;
 };
 
 
