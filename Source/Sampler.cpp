@@ -139,6 +139,14 @@ void SampleVoice::startNote(const int midiNoteNumber,
                             tf_vel_multiplier *= ltf->getGraph()->getTValue();
                     }
                 }
+                if (fx->getFxType() == TransformChooser::FX::EXPONENTIAL){
+                    ExponentialTransform* ltf= (ExponentialTransform*)fx->getContent();
+                    if (ltf->getTargetBox()->getSelectedId() == TransformID::VELOCITY){
+                        int gValue = ltf->getGraph()->getGValue();
+                        if (gValue != -1)
+                            tf_vel_multiplier *= ltf->getGraph()->getTValue();
+                    }
+                }
             }
         }
         noteEvent->setVelocity(noteEvent->getVelocity()*tf_vel_multiplier);
@@ -189,6 +197,14 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             for (auto fx : tf_group->group_fx){
                 if (fx->getFxType() == TransformChooser::FX::LINEAR){
                     LinearTransform* ltf= (LinearTransform*)fx->getContent();
+                    if (ltf->getTargetBox()->getSelectedId() == TransformID::VOLUME){
+                        int gValue = ltf->getGraph()->getGValue();
+                        if (gValue != -1)
+                            tf_vol_multiplier *= ltf->getGraph()->getTValue();
+                    }
+                }
+                if (fx->getFxType() == TransformChooser::FX::EXPONENTIAL){
+                    ExponentialTransform* ltf= (ExponentialTransform*)fx->getContent();
                     if (ltf->getTargetBox()->getSelectedId() == TransformID::VOLUME){
                         int gValue = ltf->getGraph()->getGValue();
                         if (gValue != -1)
