@@ -326,14 +326,26 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 
                 double ringMult = ringMod ? sin(currentAngle) : 1.0;
                 
+                
+                
+                
                 *outL += l*attack_multiplier*release_multiplier*
                          (volume+difference_per_sample*(i-start))*
-                         (tf_volume+tf_difference_per_sample*(i-start))*
-                         ringMult;
+                         (tf_volume+tf_difference_per_sample*(i-start));
+                         
                 *outR += r*attack_multiplier*release_multiplier*
                          (volume+difference_per_sample*(i-start))*
-                         (tf_volume+tf_difference_per_sample*(i-start))*
-                         ringMult;
+                         (tf_volume+tf_difference_per_sample*(i-start));
+                         
+                if (ringMod){
+                    float L = *outL;
+                    float R = *outR;
+                    
+                    *outL *= 1.0 - ringAmount;
+                    *outL += L*ringMult*ringAmount;
+                    *outR *= 1.0 - ringAmount;
+                    *outR += R*ringMult*ringAmount;
+                }
                 
                 //std::cout<<*outL<<std::endl;
                 

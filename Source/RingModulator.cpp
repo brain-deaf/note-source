@@ -23,7 +23,7 @@ RingModulator::RingModulator(){
     amplitude->setValue(1.0);
     
     addAndMakeVisible(frequency);
-    //addAndMakeVisible(amplitude);
+    addAndMakeVisible(amplitude);
 }
 
 void RingModulator::resized(){
