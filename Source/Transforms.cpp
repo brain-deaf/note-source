@@ -91,7 +91,6 @@ void LinearGraph::calculateTValue(){
         if (tValue < 0)
             tValue = 0.0;
         tValue = 1.0 - tValue;
-        std::cout<<tValue<<std::endl;
     }
 }
     
@@ -136,6 +135,18 @@ void LinearGraph::paint(Graphics& g){
 void LinearGraph::mouseDown(const MouseEvent& m){
     Array<Point<int> > tPoints = *points;
     if (m.mods.isRightButtonDown()){
+        for (int i=0; i<tPoints.size(); i++){
+            if (tPoints[i].getDistanceFrom(m.getMouseDownPosition()) <= pxThreshold){
+                selectedPointIndex = i;
+                if (selectedPointIndex != 0 || selectedPointIndex != points->size() - 1){
+                    points->remove(i);
+                    selectedPointIndex = -1;
+                    repaint();
+                    return;
+                }
+            }
+        }   
+        
         int x = m.getMouseDownX();
         for (int i=1; i<points->size(); i++){
             if (x < tPoints[i].getX() && x > tPoints[i-1].getX()){
@@ -163,12 +174,17 @@ void LinearGraph::mouseUp(const MouseEvent& m){
 }
 
 void LinearGraph::mouseDrag(const MouseEvent& m){
-    if (selectedPointIndex != -1){
-        if (m.getPosition().getX() > 0 && m.getPosition().getY() > 0 
-            && m.getPosition().getX() < getWidth() && m.getPosition().getY() < getHeight()){
-            points->set(selectedPointIndex, m.getPosition());
+    if (selectedPointIndex != -1){  
+            int new_x = m.getPosition().getX();
+            if (new_x < 0) new_x = 0;
+            if (new_x > getWidth()) new_x = getWidth();
+            
+            int new_y = m.getPosition().getY();
+            if (new_y < 0) new_y = 0;
+            if (new_y > getHeight()) new_y = getHeight();
+            
+            points->set(selectedPointIndex, Point<int>(new_x, new_y));
             repaint();
-        }
     }
 }
         
