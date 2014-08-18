@@ -29,6 +29,10 @@ void FxComponent::loadFx(int x, Component* c){
         visibleFx = FxChooser::FX::FILTER;
         content = c;
     }
+    else if (x == FxChooser::FX::RINGMOD){
+        visibleFx = FxChooser::FX::RINGMOD;
+        content = c;
+    }
     else if (x == FxChooser::FX::NONE){
         visibleFx = FxChooser::FX::NONE;
     }
@@ -43,6 +47,11 @@ void FxComponent::showFx(){
         break;
     
     case FxChooser::FX::FILTER:
+        addAndMakeVisible(content);
+        resized();
+        break;
+        
+    case FxChooser::FX::RINGMOD:
         addAndMakeVisible(content);
         resized();
         break;

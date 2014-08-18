@@ -118,6 +118,10 @@ private:
     std::shared_ptr<NoteEvent> noteEvent;
     double volume;
     double tf_volume;
+    bool ringMod;
+    double ringAmount;
+    double currentAngle;
+    double angleDelta;
 };
 
 class SampleSound : public SamplerSound

@@ -144,6 +144,9 @@ void FxSelector::updateFx(){
             else if (fx->getFxType() == FxChooser::FX::FILTER){
                 fx_boxes[j]->getButton()->setButtonText("FILTER");
             }
+            else if (fx->getFxType() == FxChooser::FX::RINGMOD){
+                fx_boxes[j]->getButton()->setButtonText("RING MOD");
+            }
             else{
                 if (used_index.indexOf(j) == -1) fx_boxes[j]->getButton()->setButtonText("");
             }
@@ -193,6 +196,12 @@ void FxButton::mouseDown(const MouseEvent& e){
             case FX::FILTER:{
                 if (fx->getFxType() == FX::FILTER){
                     bin->getFxComponent()->loadFx(FX::FILTER, fx->getContent());
+                    return;
+                }
+            }
+            case FX::RINGMOD:{
+                if (fx->getFxType() == FX::RINGMOD){
+                    bin->getFxComponent()->loadFx(FX::RINGMOD, fx->getContent());
                     return;
                 }
             }
@@ -308,6 +317,7 @@ FxChooser::FxChooser(int rows, int columns, FxSelector * f) : Component(), numRo
     }
     buttons[0]->setButtonText("ADSR");
     buttons[1]->setButtonText("FILTER");
+    buttons[2]->setButtonText("RING MOD");
 }
 
 FxChooser::~FxChooser(){
@@ -361,6 +371,21 @@ void FxChooser::callButtonClick(FxChoiceButton* b){
         int fx_index = selector->getBoxes().indexOf((FxBox*)(selector->fxButtonChoice->getParentComponent()));
         for (int i=s.size()-1; i>=0; i--){
             selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = FILTER;
+            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
+        }
+    }
+    else if (buttons.indexOf(b) == RINGMOD){
+        selector->fxButtonChoice->setFx(RINGMOD);
+        RingModulator* f = new RingModulator();
+        
+        Sampler& sampler = bin->getMappingEditor()->getMappingEditor()->graph->getSampler();
+        
+        selector->fxButtonChoice->set_component((Component*)(f));
+        bin->getFxComponent()->loadFx(RINGMOD, selector->fxButtonChoice->get_component());
+        
+        int fx_index = selector->getBoxes().indexOf((FxBox*)(selector->fxButtonChoice->getParentComponent()));
+        for (int i=s.size()-1; i>=0; i--){
+            selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = RINGMOD;
             selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
         }
     }

@@ -38,16 +38,7 @@ void Metronome::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 
 MetronomeSound::MetronomeSound() : SynthesiserSound(), data()
 {
-    //y = sin(2PI*frequency*x)
-    //samples_per_cycle = samples/sec[srate] / cyles/sec[hz] = samples/cycle
-    /*double frequency = 440.0;
-    double samples_per_cycle = 44100.0 / frequency;
-    double sound_length = 0.2; //seconds
-    double total_samples = 44100.0 * sound_length;
-    
-    for (int i=0; i<total_samples; i++){
-        data.add(sin(2.0*M_PI*frequency*(double((i)/44100.0))));
-    }*/
+
 }
 
 MetronomeVoice::MetronomeVoice() : SynthesiserVoice(), sampleCount(0), volume(0.5),
@@ -74,15 +65,12 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
     
     double samples_per_beat = 44100.0 / (tempo/60.0);
     if (transportRunning){
-        //std::cout<<"running"<<std::endl;
         for (int i=0; i<numSamples; i++){
             if (sampleCount >= beepLength - 100 && sampleCount < beepLength){
                 releaseMultiplier = 1.0 - (100.0-(beepLength - sampleCount)) / 100.0;
             }else{
                 releaseMultiplier = 1.0;
             }
-            //if (releaseMultiplier != 1.0)
-            //std::cout<<releaseMultiplier<<" beep length: "<<beepLength<<" sample count: "<<sampleCount<<std::endl;
         
             if (sampleCount < beepLength){
                 if (clickOn){
@@ -125,6 +113,5 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
             outR++;
         }
     }else{
-        //std::cout<<"not running"<<std::endl;
     }
 }

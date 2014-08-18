@@ -69,6 +69,9 @@
     <FILE id="NYiBrA" name="MenuBar.cpp" compile="1" resource="0" file="Source/MenuBar.cpp"/>
     <FILE id="dnEE5F" name="Metronome.h" compile="0" resource="0" file="Source/Metronome.h"/>
     <FILE id="sz0J8C" name="Metronome.cpp" compile="1" resource="0" file="Source/Metronome.cpp"/>
+    <FILE id="wJn5tr" name="RingModulator.h" compile="0" resource="0" file="Source/RingModulator.h"/>
+    <FILE id="k7UJVr" name="RingModulator.cpp" compile="1" resource="0"
+          file="Source/RingModulator.cpp"/>
     <FILE id="zl1Pcs" name="SampleBrowserBin.h" compile="0" resource="0"
           file="Source/SampleBrowserBin.h"/>
     <FILE id="rGzWMJ" name="SampleBrowserBin.cpp" compile="1" resource="0"

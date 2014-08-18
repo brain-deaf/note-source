@@ -79,8 +79,8 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 
 SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
                              attackTime(10.0), attackCurve(0.05), releaseTime(50.0), 
-                             sampleStart(0.0), releaseCurve(0.01), volume(1.0),
-                             noteEvent(nullptr), tf_volume(1.0)
+                             sampleStart(0.0), releaseCurve(0.01), volume(1.0), ringMod(false),
+                             noteEvent(nullptr), tf_volume(1.0), ringAmount(1.0)
 {
     //filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
     //filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
@@ -122,7 +122,6 @@ void SampleVoice::startNote(const int midiNoteNumber,
                     sustain     = adsr->getSustainSlider()->getValue();
                     releaseTime = adsr->getReleaseTimeSlider()->getValue();
                     releaseCurve= adsr->getReleaseCurveSlider()->getValue();
-                    //return;
                 }
             }
         }
@@ -176,6 +175,20 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     if (j == i){ 
                         return_flag = false;
                     }
+                }
+            }
+        }
+        
+        for (auto i : groups_for_note){
+            FxGroup* fx_group = s->getFxSelector()->getGroups()[i];
+            for (auto fx : fx_group->group_fx){
+                if (fx->getFxType() == FxChooser::FX::RINGMOD){
+                    RingModulator* ringModulator = (RingModulator*)fx->getContent();
+                    ringMod = true;
+                    double cyclesPerSecond = ringModulator->getFrequencySlider()->getValue();
+                    double cyclesPerSample = cyclesPerSecond/44100.0;
+                    angleDelta = cyclesPerSample*2.0*M_PI*double_Pi;
+                    ringAmount = ringModulator->getAmplitudeSlider()->getValue();
                 }
             }
         }
@@ -310,17 +323,23 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 //r = filter2.processSingleSampleRaw(r);*/
 
                 //std::cout<<noteEvent->getVolume()<<std::endl;
+                
+                double ringMult = ringMod ? sin(currentAngle) : 1.0;
+                
                 *outL += l*attack_multiplier*release_multiplier*
                          (volume+difference_per_sample*(i-start))*
-                         (tf_volume+tf_difference_per_sample*(i-start));
+                         (tf_volume+tf_difference_per_sample*(i-start))*
+                         ringMult;
                 *outR += r*attack_multiplier*release_multiplier*
                          (volume+difference_per_sample*(i-start))*
-                         (tf_volume+tf_difference_per_sample*(i-start));
+                         (tf_volume+tf_difference_per_sample*(i-start))*
+                         ringMult;
                 
                 //std::cout<<*outL<<std::endl;
                 
                 outL++;
                 outR++;
+                currentAngle += angleDelta;
                 
                 samplePosition += pitchRatio;
                 if (samplePosition > sample_length || sample_length - samplePosition < numSamples || release_x >= releaseTime){
@@ -328,6 +347,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     s->getSampler()->getEvents().removeFirstMatchingValue(noteEvent);
                     noteEvent = nullptr;
                     stopNote(false);
+                    ringMod = false;
                     break;
                 }
             }

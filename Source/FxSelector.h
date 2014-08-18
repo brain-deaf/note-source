@@ -14,6 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GroupEditor.h"
 #include "FilterComponent.h"
+#include "RingModulator.h"
 
 class FxButton;
 class FxBox;
@@ -118,7 +119,8 @@ public:
     {
         NONE = -1,
         ADSR = 0,
-        FILTER = 1
+        FILTER = 1,
+        RINGMOD = 2
     };
 
     FxChooser(int rows, int columns, FxSelector* parent);
