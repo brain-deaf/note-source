@@ -117,7 +117,7 @@ public:
     {
         NONE = -1,
         LINEAR = 0,
-        FILTER = 1
+        EXPONENTIAL = 1
     };
 
     TransformChooser(int rows, int columns, TransformSelector* parent);

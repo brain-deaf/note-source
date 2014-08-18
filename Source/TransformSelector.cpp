@@ -133,8 +133,8 @@ void TransformSelector::updateFx(){
                 fx_boxes[j]->getButton()->setButtonText("LINEAR");
                 used_index.add(j);
             }
-            else if (fx->getFxType() == TransformChooser::FX::FILTER){
-                fx_boxes[j]->getButton()->setButtonText("FILTER");
+            else if (fx->getFxType() == TransformChooser::FX::EXPONENTIAL){
+                fx_boxes[j]->getButton()->setButtonText("EXPONENTIAL");
             }
             else{
                 if (used_index.indexOf(j) == -1) fx_boxes[j]->getButton()->setButtonText("");
@@ -183,9 +183,9 @@ void TransformButton::mouseDown(const MouseEvent& e){
                     return;
                 }
             }
-            case FX::FILTER:{
-                if (fx->getFxType() == FX::FILTER){
-                    bin->getTransformComponent()->loadFx(FX::FILTER, fx->getContent());
+            case FX::EXPONENTIAL:{
+                if (fx->getFxType() == FX::EXPONENTIAL){
+                    bin->getTransformComponent()->loadFx(FX::EXPONENTIAL, fx->getContent());
                     return;
                 }
             }
@@ -302,7 +302,7 @@ TransformChooser::TransformChooser(int rows, int columns, TransformSelector * f)
         }
     }
     buttons[0]->setButtonText("LINEAR");
-    buttons[1]->setButtonText("FILTER");
+    buttons[1]->setButtonText("EXPONENTIAL");
 }
 
 TransformChooser::~TransformChooser(){
@@ -343,19 +343,15 @@ void TransformChooser::callButtonClick(TransformChoiceButton* b){
             selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
         }
     }
-    else if (buttons.indexOf(b) == FILTER){
-        selector->fxButtonChoice->setFx(FILTER);
-        FilterComponent* f = new FilterComponent();
-        
-        Sampler& sampler = bin->getMappingEditor()->getMappingEditor()->graph->getSampler();
-        f->setIIRFilter(sampler.getFilter());
-        
-        selector->fxButtonChoice->set_component((Component*)(f));
-        bin->getTransformComponent()->loadFx(FILTER, selector->fxButtonChoice->get_component());
+    else if (buttons.indexOf(b) == EXPONENTIAL){
+        selector->fxButtonChoice->setFx(EXPONENTIAL);
+        selector->fxButtonChoice->set_component((Component*)(new ExponentialTransform()));
+        bin->getTransformComponent()->loadFx(EXPONENTIAL, selector->fxButtonChoice->get_component());
         
         int fx_index = selector->getBoxes().indexOf((TransformBox*)(selector->fxButtonChoice->getParentComponent()));
+        
         for (int i=s.size()-1; i>=0; i--){
-            selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = FILTER;
+            selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = EXPONENTIAL;
             selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
         }
     }

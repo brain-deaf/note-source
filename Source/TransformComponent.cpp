@@ -25,8 +25,8 @@ void TransformComponent::loadFx(int x, Component* c){
         visibleFx = TransformChooser::FX::LINEAR;
         content = c;
     }
-    else if (x == TransformChooser::FX::FILTER){
-        visibleFx = TransformChooser::FX::FILTER;
+    else if (x == TransformChooser::FX::EXPONENTIAL){
+        visibleFx = TransformChooser::FX::EXPONENTIAL;
         content = c;
     }
     else if (x == TransformChooser::FX::NONE){
@@ -42,7 +42,7 @@ void TransformComponent::showFx(){
         resized();
         break;
     
-    case TransformChooser::FX::FILTER:
+    case TransformChooser::FX::EXPONENTIAL:
         addAndMakeVisible(content);
         resized();
         break;
