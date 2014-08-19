@@ -332,28 +332,26 @@ void TransformChooser::callButtonClick(TransformChoiceButton* b){
     TransformBin* bin = ((TransformBin*)(selector->getParentComponent()));
     SparseSet<int> s = selector->getGroupEditor()->getListBox()->getSelectedRows();
     if (buttons.indexOf(b) == LINEAR){
-        selector->fxButtonChoice->setFx(LINEAR);
-        selector->fxButtonChoice->set_component((Component*)(new LinearTransform()));
-        bin->getTransformComponent()->loadFx(LINEAR, selector->fxButtonChoice->get_component());
-        
         int fx_index = selector->getBoxes().indexOf((TransformBox*)(selector->fxButtonChoice->getParentComponent()));
-        
+        LinearTransform* new_linear = new LinearTransform();
         for (int i=s.size()-1; i>=0; i--){
             selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = LINEAR;
-            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
+            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(static_cast<Component*>(new_linear));
+            
         }
+        selector->fxButtonChoice->setFx(LINEAR);
+        bin->getTransformComponent()->loadFx(LINEAR, new_linear);
     }
     else if (buttons.indexOf(b) == EXPONENTIAL){
-        selector->fxButtonChoice->setFx(EXPONENTIAL);
-        selector->fxButtonChoice->set_component((Component*)(new ExponentialTransform()));
-        bin->getTransformComponent()->loadFx(EXPONENTIAL, selector->fxButtonChoice->get_component());
-        
         int fx_index = selector->getBoxes().indexOf((TransformBox*)(selector->fxButtonChoice->getParentComponent()));
-        
+        ExponentialTransform* new_exponential= new ExponentialTransform();
         for (int i=s.size()-1; i>=0; i--){
             selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = EXPONENTIAL;
-            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
+            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(static_cast<Component*>(new_exponential));
+            
         }
+        selector->fxButtonChoice->setFx(EXPONENTIAL);
+        bin->getTransformComponent()->loadFx(EXPONENTIAL, new_exponential);
     }
     else{ 
             
