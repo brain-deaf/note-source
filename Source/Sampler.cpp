@@ -227,7 +227,6 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 }
             }
         }
-        std::cout<<tf_vol_multiplier<<std::endl;
         
         double tf_vol_difference = tf_vol_multiplier - tf_volume;
         double tf_difference_per_sample = tf_vol_difference/numSamples;

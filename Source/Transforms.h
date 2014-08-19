@@ -129,6 +129,7 @@ public:
     void mouseUp(const MouseEvent&);
     void mouseDrag(const MouseEvent&);
     Array<Point<int> > getPoints(){return *points;}
+    void setPoints(Array<Point<int> >* a){points = a;}
     Array<double> getCurves(){return curves;}
     void addCurve(double c){curves.add(c);}
 private:

@@ -84,6 +84,8 @@ void TransformSelector::loadPatch(XmlElement* xml){
                                 }
                             }
                             tf->setContent(exponential);
+                            TransformBin* bin = static_cast<TransformBin*>(getParentComponent());
+                            bin->getTransformComponent()->loadFx(TransformChooser::FX::EXPONENTIAL, exponential);
                             break;
                         }
                         case (TransformChooser::FX::NONE):

@@ -67,6 +67,6 @@ void FxComponent::loadFx(int x, Component* c){
 
 
 void FxComponent::resized(){
-    if (content != nullptr){std::cout<<"resize content"<<std::endl;content->setBounds(0, 0, getWidth(), getHeight());}
+    if (content != nullptr){content->setBounds(0, 0, getWidth(), getHeight());}
 }
             

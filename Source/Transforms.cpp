@@ -242,6 +242,8 @@ ExponentialTransform::ExponentialTransform() : Component(),
     targetBox->addItem("Velocity", TransformID::VELOCITY);
     targetBox->addItem("Pitch Wheel", TransformID::PITCHWHEEL);
     
+    graph->setPoints(getPoints());
+    
     addAndMakeVisible(startSlider);
     addAndMakeVisible(endSlider);
     addAndMakeVisible(graph);
