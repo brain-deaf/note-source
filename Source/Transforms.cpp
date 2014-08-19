@@ -52,6 +52,8 @@ LinearTransform::LinearTransform() : Component(),
     targetBox->addItem("Velocity", TransformID::VELOCITY);
     targetBox->addItem("Pitch Wheel", TransformID::PITCHWHEEL);
     
+    graph->setPoints(getPoints());
+    
     addAndMakeVisible(startSlider);
     addAndMakeVisible(endSlider);
     addAndMakeVisible(graph);
@@ -192,7 +194,6 @@ void LinearGraph::mouseDrag(const MouseEvent& m){
 }
         
 void LinearGraph::sliderValueChanged(Slider* source){
-    std::cout<<"setting point"<<std::endl;
     if (source == startSlider){
         points->set(0, Point<int>(0, getHeight() - startSlider->getValue()*getHeight()));
         repaint();

@@ -61,6 +61,7 @@ public:
     void mouseDown(const MouseEvent&);
     void mouseUp(const MouseEvent&);
     void mouseDrag(const MouseEvent&);
+    void setPoints(Array<Point<int> >* a){points = a;}
     Array<Point<int> > getPoints(){return *points;}
 private:
     Slider* startSlider;

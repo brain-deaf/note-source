@@ -59,18 +59,24 @@ void TransformSelector::loadPatch(XmlElement* xml){
                             LinearTransform* linear = new LinearTransform();
                             linear->getStartSlider()->setValue(tf_element->getDoubleAttribute("start"), dontSendNotification);
                             linear->getEndSlider()->setValue(tf_element->getDoubleAttribute("end"), dontSendNotification);
+                            linear->getSourceBox()->setSelectedId(tf_element->getIntAttribute("source"), dontSendNotification);
+                            linear->getTargetBox()->setSelectedId(tf_element->getIntAttribute("target"), dontSendNotification);
                             forEachXmlChildElement(*tf_element, point_element){
                                 if (point_element->hasTagName("POINT")){
                                     linear->addPoint(Point<int>(point_element->getIntAttribute("x"), point_element->getIntAttribute("y")));
                                 }
                             }
                             tf->setContent(linear);
+                            TransformBin* bin = static_cast<TransformBin*>(getParentComponent());
+                            bin->getTransformComponent()->loadFx(TransformChooser::FX::LINEAR, linear);
                             break;
                         }
                         case (TransformChooser::FX::EXPONENTIAL):{
                             ExponentialTransform* exponential = new ExponentialTransform();
                             exponential->getStartSlider()->setValue(tf_element->getDoubleAttribute("start"), dontSendNotification);
                             exponential->getEndSlider()->setValue(tf_element->getDoubleAttribute("end"), dontSendNotification);
+                            exponential->getSourceBox()->setSelectedId(tf_element->getIntAttribute("source"), dontSendNotification);
+                            exponential->getTargetBox()->setSelectedId(tf_element->getIntAttribute("target"), dontSendNotification);
                             forEachXmlChildElement(*tf_element, point_element){
                                 if (point_element->hasTagName("POINT")){
                                     exponential->addPoint(Point<int>(point_element->getIntAttribute("x"), point_element->getIntAttribute("y")));

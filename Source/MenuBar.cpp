@@ -205,6 +205,8 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                             LinearTransform* linear = static_cast<LinearTransform*>(insert_fx->getContent());
                             tf->setAttribute("start", linear->getStartSlider()->getValue());
                             tf->setAttribute("end", linear->getEndSlider()->getValue());
+                            tf->setAttribute("source", linear->getSourceBox()->getSelectedId());
+                            tf->setAttribute("target", linear->getTargetBox()->getSelectedId());
                             Array<Point<int> > points = linear->getGraph()->getPoints();
                             for (int i=0; i<points.size(); i++){
                                 XmlElement* tfa = new XmlElement("POINT");
@@ -219,6 +221,8 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                             ExponentialTransform* exponential = static_cast<ExponentialTransform*>(insert_fx->getContent());
                             tf->setAttribute("start", exponential->getStartSlider()->getValue());
                             tf->setAttribute("end", exponential->getEndSlider()->getValue());
+                            tf->setAttribute("source", exponential->getSourceBox()->getSelectedId());
+                            tf->setAttribute("target", exponential->getTargetBox()->getSelectedId());
                             Array<Point<int> > points = exponential->getGraph()->getPoints();
                             Array<double> curves = exponential->getGraph()->getCurves();
                             for (int i=0; i<points.size(); i++){
