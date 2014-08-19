@@ -14,6 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentBin.h"
 #include "ScriptBin.h"
+#include "TransformBin.h"
 
 class InstrumentMappingEditor;
 
@@ -58,6 +59,7 @@ private:
     std::shared_ptr<InstrumentMappingEditor> mapping_editor;
     ScriptBin* scriptBin;
     FxBin* fx_bin;
+    TransformBin* tf_bin;
 };
 
 

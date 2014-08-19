@@ -67,6 +67,13 @@ void FxSelector::loadPatch(XmlElement* xml){
                             fx->setContent(adsr);
                             break;
                         }
+                        case (FxChooser::FX::RINGMOD):{
+                            RingModulator* ringmod= new RingModulator();
+                            ringmod->getFrequencySlider()->setValue(fx_element->getDoubleAttribute("frequency"));
+                            ringmod->getAmplitudeSlider()->setValue(fx_element->getDoubleAttribute("mix"));
+                            fx->setContent(ringmod);
+                            break;
+                        }
                         case (FxChooser::FX::NONE):
                             fx->setContent(nullptr);
                             break;

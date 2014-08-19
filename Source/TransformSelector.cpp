@@ -49,21 +49,42 @@ void TransformSelector::loadPatch(XmlElement* xml){
     forEachXmlChildElement(*xml, e){
         if (e->hasTagName("GROUP")){
             groups.add(new TransformGroup());
-            forEachXmlChildElement(*e, fx_element){
-                if (fx_element->hasTagName("TRANSFORM")){
-                    Transform* fx = new Transform();
-                    fx->getFxType() = fx_element->getIntAttribute("type");
+            forEachXmlChildElement(*e, tf_element){
+                if (tf_element->hasTagName("TRANSFORM")){
+                    Transform* tf = new Transform();
+                    tf->getFxType() = tf_element->getIntAttribute("type");
                 
-                    switch (fx->getFxType()){
+                    switch (tf->getFxType()){
                         case (TransformChooser::FX::LINEAR):{
-                            fx->setContent(nullptr);
+                            LinearTransform* linear = new LinearTransform();
+                            linear->getStartSlider()->setValue(tf_element->getDoubleAttribute("start"), dontSendNotification);
+                            linear->getEndSlider()->setValue(tf_element->getDoubleAttribute("end"), dontSendNotification);
+                            forEachXmlChildElement(*tf_element, point_element){
+                                if (point_element->hasTagName("POINT")){
+                                    linear->addPoint(Point<int>(point_element->getIntAttribute("x"), point_element->getIntAttribute("y")));
+                                }
+                            }
+                            tf->setContent(linear);
+                            break;
+                        }
+                        case (TransformChooser::FX::EXPONENTIAL):{
+                            ExponentialTransform* exponential = new ExponentialTransform();
+                            exponential->getStartSlider()->setValue(tf_element->getDoubleAttribute("start"), dontSendNotification);
+                            exponential->getEndSlider()->setValue(tf_element->getDoubleAttribute("end"), dontSendNotification);
+                            forEachXmlChildElement(*tf_element, point_element){
+                                if (point_element->hasTagName("POINT")){
+                                    exponential->addPoint(Point<int>(point_element->getIntAttribute("x"), point_element->getIntAttribute("y")));
+                                    exponential->getGraph()->addCurve(point_element->getDoubleAttribute("curve"));
+                                }
+                            }
+                            tf->setContent(exponential);
                             break;
                         }
                         case (TransformChooser::FX::NONE):
-                            fx->setContent(nullptr);
+                            tf->setContent(nullptr);
                             break;
                     }
-                    groups[groups.size()-1]->group_fx.add(fx);
+                    groups[groups.size()-1]->group_fx.add(tf);
                 }
             }
         }        

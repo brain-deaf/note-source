@@ -100,8 +100,10 @@ void LinearGraph::paint(Graphics& g){
     if (init){
         init = false;
         points = (static_cast<LinearTransform*>(getParentComponent()))->getPoints();
-        points->add(Point<int>(0, getHeight()));
-        points->add(Point<int>(getWidth(), 0));
+        if (points->size() == 0){
+            points->add(Point<int>(0, getHeight()));
+            points->add(Point<int>(getWidth(), 0));
+        }
     }
     
     g.fillAll(Colours::grey);
@@ -190,6 +192,7 @@ void LinearGraph::mouseDrag(const MouseEvent& m){
 }
         
 void LinearGraph::sliderValueChanged(Slider* source){
+    std::cout<<"setting point"<<std::endl;
     if (source == startSlider){
         points->set(0, Point<int>(0, getHeight() - startSlider->getValue()*getHeight()));
         repaint();
@@ -290,15 +293,18 @@ void ExponentialGraph::paint(Graphics& g){
     if (init){
         init = false;
         points = (static_cast<ExponentialTransform*>(getParentComponent()))->getPoints();
-        points->add(Point<int>(1, getHeight()));
-        points->add(Point<int>(getWidth(), 1));
-        curves.add(-0.005);
-        curves.add(-0.005);
+        if (points->size() == 0){
+            points->add(Point<int>(1, getHeight()));
+            points->add(Point<int>(getWidth(), 1));
+            curves.add(-0.005);
+            curves.add(-0.005);
+        }
     }
     
     g.fillAll(Colours::grey);
     g.setColour(Colours::black);
     
+    points = (static_cast<ExponentialTransform*>(getParentComponent()))->getPoints();
     for (int i=0; i<points->size(); i++){
         Array<Point<int> >tPoints = *points;
         float ellipse_width = 10.0;
@@ -309,6 +315,7 @@ void ExponentialGraph::paint(Graphics& g){
     }
    
     Path myPath;
+    points = (static_cast<ExponentialTransform*>(getParentComponent()))->getPoints();
     Array<Point<int> >tPoints = *points;
     myPath.startNewSubPath(tPoints[0].getX(), tPoints[0].getY());
     for (int i=1; i<points->size(); i++){

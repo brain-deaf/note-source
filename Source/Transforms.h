@@ -61,6 +61,7 @@ public:
     void mouseDown(const MouseEvent&);
     void mouseUp(const MouseEvent&);
     void mouseDrag(const MouseEvent&);
+    Array<Point<int> > getPoints(){return *points;}
 private:
     Slider* startSlider;
     Slider* endSlider;
@@ -84,6 +85,9 @@ public:
     ComboBox* getSourceBox(){return sourceBox.get();}
     ComboBox* getTargetBox(){return targetBox.get();}
     LinearGraph* getGraph(){return graph.get();}
+    Slider* getStartSlider(){return startSlider.get();}
+    Slider* getEndSlider(){return endSlider.get();}
+    void addPoint(Point<int> p){points.add(p);}
     void paint(Graphics&);
     void resized();
     void setGValue(int g){graph->setGValue(g);}
@@ -123,6 +127,9 @@ public:
     void mouseDown(const MouseEvent&);
     void mouseUp(const MouseEvent&);
     void mouseDrag(const MouseEvent&);
+    Array<Point<int> > getPoints(){return *points;}
+    Array<double> getCurves(){return curves;}
+    void addCurve(double c){curves.add(c);}
 private:
     Slider* startSlider;
     Slider* endSlider;
@@ -147,6 +154,9 @@ public:
     ComboBox* getSourceBox(){return sourceBox.get();}
     ComboBox* getTargetBox(){return targetBox.get();}
     ExponentialGraph* getGraph(){return graph.get();}
+    Slider* getStartSlider(){return startSlider.get();}
+    Slider* getEndSlider(){return endSlider.get();}
+    void addPoint(Point<int> p){points.add(p);}
     void paint(Graphics&);
     void resized();
     void setGValue(int g){graph->setGValue(g);}

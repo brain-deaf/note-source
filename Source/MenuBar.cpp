@@ -98,6 +98,9 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             fx_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getFxBin();
             
+            tf_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
+            ->getTabWindow().getTransformBin();
+            
             scriptBin = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getScriptBin();
             
@@ -112,6 +115,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             
                 mapping_editor->graph->loadPatch(instrument);
                 fx_bin->getFxSelector()->loadPatch(instrument);
+                tf_bin->getTransformSelector()->loadPatch(instrument);
                 scriptBin->loadPatch(instrument);
             }
             break;
@@ -124,10 +128,14 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             fx_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getFxBin();
             
+            tf_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
+            ->getTabWindow().getTransformBin();
+            
             scriptBin = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getScriptBin();
             
             Array<FxGroup*> fx_group_list = fx_bin->getFxSelector()->getGroups();
+            Array<TransformGroup*> tf_group_list = tf_bin->getTransformSelector()->getGroups();
             
             XmlElement instrument("INSTRUMENT");
             
@@ -176,11 +184,58 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                             fx->setAttribute("release_curve", adsr->getReleaseCurveSlider()->getValue());
                             break;
                         }
+                        case (FxChooser::FX::RINGMOD):{
+                            RingModulator* ringmod = static_cast<RingModulator*>(insert_fx->getContent());
+                            fx->setAttribute("frequency", ringmod->getFrequencySlider()->getValue());
+                            fx->setAttribute("mix", ringmod->getAmplitudeSlider()->getValue());
+                            break;
+                        }
                         case (FxChooser::FX::NONE) :
                             break;
                     }
                     group->addChildElement(fx);
-                }       
+                }
+                for (int j=0; j<fx_group_list[i]->group_fx.size(); j++){
+                    XmlElement* tf = new XmlElement("TRANSFORM");
+                    Transform* insert_fx = tf_group_list[i]->group_fx[j];
+                    tf->setAttribute("type", insert_fx->getFxType());
+                    
+                    switch (insert_fx->getFxType()){
+                        case (TransformChooser::FX::LINEAR):{
+                            LinearTransform* linear = static_cast<LinearTransform*>(insert_fx->getContent());
+                            tf->setAttribute("start", linear->getStartSlider()->getValue());
+                            tf->setAttribute("end", linear->getEndSlider()->getValue());
+                            Array<Point<int> > points = linear->getGraph()->getPoints();
+                            for (int i=0; i<points.size(); i++){
+                                XmlElement* tfa = new XmlElement("POINT");
+                                tfa->setAttribute("x", points[i].getX());
+                                tfa->setAttribute("y", points[i].getY());
+                                tf->addChildElement(tfa);
+                            }
+                                
+                            break;
+                        }
+                        case (TransformChooser::FX::EXPONENTIAL):{
+                            ExponentialTransform* exponential = static_cast<ExponentialTransform*>(insert_fx->getContent());
+                            tf->setAttribute("start", exponential->getStartSlider()->getValue());
+                            tf->setAttribute("end", exponential->getEndSlider()->getValue());
+                            Array<Point<int> > points = exponential->getGraph()->getPoints();
+                            Array<double> curves = exponential->getGraph()->getCurves();
+                            for (int i=0; i<points.size(); i++){
+                                XmlElement* tfa = new XmlElement("POINT");
+                                tfa->setAttribute("x", points[i].getX());
+                                tfa->setAttribute("y", points[i].getY());
+                                tfa->setAttribute("curve", curves[i]);
+                                tf->addChildElement(tfa);
+                            }
+                                
+                            break;
+                        }
+                        case (FxChooser::FX::NONE) :
+                            break;
+                    }
+                    group->addChildElement(tf);
+                }    
                 instrument.addChildElement(group);
             }
             FileChooser patch_saver("Please select the patch destination.",
