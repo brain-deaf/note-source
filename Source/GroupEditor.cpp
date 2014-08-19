@@ -18,7 +18,7 @@ GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component()
     mapping_editor(m),
     header_height(50), footer_height(25), model(new GroupBoxModel()), list_box(new ListBox("list box", nullptr)),
     group_name_lbl(new Label("")), group_number_lbl(new Label("")),
-    group_name(new Label("")), group_number(new Label("")), temp("123lkj"), fx_bin(nullptr),
+    group_name(new Label("")), group_number(new Label("")), temp("123lkj"), fx_bin(nullptr), transform_bin(nullptr),
     create_group_button(new TextButton("Create Group")), delete_group_button(new TextButton("Delete Group")){
     setBounds(0, 0, w, h);
     
@@ -170,6 +170,9 @@ void GroupBoxModel::selectedRowsChanged(int row){
     
     if ((parent->getFxBin()) != nullptr){
         ((parent->getFxBin())->getFxSelector())->updateFx();
+    }
+    if ((parent->getTransformBin()) != nullptr){
+        ((parent->getTransformBin())->getTransformSelector())->updateFx();
     }
 }
 

@@ -73,6 +73,7 @@ Adsr::Adsr() : Component(), adsr_plot(this), attack_time(), attack_curve(),
 }
 
 void Adsr::resized(){
+    std::cout<<"adsr resized"<<std::endl;
     adsr_plot.setBounds(0, 0, getWidth(), getHeight() - 120);
     attack_time.setBounds(0, getHeight() - 120, 140, 40);
     attack_curve.setBounds(0, getHeight() - 80, 140, 40);
@@ -113,9 +114,10 @@ static double plotAdsr(int x1, int time, int y1, int max_volume, double curve_wi
     return(max_volume - y1) / (pow(M_E, curve_width*time) - pow(M_E, curve_width*x1)) * (pow(M_E, curve_width*x) - pow(M_E, curve_width*x1)) + y1;
 }
 
-Adsr::Graph::Graph(Adsr* _parent) : Component(), parent(_parent){}
+Adsr::Graph::Graph(Adsr* _parent) : Component(), parent(_parent){std::cout<<"adsr ctor"<<std::endl;}
 
 void Adsr::Graph::paint(Graphics& g){
+    std::cout<<"paint adsr"<<std::endl;
     g.fillAll(Colours::black);
     
     g.setColour(Colours::white);

@@ -20,7 +20,7 @@ void FxComponent::paint(Graphics& g){
 }
 
 void FxComponent::loadFx(int x, Component* c){
-    if (content != nullptr) removeChildComponent(content);
+    removeAllChildren();
     if (x == FxChooser::FX::ADSR){
         visibleFx = FxChooser::FX::ADSR;
         content = c;
@@ -35,11 +35,15 @@ void FxComponent::loadFx(int x, Component* c){
     }
     else if (x == FxChooser::FX::NONE){
         visibleFx = FxChooser::FX::NONE;
+        content = nullptr;
     }
-    showFx();
+    if (content != nullptr){
+        addAndMakeVisible(content);
+        resized();
+    }
 }
 
-void FxComponent::showFx(){
+/*void FxComponent::showFx(){
     switch (visibleFx){
     case FxChooser::FX::ADSR:
         addAndMakeVisible(content);
@@ -59,10 +63,10 @@ void FxComponent::showFx(){
     case FxChooser::FX::NONE:
         break;
     }
-}
+}*/
 
 
 void FxComponent::resized(){
-    if (content != nullptr) content->setBounds(0, 0, getWidth(), getHeight());
+    if (content != nullptr){std::cout<<"resize content"<<std::endl;content->setBounds(0, 0, getWidth(), getHeight());}
 }
             

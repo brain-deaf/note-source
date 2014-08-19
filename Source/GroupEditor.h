@@ -68,6 +68,7 @@ public:
     void setTransformBin(TransformBin*);
     void setGroupView(GroupView* g){group_view=g;}
     FxBin* getFxBin(){return fx_bin;}
+    TransformBin* getTransformBin(){return transform_bin;}
     
 private:
     int width;

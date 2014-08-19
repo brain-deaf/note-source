@@ -177,31 +177,38 @@ void FxButton::mouseDown(const MouseEvent& e){
         parent->getChooser()->setBounds(x_margin, y_margin, parent->getWidth() - x_margin*2, parent->getHeight() - y_margin*2);
     }else{
         typedef FxChooser::FX FX;
-        FxBox* box = (FxBox*)getParentComponent();
+        FxBox* box = static_cast<FxBox*>(getParentComponent());
         FxSelector* selector = box->getParent();
-        FxBin* bin = (FxBin*)selector->getParentComponent();
+        FxBin* bin = static_cast<FxBin*>(selector->getParentComponent());
         
         SparseSet<int> s = selector->getGroupEditor()->getListBox()->getSelectedRows();
         
-        for (int i=0; i<s.size(); i++){
+        for (int i=s.size()-1; i>=0; i--){
             Fx* fx = selector->getGroups()[s[i]]->group_fx[selector->getBoxes().indexOf(box)];
+            std::cout<<fx<<std::endl;
+            std::cout<<selector->getGroups()[s[i]]<<std::endl;
             
             switch (fx->getFxType()){
             case FX::ADSR:{
                 if (fx->getFxType() == FX::ADSR){
+                    std::cout<<"show adsr"<<std::endl;
                     bin->getFxComponent()->loadFx(FX::ADSR, fx->getContent());
+                    std::cout<<"done showing fx"<<std::endl;
                     return;
                 }
             }
             case FX::FILTER:{
                 if (fx->getFxType() == FX::FILTER){
+                    std::cout<<"show filter"<<std::endl;
                     bin->getFxComponent()->loadFx(FX::FILTER, fx->getContent());
+                    std::cout<<"done showing fx"<<std::endl;
                     return;
                 }
             }
             case FX::RINGMOD:{
                 if (fx->getFxType() == FX::RINGMOD){
                     bin->getFxComponent()->loadFx(FX::RINGMOD, fx->getContent());
+                    std::cout<<"done showing fx"<<std::endl;
                     return;
                 }
             }
@@ -347,16 +354,15 @@ void FxChooser::callButtonClick(FxChoiceButton* b){
     FxBin* bin = ((FxBin*)(selector->getParentComponent()));
     SparseSet<int> s = selector->getGroupEditor()->getListBox()->getSelectedRows();
     if (buttons.indexOf(b) == ADSR){
-        selector->fxButtonChoice->setFx(ADSR);
-        selector->fxButtonChoice->set_component((Component*)(new Adsr()));
-        bin->getFxComponent()->loadFx(ADSR, selector->fxButtonChoice->get_component());
-        
         int fx_index = selector->getBoxes().indexOf((FxBox*)(selector->fxButtonChoice->getParentComponent()));
-        
+        Adsr* new_adsr = new Adsr();
         for (int i=s.size()-1; i>=0; i--){
             selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = ADSR;
-            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
+            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(static_cast<Component*>(new_adsr));
+            
         }
+        selector->fxButtonChoice->setFx(ADSR);
+        bin->getFxComponent()->loadFx(ADSR, new_adsr);
     }
     else if (buttons.indexOf(b) == FILTER){
         selector->fxButtonChoice->setFx(FILTER);
@@ -365,29 +371,25 @@ void FxChooser::callButtonClick(FxChoiceButton* b){
         Sampler& sampler = bin->getMappingEditor()->getMappingEditor()->graph->getSampler();
         f->setIIRFilter(sampler.getFilter());
         
-        selector->fxButtonChoice->set_component((Component*)(f));
-        bin->getFxComponent()->loadFx(FILTER, selector->fxButtonChoice->get_component());
-        
         int fx_index = selector->getBoxes().indexOf((FxBox*)(selector->fxButtonChoice->getParentComponent()));
         for (int i=s.size()-1; i>=0; i--){
             selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = FILTER;
-            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
+            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(static_cast<Component*>(f));
+            
         }
+        selector->fxButtonChoice->setFx(FILTER);
+        bin->getFxComponent()->loadFx(FILTER, f);
     }
     else if (buttons.indexOf(b) == RINGMOD){
-        selector->fxButtonChoice->setFx(RINGMOD);
-        RingModulator* f = new RingModulator();
-        
-        Sampler& sampler = bin->getMappingEditor()->getMappingEditor()->graph->getSampler();
-        
-        selector->fxButtonChoice->set_component((Component*)(f));
-        bin->getFxComponent()->loadFx(RINGMOD, selector->fxButtonChoice->get_component());
-        
         int fx_index = selector->getBoxes().indexOf((FxBox*)(selector->fxButtonChoice->getParentComponent()));
+        RingModulator* ring_mod = new RingModulator();
         for (int i=s.size()-1; i>=0; i--){
             selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = RINGMOD;
-            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(selector->fxButtonChoice->get_component());
+            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(static_cast<Component*>(ring_mod));
+            
         }
+        selector->fxButtonChoice->setFx(RINGMOD);
+        bin->getFxComponent()->loadFx(RINGMOD, ring_mod);
     }
     else{ 
             
