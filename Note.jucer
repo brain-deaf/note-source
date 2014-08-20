@@ -69,6 +69,8 @@
     <FILE id="NYiBrA" name="MenuBar.cpp" compile="1" resource="0" file="Source/MenuBar.cpp"/>
     <FILE id="dnEE5F" name="Metronome.h" compile="0" resource="0" file="Source/Metronome.h"/>
     <FILE id="sz0J8C" name="Metronome.cpp" compile="1" resource="0" file="Source/Metronome.cpp"/>
+    <FILE id="PG8mMr" name="MidiSlider.h" compile="0" resource="0" file="Source/MidiSlider.h"/>
+    <FILE id="uvQrkY" name="MidiSlider.cpp" compile="1" resource="0" file="Source/MidiSlider.cpp"/>
     <FILE id="wJn5tr" name="RingModulator.h" compile="0" resource="0" file="Source/RingModulator.h"/>
     <FILE id="k7UJVr" name="RingModulator.cpp" compile="1" resource="0"
           file="Source/RingModulator.cpp"/>

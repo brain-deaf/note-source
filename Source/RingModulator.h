@@ -12,17 +12,18 @@
 #define RINGMODULATOR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "MidiSlider.h"
 
 class RingModulator : public Component{
 public:
     RingModulator();
     void paint(Graphics&);
     void resized();
-    Slider* getFrequencySlider(){return frequency.get();}
-    Slider* getAmplitudeSlider(){return amplitude.get();}
+    Slider* getFrequencySlider(){return static_cast<Slider*>(frequency.get());}
+    Slider* getAmplitudeSlider(){return static_cast<Slider*>(amplitude.get());}
 private:
-    ScopedPointer<Slider> frequency;
-    ScopedPointer<Slider> amplitude;
+    ScopedPointer<MidiSlider> frequency;
+    ScopedPointer<MidiSlider> amplitude;
 };
 
 

@@ -11,12 +11,12 @@
 #include "RingModulator.h"
 
 RingModulator::RingModulator(){
-    frequency = new Slider();
+    frequency = new MidiSlider();
     frequency->setSliderStyle(Slider::RotaryVerticalDrag);
     frequency->setTextBoxStyle(Slider::NoTextBox, true, 0, 0);
     frequency->setRange(100.0, 1000.0);
     
-    amplitude = new Slider();
+    amplitude = new MidiSlider();
     amplitude->setSliderStyle(Slider::RotaryVerticalDrag);
     amplitude->setTextBoxStyle(Slider::NoTextBox, true, 0, 0);
     amplitude->setRange(0.0, 1.0);
