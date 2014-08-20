@@ -11,7 +11,7 @@
 #include "MainPageComponents.h"
 
 MainHorizontalSlider::MainHorizontalSlider(String n, int i, double minimum, double maximum, double interval) 
- : Slider(), id(i), image(nullptr)
+ : MidiSlider(), id(i), image(nullptr)
 {
     setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
@@ -47,7 +47,7 @@ void MainHorizontalSlider::paint(Graphics& g){
 }
 
 MainVerticalSlider::MainVerticalSlider(String n, int i, double minimum, double maximum, double interval) : 
-                                       Slider(), id(i), image(nullptr)
+                                       MidiSlider(), id(i), image(nullptr)
 {
     setSliderStyle(Slider::SliderStyle::LinearVertical);
     setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
@@ -83,7 +83,7 @@ void MainVerticalSlider::paint(Graphics& g){
 }
 
 MainKnob::MainKnob(String n, int i, double minimum, double maximum, double interval) : 
-                                           Slider(), id(i)
+                                           MidiSlider(), id(i)
 {
     setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);

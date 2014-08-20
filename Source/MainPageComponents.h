@@ -12,8 +12,9 @@
 #define MAINPAGECOMPONENTS_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "MidiSlider.h"
 
-class MainHorizontalSlider : public Slider
+class MainHorizontalSlider : public MidiSlider
 {
 public:
     MainHorizontalSlider(String, int, double, double, double);
@@ -30,7 +31,7 @@ private:
     int frames;
 };
 
-class MainVerticalSlider : public Slider
+class MainVerticalSlider : public MidiSlider
 {
 public:
     MainVerticalSlider(String, int, double, double, double);
@@ -47,7 +48,7 @@ private:
     int frames;
 };
 
-class MainKnob : public Slider
+class MainKnob : public MidiSlider
 {
 public:
     MainKnob(String, int, double, double, double);

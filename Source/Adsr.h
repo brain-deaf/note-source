@@ -12,6 +12,7 @@
 #define ADSR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "MidiSlider.h"
 
 //use rational function for attack function of adsr:
 //ex: y = (2x + 5) / (x - 1)
@@ -36,22 +37,22 @@ public:
     void paint(Graphics&);
     void resized();
     void sliderValueChanged(Slider*);
-    Slider* getAttackTimeSlider(){return &attack_time;}
-    Slider* getAttackCurveSlider(){return &attack_curve;}
-    Slider* getDecayTimeSlider(){return &decay_time;}
-    Slider* getDecayCurveSlider(){return &decay_curve;}
-    Slider* getSustainSlider(){return &sustain;}
-    Slider* getReleaseTimeSlider(){return &release_time;}
-    Slider* getReleaseCurveSlider(){return &release_curve;}
+    MidiSlider* getAttackTimeSlider(){return attack_time.get();}
+    MidiSlider* getAttackCurveSlider(){return attack_curve.get();}
+    MidiSlider* getDecayTimeSlider(){return decay_time.get();}
+    MidiSlider* getDecayCurveSlider(){return decay_curve.get();}
+    MidiSlider* getSustainSlider(){return sustain.get();}
+    MidiSlider* getReleaseTimeSlider(){return release_time.get();}
+    MidiSlider* getReleaseCurveSlider(){return release_curve.get();}
 private:
     Graph adsr_plot;
-    Slider attack_time;
-    Slider attack_curve;
-    Slider decay_time;
-    Slider decay_curve;
-    Slider sustain;
-    Slider release_time;
-    Slider release_curve;
+    ScopedPointer<MidiSlider> attack_time;
+    ScopedPointer<MidiSlider> attack_curve;
+    ScopedPointer<MidiSlider> decay_time;
+    ScopedPointer<MidiSlider> decay_curve;
+    ScopedPointer<MidiSlider> sustain;
+    ScopedPointer<MidiSlider> release_time;
+    ScopedPointer<MidiSlider> release_curve;
 };
 
 

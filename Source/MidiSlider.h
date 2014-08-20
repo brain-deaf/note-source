@@ -33,7 +33,12 @@ class MidiSlider : public Slider
 {
 public:
     MidiSlider();
-    ~MidiSlider(){};
+    ~MidiSlider()
+    {
+        SharedResourcePointer<AudioDeviceManager> dm;
+        dm->removeMidiInputCallback("", (MidiInputCallback*)callback.get());
+        callback=nullptr;
+    };
     void setMidiCC(int c){cc=c;}
     int getAssignedCC(){return cc;}
     void mouseDown(const MouseEvent&);

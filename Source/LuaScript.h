@@ -16,6 +16,7 @@
 #include <lauxlib.h>
 #include <lualib.h>
 #include "Metronome.h"
+#include "MidiSlider.h"
 
 class MappingEditorBin;
 

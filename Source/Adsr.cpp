@@ -11,78 +11,77 @@
 #include "Adsr.h"
 #include <math.h>
 
-Adsr::Adsr() : Component(), adsr_plot(this), attack_time(), attack_curve(),
-    decay_time(), decay_curve(), sustain(), release_time(), release_curve(){
+Adsr::Adsr() : Component(), adsr_plot(this), attack_time(new MidiSlider()), attack_curve(new MidiSlider()),
+    decay_time(new MidiSlider()), decay_curve(new MidiSlider()), sustain(new MidiSlider()), release_time(new MidiSlider()), release_curve(new MidiSlider()){
     addAndMakeVisible(&adsr_plot);
     
-    attack_time.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    attack_time.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+    attack_time->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    attack_time->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    attack_time.setRange(1.0, 600.0, 0.1);
-    attack_time.setValue(180.0);
-    attack_time.addListener(this);
-    addAndMakeVisible(&attack_time);
+    attack_time->setRange(1.0, 600.0, 0.1);
+    attack_time->setValue(180.0);
+    attack_time->addListener(this);
+    addAndMakeVisible(attack_time);
     
-    attack_curve.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    attack_curve.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+    attack_curve->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    attack_curve->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    attack_curve.setRange(-0.1, 0.1);
-    attack_curve.setValue(-0.05);
-    attack_curve.addListener(this);
-    addAndMakeVisible(&attack_curve);
+    attack_curve->setRange(-0.1, 0.1);
+    attack_curve->setValue(-0.05);
+    attack_curve->addListener(this);
+    addAndMakeVisible(attack_curve);
     
-    decay_time.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    decay_time.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+    decay_time->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    decay_time->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    decay_time.setRange(1.0, 600.0, 0.1);
-    decay_time.setValue(100.0);
-    decay_time.addListener(this);
-    addAndMakeVisible(&decay_time);
+    decay_time->setRange(1.0, 600.0, 0.1);
+    decay_time->setValue(100.0);
+    decay_time->addListener(this);
+    addAndMakeVisible(decay_time);
     
-    decay_curve.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    decay_curve.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+    decay_curve->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    decay_curve->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    decay_curve.setRange(-0.1, 0.1);
-    decay_curve.setValue(-0.05);
-    decay_curve.addListener(this);
-    addAndMakeVisible(&decay_curve);
+    decay_curve->setRange(-0.1, 0.1);
+    decay_curve->setValue(-0.05);
+    decay_curve->addListener(this);
+    addAndMakeVisible(decay_curve);
     
-    sustain.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    sustain.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+    sustain->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    sustain->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    sustain.setRange(0.0, 200.0, 0.1);
-    sustain.setValue(150.0);
-    sustain.addListener(this);
-    addAndMakeVisible(&sustain);
+    sustain->setRange(0.0, 200.0, 0.1);
+    sustain->setValue(150.0);
+    sustain->addListener(this);
+    addAndMakeVisible(sustain);
     
-    release_time.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    release_time.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+    release_time->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    release_time->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    release_time.setRange(1.0, 600.0, 0.1);
-    release_time.setValue(100.0);
-    release_time.addListener(this);
-    addAndMakeVisible(&release_time);
+    release_time->setRange(1.0, 600.0, 0.1);
+    release_time->setValue(100.0);
+    release_time->addListener(this);
+    addAndMakeVisible(release_time);
     
-    release_curve.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    release_curve.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
+    release_curve->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    release_curve->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxRight,
                                 true, 100, 20);
-    release_curve.setRange(-0.1, 0.1);
-    release_curve.setValue(-0.05);
-    release_curve.addListener(this);
-    addAndMakeVisible(&release_curve);
+    release_curve->setRange(-0.1, 0.1);
+    release_curve->setValue(-0.05);
+    release_curve->addListener(this);
+    addAndMakeVisible(release_curve);
 }
 
 void Adsr::resized(){
-    std::cout<<"adsr resized"<<std::endl;
     adsr_plot.setBounds(0, 0, getWidth(), getHeight() - 120);
-    attack_time.setBounds(0, getHeight() - 120, 140, 40);
-    attack_curve.setBounds(0, getHeight() - 80, 140, 40);
-    decay_time.setBounds(150, getHeight() - 120, 140, 40);
-    decay_curve.setBounds(150, getHeight() - 80, 140, 40);
-    sustain.setBounds(300, getHeight() - 120, 140, 40);
-    sustain.setRange(0.0, getHeight(), 0.1);
-    release_time.setBounds(450, getHeight() - 120, 140, 40);
-    release_curve.setBounds(450, getHeight() - 80, 140, 40);
+    attack_time->setBounds(0, getHeight() - 120, 140, 40);
+    attack_curve->setBounds(0, getHeight() - 80, 140, 40);
+    decay_time->setBounds(150, getHeight() - 120, 140, 40);
+    decay_curve->setBounds(150, getHeight() - 80, 140, 40);
+    sustain->setBounds(300, getHeight() - 120, 140, 40);
+    sustain->setRange(0.0, getHeight(), 0.1);
+    release_time->setBounds(450, getHeight() - 120, 140, 40);
+    release_curve->setBounds(450, getHeight() - 80, 140, 40);
 }
 
 void Adsr::paint(Graphics& g){
@@ -91,14 +90,14 @@ void Adsr::paint(Graphics& g){
 
 void Adsr::sliderValueChanged(Slider* slider){
     adsr_plot.repaint();
-    if (slider == &attack_curve && attack_curve.getValue() == 0){
-        attack_curve.setValue(0.00001);
+    if (slider == attack_curve && attack_curve->getValue() == 0){
+        attack_curve->setValue(0.00001);
     }
-    if (slider == &decay_curve && decay_curve.getValue() == 0){
-        decay_curve.setValue(0.00001);
+    if (slider == decay_curve && decay_curve->getValue() == 0){
+        decay_curve->setValue(0.00001);
     }
-    if (slider == &release_curve && release_curve.getValue() == 0){
-        release_curve.setValue(0.00001);
+    if (slider == release_curve && release_curve->getValue() == 0){
+        release_curve->setValue(0.00001);
     }
 }
 
@@ -117,7 +116,6 @@ static double plotAdsr(int x1, int time, int y1, int max_volume, double curve_wi
 Adsr::Graph::Graph(Adsr* _parent) : Component(), parent(_parent){std::cout<<"adsr ctor"<<std::endl;}
 
 void Adsr::Graph::paint(Graphics& g){
-    std::cout<<"paint adsr"<<std::endl;
     g.fillAll(Colours::black);
     
     g.setColour(Colours::white);
