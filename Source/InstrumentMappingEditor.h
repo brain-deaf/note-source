@@ -17,7 +17,7 @@
 #include "LuaScript.h"
 #include "Metronome.h"
 
-
+class Sampler;
 class InstrumentComponent;
 
 class InstrumentMappingEditor : public Component
@@ -84,6 +84,9 @@ public:
                 void setLoopStart(double d){loopStart=d;}
                 void setLoopEnd(double d){loopEnd=d;}
                 void setLoopMode(bool b){loopMode=b;}
+                bool getLoopMode(){return loopMode;}
+                double getLoopStart(){return loopStart;}
+                double getLoopEnd(){return loopEnd;}
             private:
                 double sampleStart;
                 double loopStart;

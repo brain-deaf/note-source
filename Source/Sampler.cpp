@@ -43,7 +43,7 @@ Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s)
     //filter2.setCoefficients(IIRCoefficients());
 }
     
-void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups, double sampleStart, std::pair<int, int> v){
+void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups, double sampleStart, bool loopMode, double loopStart, double loopEnd, std::pair<int, int> v){
     ScopedPointer<AudioFormatReader> audioReader(formatManager.createReaderFor(File(path)));
         
     BigInteger allNotes;
@@ -55,6 +55,9 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
                                     allNotes, root_note,
                                     0.0, 0.0, 10.0, groups, fx_selector, tf_selector, this, v));
     ss->setSampleStart(sampleStart);
+    ss->setLoopMode(loopMode);
+    ss->setLoopStart(loopStart);
+    ss->setLoopEnd(loopEnd);
     
     //std::cout<<v.first<<" "<<v.second<<std::endl;
 }
@@ -423,17 +426,6 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 }
             }
             
-            renderNextBlock(input, numSamples){
-                for (int i=0; i<numSamples; i++){
-                    if (inXFadeRange()){
-                        //do crossfade
-                    }
-                    if (atLoopEndPoint()){
-                        samplePosition = loopStart + xfade_length;
-                        return; //this was the problem
-                    }
-                }
-            }
             
             volume = vol;
             tf_volume = tf_vol_multiplier;
