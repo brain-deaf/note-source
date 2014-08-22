@@ -177,7 +177,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
         if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()))
             looping = false;
             
-        int loop_xfade_length = (s->getLoopEnd() - s->getLoopStart()) / 10;
+        int loop_xfade_length = (s->getLoopEnd() - s->getLoopStart()) / 4;
         
         Array<int> groups_for_note = s->getGroups();
         Array<int> groups_for_event = noteEvent->getGroups();
@@ -347,6 +347,8 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     l += xfade_counter / loop_xfade_length * l2;
                     r += xfade_counter / loop_xfade_length * r2;
                     
+                    //if (xfade_counter > loop_xfade_length/10*9)
+                        //std::cout<<xfade_counter<<std::endl;
                     //std::cout<<xfade_counter<<" "<<(loop_xfade_length - xfade_counter) / loop_xfade_length<<std::endl;
                     
                 }
@@ -388,12 +390,14 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     //std::cout<<"f";
                 }
                 if (bb){
-                    std::cout<<"start output: "<<*outL<<std::endl;
-                    std::cout<<samplePosition<<std::endl;
+                    //std::cout<<"start output L: "<<*outL<<" R: "<<*outR<<std::endl;
+                    //std::cout<<samplePosition<<std::endl;
                     bb = false;
                 }
-                if (looping && samplePosition >= s->getLoopEnd()-1)
-                    std::cout<<"end output: "<<*outL<<std::endl;
+                if (looping && samplePosition >= s->getLoopEnd()-1){
+                    //std::cout<<"end output L: "<<*outL<<" R: "<<*outR<<std::endl;
+                }
+                //std::cout<<*outL;
                 
                 outL++;
                 outR++;
@@ -410,12 +414,24 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     break;
                 }
                 
-                if (looping && samplePosition >= s->getLoopEnd()){
+                if (looping && samplePosition >= s->getLoopEnd()+0){
                     samplePosition = s->getLoopStart() + loop_xfade_length;
                     bb = true;
-                    std::cout<<"sample position: "<<samplePosition<<std::endl;
-                    std::cout<<"start over: "<<inL[(int)samplePosition]<<" "<<inL[(int)samplePosition - 1]<<std::endl;
-                    break;
+                    //std::cout<<std::endl<<"sample position: "<<samplePosition<<std::endl;
+                    //std::cout<<std::endl<<"start over: "<<inL[(int)samplePosition]<<" "<<inL[(int)samplePosition - 1]<<" R: "<<inR[(int)samplePosition]<<" "<<inR[(int)samplePosition - 1]<<std::endl;
+                    //return;
+                }
+            }
+            
+            renderNextBlock(input, numSamples){
+                for (int i=0; i<numSamples; i++){
+                    if (inXFadeRange()){
+                        //do crossfade
+                    }
+                    if (atLoopEndPoint()){
+                        samplePosition = loopStart + xfade_length;
+                        return; //this was the problem
+                    }
                 }
             }
             
