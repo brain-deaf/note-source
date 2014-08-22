@@ -30,12 +30,16 @@ public:
     void setPlaying(bool b){playing=b;}
     void setPlayPosition(double d){playPosition=d;}
     void setLength(double d){length_sec = d;}
+    void setLoopStart(double d){loopStart=d;}
+    void setLoopEnd(double d){loopEnd=d;}
 private:
     WaveBin* parent;
     double vScale;
     double length_sec;
     double sample_rate;
     double sample_start;
+    double loopStart;
+    double loopEnd;
     double playPosition;
     bool playing;
     AudioThumbnailCache cache;

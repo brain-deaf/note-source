@@ -42,6 +42,23 @@ WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m),
     sample_start->addListener(this);
     addAndMakeVisible(sample_start);
     
+    loopStart = new Slider(Slider::SliderStyle::RotaryVerticalDrag, Slider::TextEntryBoxPosition::TextBoxBelow);
+    loopStart->setRange(0, 96000, 1);
+    loopStart->setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::yellow);
+    loopStart->addListener(this);
+    addAndMakeVisible(loopStart);
+    
+    loopEnd= new Slider(Slider::SliderStyle::RotaryVerticalDrag, Slider::TextEntryBoxPosition::TextBoxBelow);
+    loopEnd->setRange(0, 96000, 1);
+    loopEnd->setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::yellow);
+    loopEnd->addListener(this);
+    addAndMakeVisible(loopEnd);
+    
+    toggleLoop = new TextButton("Loop Mode");
+    toggleLoop->setClickingTogglesState(true);
+    toggleLoop->addListener(this);
+    addAndMakeVisible(toggleLoop);
+    
     group_view_width = 800;
     vport_width = 300;
     lower_limit = 100;
@@ -118,6 +135,9 @@ void WaveBin::resized(){
     }
     
     sample_start->setBounds(vport_width + waveform_padding, waveform_height + 50, 50, 50);
+    loopStart->setBounds(vport_width + waveform_padding+50, waveform_height + 50, 50, 50);
+    loopEnd->setBounds(vport_width + waveform_padding+100, waveform_height + 50, 50, 50);
+    toggleLoop->setBounds(vport_width + waveform_padding+150, waveform_height + 50, 80, 40);
 }
 
 void WaveBin::paint(Graphics& g){
@@ -143,6 +163,27 @@ void WaveBin::sliderValueChanged(Slider* s){
             static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setSampleStart(sample_start->getValue());
         }
     }
+    if (s == loopStart){
+        if (z != nullptr){
+            
+            waveform->setLoopStart(loopStart->getValue());
+            waveform->repaint();
+            z->getPlaySettings().setLoopStart(loopStart->getValue());
+            InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
+            int zone_index = m->getZones().indexOf(z);
+            static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setLoopStart(loopStart->getValue());
+        }
+    }
+    if (s == loopEnd){
+        if (z != nullptr){
+            waveform->setLoopEnd(loopEnd->getValue());
+            waveform->repaint();
+            z->getPlaySettings().setLoopEnd(loopEnd->getValue());
+            InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
+            int zone_index = m->getZones().indexOf(z);
+            static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setLoopEnd(loopEnd->getValue());
+        }
+    }
 }
 
 void WaveBin::buttonClicked(Button* b){
@@ -158,6 +199,15 @@ void WaveBin::buttonClicked(Button* b){
                 stopTimer();
                 waveform->repaint();
             }
+        }
+    }
+    if (b == toggleLoop){
+        if (z != nullptr){
+            z->getPlaySettings().setLoopMode(toggleLoop->getToggleState());
+            InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
+            int zone_index = m->getZones().indexOf(z);
+            static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setLoopMode(toggleLoop->getToggleState());
+            std::cout<<toggleLoop->getToggleState()<<std::endl;
         }
     }
 }

@@ -28,7 +28,12 @@ public:
     void mouseUp(const MouseEvent&) override;
     void mouseDrag(const MouseEvent&) override;
     void sliderValueChanged(Slider*) override;
-    void setFileLength(double d){fileLength=d;sample_start->setRange(0, d, 1);}
+    void setFileLength(double d){
+        fileLength=d;
+        sample_start->setRange(0, d, 1);
+        loopEnd->setRange(0, d, 1);
+        loopStart->setRange(0, d, 1);
+    }
     void updateZone(Zone*_zone);
     void buttonClicked(Button*);
     void changeListenerCallback(ChangeBroadcaster*);
@@ -56,6 +61,9 @@ private:
     Slider* hScaling;
     TextButton* playButton;
     FilePlayer* filePlayer;
+    ScopedPointer<Slider> loopStart;
+    ScopedPointer<Slider> loopEnd;
+    ScopedPointer<TextButton> toggleLoop;
     Zone* z;
 };
 

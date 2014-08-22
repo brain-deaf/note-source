@@ -14,8 +14,8 @@
 WaveformView::WaveformView()
 : Component(), formatManager(), parent(nullptr), cache(5), 
   vScale(0.7), sample_rate(44100.0), playPosition(0.0), playing(false),
-  length_sec(0.1), thumbnail(256, formatManager, cache),
-  zone(nullptr)
+  length_sec(0.1), thumbnail(256, formatManager, cache), loopStart(0.0),
+  loopEnd(0.0), zone(nullptr)
 {
     formatManager.registerBasicFormats();
     thumbnail.addChangeListener(this);
@@ -46,6 +46,7 @@ void WaveformView::updateWaveformForFilePlayer(Zone* z){
 void WaveformView::paint(Graphics& g){
     g.fillAll(Colours::white);
     g.setColour(Colours::blue);
+    g.setOpacity(1.0);
     if (zone != nullptr){
         thumbnail.drawChannels(g, getLocalBounds(), 0.0, thumbnail.getTotalLength(), vScale);
     
@@ -56,8 +57,16 @@ void WaveformView::paint(Graphics& g){
             myPath.startNewSubPath(length_per_sample*sample_start, 0);
             myPath.lineTo(length_per_sample*sample_start, getHeight());
             g.strokePath (myPath, PathStrokeType (3.0f));
+            
+            if (loopEnd > loopStart){
+                g.setColour(Colours::yellow);
+                g.setOpacity(0.5);
+                const Rectangle<float> loop_rectangle(length_per_sample*loopStart, 0, length_per_sample*loopEnd-length_per_sample*loopStart, getHeight());
+                g.fillRect(loop_rectangle);
+            }
         }
         if (playing){
+            g.setOpacity(1.0);
             Path myPath;
             g.setColour(Colours::red);
             double length_per_sample = getWidth() / (length_sec*sample_rate);

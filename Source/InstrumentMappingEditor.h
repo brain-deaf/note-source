@@ -78,11 +78,17 @@ public:
             class PlaySettings
             {
             public:
-                PlaySettings() : sampleStart(0.0){}
+                PlaySettings() : sampleStart(0.0),loopStart(0.0),loopEnd(0.0),loopMode(false){}
                 double getSampleStart(){return sampleStart;}
                 void setSampleStart(double d){sampleStart=d;}
+                void setLoopStart(double d){loopStart=d;}
+                void setLoopEnd(double d){loopEnd=d;}
+                void setLoopMode(bool b){loopMode=b;}
             private:
                 double sampleStart;
+                double loopStart;
+                double loopEnd;
+                bool loopMode;
             };
             
             PlaySettings& getPlaySettings(){return playSettings;}

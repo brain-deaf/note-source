@@ -122,6 +122,7 @@ private:
     double ringAmount;
     double currentAngle;
     double angleDelta;
+    bool bb;
 };
 
 class SampleSound : public SamplerSound
@@ -142,8 +143,9 @@ public:
                     SamplerSound(name, source, midiNotes, midiNoteForNormalPitch, 
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
                                  groups(group), fx_selector(fx), tf_selector(tf),
-                                 sampleStart(0.0), sampler(s),
-                                 velocity(v)
+                                 sampleStart(0.0), loopStart(0.0), loopEnd(0.0), 
+                                 loopXFadeLength(0.0), loopMode(false), 
+                                 sampler(s), velocity(v)
     {
         sampleRate = source.sampleRate;
         rootNote = midiNoteForNormalPitch;
@@ -157,6 +159,16 @@ public:
     TransformSelector* getTransformSelector(){return tf_selector;}
     void setSampleStart(double d){sampleStart=d;}
     double getSampleStart(){return sampleStart;}
+    
+    void setLoopStart(double d){loopStart=d;}
+    void setLoopEnd(double d){loopEnd=d;}
+    void setLoopMode(bool b){loopMode = b;}
+    void setLoopXFadeLength(double d){loopXFadeLength = d;}
+    
+    bool getLoopMode(){return loopMode;}
+    double getLoopStart(){return loopStart;}
+    double getLoopEnd(){return loopEnd;}
+    
     Sampler* getSampler(){return sampler;}
 private:
     std::pair<int, int> velocity;
@@ -166,7 +178,12 @@ private:
     FxSelector* fx_selector;
     TransformSelector* tf_selector;
     double sampleStart;
+    double loopStart;
+    double loopEnd;
+    bool loopMode;
+    double loopXFadeLength;
     Sampler* sampler;
+    
 };
 
                     

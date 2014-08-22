@@ -149,6 +149,7 @@ void SampleVoice::startNote(const int midiNoteNumber,
                 }
             }
         }
+        bb = false;
         noteEvent->setVelocity(noteEvent->getVelocity()*tf_vel_multiplier);
     }
 }
@@ -166,7 +167,18 @@ static double getReleaseMultiplier(float releaseTime, float releaseCurve, float 
 
 void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, int numSamples){
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
+    
     if (s != nullptr){
+        
+        bool looping = false;
+        if (s->getLoopMode() && s->getLoopEnd() > s->getLoopStart())
+            looping = true;
+            
+        if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()))
+            looping = false;
+            
+        int loop_xfade_length = (s->getLoopEnd() - s->getLoopStart()) / 10;
+        
         Array<int> groups_for_note = s->getGroups();
         Array<int> groups_for_event = noteEvent->getGroups();
         bool return_flag = true;
@@ -318,6 +330,27 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 float l = ((inL[pos]) * invAlpha +  (inL[pos+1]) * alpha);
                 float r = inR != nullptr ? (inR[pos]) * invAlpha + (inR[pos+1] * alpha) : l;
                 
+                double start_pos;
+                if (looping && s->getLoopEnd() - samplePosition <= loop_xfade_length){
+                    start_pos = s->getLoopStart() + loop_xfade_length - (s->getLoopEnd() - samplePosition);
+                    double xfade_counter = loop_xfade_length - (s->getLoopEnd() - samplePosition);
+                    
+                    const int pos2 = (int) start_pos;
+                    const double alpha2 = (double) (start_pos - pos2);
+                    const double invAlpha2 = 1.0f - alpha2;
+                    float l2 = ((inL[pos2]) * invAlpha2 +  (inL[pos2+1]) * alpha2);
+                    float r2 = inR != nullptr ? (inR[pos2]) * invAlpha2 + (inR[pos2+1] * alpha2) : l2;
+                    
+                    l *= (loop_xfade_length - xfade_counter) / loop_xfade_length;
+                    r *= (loop_xfade_length - xfade_counter) / loop_xfade_length;
+                    
+                    l += xfade_counter / loop_xfade_length * l2;
+                    r += xfade_counter / loop_xfade_length * r2;
+                    
+                    //std::cout<<xfade_counter<<" "<<(loop_xfade_length - xfade_counter) / loop_xfade_length<<std::endl;
+                    
+                }
+                
                 
                 //process fx after interpolation...
                 //l = filter1.processSingleSampleRaw(l);
@@ -346,19 +379,42 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 }
                 
                 //std::cout<<*outL<<std::endl;
+                if (looping && samplePosition >= s->getLoopEnd()-1)
+                //std::cout<<std::endl<<*outL<<std::endl;
+
+                if ((int)samplePosition == s->getLoopStart() + loop_xfade_length){
+                    //std::cout<<std::endl<<"start after processing: "<<*outL<<std::endl;
+                }else{
+                    //std::cout<<"f";
+                }
+                if (bb){
+                    std::cout<<"start output: "<<*outL<<std::endl;
+                    std::cout<<samplePosition<<std::endl;
+                    bb = false;
+                }
+                if (looping && samplePosition >= s->getLoopEnd()-1)
+                    std::cout<<"end output: "<<*outL<<std::endl;
                 
                 outL++;
                 outR++;
                 currentAngle += angleDelta;
-                
                 samplePosition += pitchRatio;
-                if (samplePosition > sample_length || sample_length - samplePosition < numSamples || release_x >= releaseTime){
+                
+                if (!looping && samplePosition > sample_length || sample_length - samplePosition < numSamples || release_x >= releaseTime){
                     samplePosition = 0.0;
                     s->getSampler()->getEvents().removeFirstMatchingValue(noteEvent);
                     currentAngle = 0.0;
                     noteEvent = nullptr;
                     stopNote(false);
                     ringMod = false;
+                    break;
+                }
+                
+                if (looping && samplePosition >= s->getLoopEnd()){
+                    samplePosition = s->getLoopStart() + loop_xfade_length;
+                    bb = true;
+                    std::cout<<"sample position: "<<samplePosition<<std::endl;
+                    std::cout<<"start over: "<<inL[(int)samplePosition]<<" "<<inL[(int)samplePosition - 1]<<std::endl;
                     break;
                 }
             }
