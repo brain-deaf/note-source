@@ -111,7 +111,11 @@ WaveBin::~WaveBin(){
 void WaveBin::updateZone(Zone* _zone){
     z = _zone;
     if (z != nullptr){
-        sample_start->setValue(z->getPlaySettings()->getSampleStart());
+        sample_start->setValue(z->getPlaySettings()->getSampleStart(), sendNotification);
+        toggleLoop->setToggleState(z->getPlaySettings()->getLoopMode(), sendNotification);
+        loopStart->setValue(z->getPlaySettings()->getLoopStart(), sendNotification);
+        loopEnd->setValue(z->getPlaySettings()->getLoopEnd(), sendNotification);
+        xfadeLength->setValue(z->getPlaySettings()->getXfadeLength(), sendNotification);
         if (filePlayer != nullptr){
             delete filePlayer;
             filePlayer = nullptr;

@@ -278,6 +278,10 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 
                 new_zone->set_width(zone->getIntAttribute("width"));
                 new_zone->getPlaySettings()->setSampleStart(zone->getDoubleAttribute("sample_start"));
+                new_zone->getPlaySettings()->setLoopMode(zone->getIntAttribute("loop_mode"));
+                new_zone->getPlaySettings()->setLoopStart(zone->getDoubleAttribute("loop_start"));
+                new_zone->getPlaySettings()->setLoopEnd(zone->getDoubleAttribute("loop_end"));
+                new_zone->getPlaySettings()->setXfadeLength(zone->getDoubleAttribute("xfade_length"));
 
                 float gridWidth = get_width() / getNumColumns();
                 new_zone->setBounds(new_zone->getX(), new_zone->getY(), 
@@ -291,6 +295,8 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 getSampler().addSample(new_zone->getName(), new_zone->getNote(), round(new_zone->getX()/gridWidth), round(new_zone->getX()/gridWidth) + new_zone->get_width(), groups_for_zone, 
                                        new_zone->getPlaySettings(),
                                        new_zone->getVelocity());
+                                       
+                instrument.getTabWindow().getWaveBin()->updateZone(new_zone);
             }
         }
      }

@@ -148,16 +148,15 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                 group->setAttribute("name", mapping_editor->graph->getGroupEditor()->getModel()->getGroupNames()[i]);
                 for (int j=0; j<mapping_editor->graph->getGroups()[i]->getZones()->size(); j++){
                     XmlElement* zone = new XmlElement("ZONE");
-                    
-                    String path(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getName());
-                    int    x(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getX());
-                    int    y(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getY());
-                    int    width(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->get_width());
-                    int    height(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getHeight());
-                    int    note(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getNote());
-                    double sample_start(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getPlaySettings()->getSampleStart());
+                    Zone* z = (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j];
+                    String path(z->getName());
+                    int    x(z->getX());
+                    int    y(z->getY());
+                    int    width(z->get_width());
+                    int    height(z->getHeight());
+                    int    note(z->getNote());
+                    double sample_start(z->getPlaySettings()->getSampleStart());
 
-                    
                     zone->setAttribute("file", path);
                     zone->setAttribute("x", x);
                     zone->setAttribute("y", y);
@@ -165,6 +164,10 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                     zone->setAttribute("height", height);
                     zone->setAttribute("note", note);
                     zone->setAttribute("sample_start", sample_start);
+                    zone->setAttribute("loop_mode", z->getPlaySettings()->getLoopMode());
+                    zone->setAttribute("loop_start", z->getPlaySettings()->getLoopStart());
+                    zone->setAttribute("loop_end", z->getPlaySettings()->getLoopEnd());
+                    zone->setAttribute("xfade_length", z->getPlaySettings()->getXfadeLength());
                     group->addChildElement(zone);
                 }
                 for (int j=0; j<fx_group_list[i]->group_fx.size(); j++){

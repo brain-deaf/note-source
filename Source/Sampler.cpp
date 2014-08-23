@@ -58,6 +58,7 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
     ss->setLoopMode(p->getLoopMode());
     ss->setLoopStart(p->getLoopStart());
     ss->setLoopEnd(p->getLoopEnd());
+    ss->setXfadeLength(p->getXfadeLength());
     
     //std::cout<<v.first<<" "<<v.second<<std::endl;
 }
