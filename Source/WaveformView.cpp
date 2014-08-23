@@ -35,7 +35,7 @@ void WaveformView::updateWaveformForFilePlayer(Zone* z){
     sample_rate = afr->sampleRate;
     
     thumbnail.setSource(new FileInputSource(File(z->getName())));
-    sample_start = z->getPlaySettings().getSampleStart();
+    sample_start = z->getPlaySettings()->getSampleStart();
     if (parent != nullptr){ 
         parent->setFileLength(sample_rate*thumbnail.getTotalLength());
     }

@@ -277,7 +277,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 new_zone->setVelocity(velocity);
                 
                 new_zone->set_width(zone->getIntAttribute("width"));
-                new_zone->getPlaySettings().setSampleStart(zone->getDoubleAttribute("sample_start"));
+                new_zone->getPlaySettings()->setSampleStart(zone->getDoubleAttribute("sample_start"));
 
                 float gridWidth = get_width() / getNumColumns();
                 new_zone->setBounds(new_zone->getX(), new_zone->getY(), 
@@ -289,8 +289,8 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 groups_for_zone.add(j-1);
         
                 getSampler().addSample(new_zone->getName(), new_zone->getNote(), round(new_zone->getX()/gridWidth), round(new_zone->getX()/gridWidth) + new_zone->get_width(), groups_for_zone, 
-                                       new_zone->getPlaySettings().getSampleStart(), new_zone->getPlaySettings().getLoopMode(),new_zone->getPlaySettings().getLoopStart(),
-                                       new_zone->getPlaySettings().getLoopEnd(), new_zone->getVelocity());
+                                       new_zone->getPlaySettings(),
+                                       new_zone->getVelocity());
             }
         }
      }
@@ -365,8 +365,8 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
         
         lassoSource.getZones().add(newZone);
         
-        sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1, groups_for_zone, newZone->getPlaySettings().getSampleStart(), newZone->getPlaySettings().getLoopMode(),newZone->getPlaySettings().getLoopStart(),
-                                       newZone->getPlaySettings().getLoopEnd(), newZone->getVelocity());
+        sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1, groups_for_zone, 
+                          newZone->getPlaySettings(), newZone->getVelocity());
         
     }
     getZoneInfoSet().selectOnly(newZone);
@@ -398,7 +398,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                 new_zone->set_width(zone->get_width());
                 new_zone->setBounds(new_zone->getX(), new_zone->getY(), 
                                     gridWidth * new_zone->get_width() - gridOutline, new_zone->getHeight());
-                new_zone->getPlaySettings().setSampleStart(zone->getPlaySettings().getSampleStart());
+                new_zone->getPlaySettings()->setSampleStart(zone->getPlaySettings()->getSampleStart());
                 new_zone->setVelocity(zone->getVelocity());
                 
                 copied_zones.add(new_zone);
@@ -422,8 +422,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                                   round(zone->getX()/gridWidth), 
                                   round(zone->getX()/gridWidth) + zone->get_width(),
                                   groups_for_zone,
-                                  zone->getPlaySettings().getSampleStart(), zone->getPlaySettings().getLoopMode(),zone->getPlaySettings().getLoopStart(),
-                                  zone->getPlaySettings().getLoopEnd(),
+                                  zone->getPlaySettings(),
                                   zone->getVelocity());
 
                                    
@@ -615,8 +614,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                       round(i->getX()/gridWidth), 
                                       round(i->getX()/gridWidth) + i->get_width(),
                                       groups_for_zone,
-                                      i->getPlaySettings().getSampleStart(), i->getPlaySettings().getLoopMode(),i->getPlaySettings().getLoopStart(),
-                                      i->getPlaySettings().getLoopEnd(),
+                                      i->getPlaySettings(),
                                       i->getVelocity());
                 }
             }else{
@@ -660,8 +658,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                   round(draggedZone->getX()/gridWidth), 
                                   round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
                                   groups_for_zone,
-                                  draggedZone->getPlaySettings().getSampleStart(), draggedZone->getPlaySettings().getLoopMode(),draggedZone->getPlaySettings().getLoopStart(),
-                                  draggedZone->getPlaySettings().getLoopEnd(),
+                                  draggedZone->getPlaySettings(),
                                   draggedZone->getVelocity());
             }
         }
@@ -705,8 +702,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                       round(i->getX()/gridWidth), 
                                       round(i->getX()/gridWidth) + i->get_width(),
                                       groups_for_zone,
-                                      i->getPlaySettings().getSampleStart(), i->getPlaySettings().getLoopMode(),i->getPlaySettings().getLoopStart(),
-                                      i->getPlaySettings().getLoopEnd(),
+                                      i->getPlaySettings(),
                                       i->getVelocity());
                 }
             } else {
@@ -749,8 +745,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                   round(draggedZone->getX()/gridWidth), 
                                   round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
                                   groups_for_zone,
-                                  draggedZone->getPlaySettings().getSampleStart(), draggedZone->getPlaySettings().getLoopMode(),draggedZone->getPlaySettings().getLoopStart(),
-                                  draggedZone->getPlaySettings().getLoopEnd(),
+                                  draggedZone->getPlaySettings(),
                                   draggedZone->getVelocity());
             }
         }
@@ -791,8 +786,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                       round(i->getX()/gridWidth), 
                                       round(i->getX()/gridWidth) + i->get_width(),
                                       groups_for_zone,
-                                      i->getPlaySettings().getSampleStart(), i->getPlaySettings().getLoopMode(),i->getPlaySettings().getLoopStart(),
-                                      i->getPlaySettings().getLoopEnd(),
+                                      i->getPlaySettings(),
                                       i->getVelocity());
                 }
             } else {
@@ -830,8 +824,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                   round(draggedZone->getX()/gridWidth), 
                                   round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
                                   groups_for_zone,
-                                  draggedZone->getPlaySettings().getSampleStart(), draggedZone->getPlaySettings().getLoopMode(),draggedZone->getPlaySettings().getLoopStart(),
-                                  draggedZone->getPlaySettings().getLoopEnd(),
+                                  draggedZone->getPlaySettings(),
                                   draggedZone->getVelocity());
             }
         }
@@ -867,8 +860,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                           round(i->getX()/gridWidth), 
                                           round(i->getX()/gridWidth) + i->get_width(),
                                           groups_for_zone,
-                                          i->getPlaySettings().getSampleStart(), i->getPlaySettings().getLoopMode(),i->getPlaySettings().getLoopStart(),
-                                          i->getPlaySettings().getLoopEnd(),
+                                          i->getPlaySettings(),
                                           i->getVelocity());
                     }
                 }
@@ -902,8 +894,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                       round(draggedZone->getX()/gridWidth), 
                                       round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
                                       groups_for_zone,
-                                      draggedZone->getPlaySettings().getSampleStart(), draggedZone->getPlaySettings().getLoopMode(),draggedZone->getPlaySettings().getLoopStart(),
-                                      draggedZone->getPlaySettings().getLoopEnd(),
+                                      draggedZone->getPlaySettings(),
                                       draggedZone->getVelocity());
                 }
             }
@@ -944,8 +935,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                               round(i->getX()/gridWidth), 
                                               round(i->getX()/gridWidth) + i->get_width(),
                                               groups_for_zone,
-                                              i->getPlaySettings().getSampleStart(), i->getPlaySettings().getLoopMode(),i->getPlaySettings().getLoopStart(),
-                                              i->getPlaySettings().getLoopEnd(),
+                                              i->getPlaySettings(),
                                               i->getVelocity());
                         }
                     }
@@ -984,8 +974,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
                                       round(draggedZone->getX()/gridWidth), 
                                       round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
                                       groups_for_zone,
-                                      draggedZone->getPlaySettings().getSampleStart(), draggedZone->getPlaySettings().getLoopMode(),draggedZone->getPlaySettings().getLoopStart(),
-                                      draggedZone->getPlaySettings().getLoopEnd(),
+                                      draggedZone->getPlaySettings(),
                                       draggedZone->getVelocity());
                 }
             }

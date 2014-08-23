@@ -105,7 +105,7 @@ WaveBin::~WaveBin(){
 void WaveBin::updateZone(Zone* _zone){
     z = _zone;
     if (z != nullptr){
-        sample_start->setValue(z->getPlaySettings().getSampleStart());
+        sample_start->setValue(z->getPlaySettings()->getSampleStart());
         if (filePlayer != nullptr){
             delete filePlayer;
             filePlayer = nullptr;
@@ -156,7 +156,7 @@ void WaveBin::sliderValueChanged(Slider* s){
     if (s == sample_start){
         if (z != nullptr){
             waveform->setSampleStart(sample_start->getValue());
-            z->getPlaySettings().setSampleStart(sample_start->getValue());
+            z->getPlaySettings()->setSampleStart(sample_start->getValue());
         
             InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
             int zone_index = m->getZones().indexOf(z);
@@ -168,7 +168,7 @@ void WaveBin::sliderValueChanged(Slider* s){
             
             waveform->setLoopStart(loopStart->getValue());
             waveform->repaint();
-            z->getPlaySettings().setLoopStart(loopStart->getValue());
+            z->getPlaySettings()->setLoopStart(loopStart->getValue());
             InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
             int zone_index = m->getZones().indexOf(z);
             static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setLoopStart(loopStart->getValue());
@@ -178,7 +178,7 @@ void WaveBin::sliderValueChanged(Slider* s){
         if (z != nullptr){
             waveform->setLoopEnd(loopEnd->getValue());
             waveform->repaint();
-            z->getPlaySettings().setLoopEnd(loopEnd->getValue());
+            z->getPlaySettings()->setLoopEnd(loopEnd->getValue());
             InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
             int zone_index = m->getZones().indexOf(z);
             static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setLoopEnd(loopEnd->getValue());
@@ -203,7 +203,7 @@ void WaveBin::buttonClicked(Button* b){
     }
     if (b == toggleLoop){
         if (z != nullptr){
-            z->getPlaySettings().setLoopMode(toggleLoop->getToggleState());
+            z->getPlaySettings()->setLoopMode(toggleLoop->getToggleState());
             InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
             int zone_index = m->getZones().indexOf(z);
             static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setLoopMode(toggleLoop->getToggleState());

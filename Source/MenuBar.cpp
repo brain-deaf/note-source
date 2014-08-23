@@ -155,7 +155,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                     int    width(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->get_width());
                     int    height(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getHeight());
                     int    note(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getNote());
-                    double sample_start(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getPlaySettings().getSampleStart());
+                    double sample_start(  (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j]->getPlaySettings()->getSampleStart());
 
                     
                     zone->setAttribute("file", path);

@@ -20,6 +20,25 @@
 class Sampler;
 class InstrumentComponent;
 
+class PlaySettings
+{
+public:
+    PlaySettings() : sampleStart(0.0),loopStart(0.0),loopEnd(0.0),loopMode(false){}
+    double getSampleStart(){return sampleStart;}
+    void setSampleStart(double d){sampleStart=d;}
+    void setLoopStart(double d){loopStart=d;}
+    void setLoopEnd(double d){loopEnd=d;}
+    void setLoopMode(bool b){loopMode=b;}
+    bool getLoopMode(){return loopMode;}
+    double getLoopStart(){return loopStart;}
+    double getLoopEnd(){return loopEnd;}
+private:
+    double sampleStart;
+    double loopStart;
+    double loopEnd;
+    bool loopMode;
+};
+
 class InstrumentMappingEditor : public Component
 {
 public:
@@ -75,26 +94,9 @@ public:
             void mouseDoubleClick(const MouseEvent& event);
             typedef ReferenceCountedObjectPtr<Zone> Ptr;
             
-            class PlaySettings
-            {
-            public:
-                PlaySettings() : sampleStart(0.0),loopStart(0.0),loopEnd(0.0),loopMode(false){}
-                double getSampleStart(){return sampleStart;}
-                void setSampleStart(double d){sampleStart=d;}
-                void setLoopStart(double d){loopStart=d;}
-                void setLoopEnd(double d){loopEnd=d;}
-                void setLoopMode(bool b){loopMode=b;}
-                bool getLoopMode(){return loopMode;}
-                double getLoopStart(){return loopStart;}
-                double getLoopEnd(){return loopEnd;}
-            private:
-                double sampleStart;
-                double loopStart;
-                double loopEnd;
-                bool loopMode;
-            };
             
-            PlaySettings& getPlaySettings(){return playSettings;}
+            
+            PlaySettings* getPlaySettings(){return &playSettings;}
         private:
             MappingEditorGraph * parent;
             InstrumentComponent& instrument;

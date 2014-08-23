@@ -43,7 +43,7 @@ Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s)
     //filter2.setCoefficients(IIRCoefficients());
 }
     
-void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups, double sampleStart, bool loopMode, double loopStart, double loopEnd, std::pair<int, int> v){
+void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups, PlaySettings* p, std::pair<int, int> v){
     ScopedPointer<AudioFormatReader> audioReader(formatManager.createReaderFor(File(path)));
         
     BigInteger allNotes;
@@ -54,10 +54,10 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
     synth.addSound(ss = new SampleSound("demo sound", *audioReader,
                                     allNotes, root_note,
                                     0.0, 0.0, 10.0, groups, fx_selector, tf_selector, this, v));
-    ss->setSampleStart(sampleStart);
-    ss->setLoopMode(loopMode);
-    ss->setLoopStart(loopStart);
-    ss->setLoopEnd(loopEnd);
+    ss->setSampleStart(p->getSampleStart());
+    ss->setLoopMode(p->getLoopMode());
+    ss->setLoopStart(p->getLoopStart());
+    ss->setLoopEnd(p->getLoopEnd());
     
     //std::cout<<v.first<<" "<<v.second<<std::endl;
 }

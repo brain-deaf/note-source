@@ -50,14 +50,14 @@ private:
 };
 
 
-    
+class PlaySettings;
 
 class Sampler : public AudioSource
 {
 public:
     Sampler(SelectedItemSet<std::pair<int, int> >*);
     void addSample(String path, int root_note, int note_low, int note_high, 
-                   Array<int>&, double, bool, double, double, std::pair<int, int>);
+                   Array<int>&, PlaySettings*, std::pair<int, int>);
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
     void releaseResources() override;
     void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override;
