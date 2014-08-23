@@ -59,6 +59,14 @@ void WaveformView::paint(Graphics& g){
             g.strokePath (myPath, PathStrokeType (3.0f));
             
             if (loopEnd > loopStart){
+                g.setColour(Colours::red);
+                Path xfade_path;
+                xfade_path.startNewSubPath(length_per_sample*loopStart, getHeight());
+                xfade_path.lineTo(length_per_sample*(loopStart+xfadeLength), 0);
+                xfade_path.startNewSubPath(length_per_sample*loopEnd, getHeight());
+                xfade_path.lineTo(length_per_sample*(loopEnd-xfadeLength), 0);
+                g.strokePath(xfade_path, PathStrokeType(1.0f));
+                
                 g.setColour(Colours::yellow);
                 g.setOpacity(0.5);
                 const Rectangle<float> loop_rectangle(length_per_sample*loopStart, 0, length_per_sample*loopEnd-length_per_sample*loopStart, getHeight());
