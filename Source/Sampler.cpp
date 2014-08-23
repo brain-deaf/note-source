@@ -172,7 +172,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
     
     if (s != nullptr){
-        
+        double xfadeLength = s->getXfadeLength();
         bool looping = false;
         if (s->getLoopMode() && s->getLoopEnd() > s->getLoopStart())
             looping = true;
@@ -180,7 +180,6 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
         if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()))
             looping = false;
             
-        int loop_xfade_length = (s->getLoopEnd() - s->getLoopStart()) / 4;
         
         Array<int> groups_for_note = s->getGroups();
         Array<int> groups_for_event = noteEvent->getGroups();
@@ -334,9 +333,9 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 float r = inR != nullptr ? (inR[pos]) * invAlpha + (inR[pos+1] * alpha) : l;
                 
                 double start_pos;
-                if (looping && s->getLoopEnd() - samplePosition <= loop_xfade_length){
-                    start_pos = s->getLoopStart() + loop_xfade_length - (s->getLoopEnd() - samplePosition);
-                    double xfade_counter = loop_xfade_length - (s->getLoopEnd() - samplePosition);
+                if (looping && s->getLoopEnd() - samplePosition <= xfadeLength){
+                    start_pos = s->getLoopStart() + xfadeLength - (s->getLoopEnd() - samplePosition);
+                    double xfade_counter = xfadeLength - (s->getLoopEnd() - samplePosition);
                     
                     const int pos2 = (int) start_pos;
                     const double alpha2 = (double) (start_pos - pos2);
@@ -344,11 +343,11 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     float l2 = ((inL[pos2]) * invAlpha2 +  (inL[pos2+1]) * alpha2);
                     float r2 = inR != nullptr ? (inR[pos2]) * invAlpha2 + (inR[pos2+1] * alpha2) : l2;
                     
-                    l *= (loop_xfade_length - xfade_counter) / loop_xfade_length;
-                    r *= (loop_xfade_length - xfade_counter) / loop_xfade_length;
+                    l *= (xfadeLength - xfade_counter) / xfadeLength;
+                    r *= (xfadeLength - xfade_counter) / xfadeLength;
                     
-                    l += xfade_counter / loop_xfade_length * l2;
-                    r += xfade_counter / loop_xfade_length * r2;
+                    l += xfade_counter / xfadeLength * l2;
+                    r += xfade_counter / xfadeLength * r2;
                     
                     //if (xfade_counter > loop_xfade_length/10*9)
                         //std::cout<<xfade_counter<<std::endl;
@@ -387,7 +386,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 if (looping && samplePosition >= s->getLoopEnd()-1)
                 //std::cout<<std::endl<<*outL<<std::endl;
 
-                if ((int)samplePosition == s->getLoopStart() + loop_xfade_length){
+                if ((int)samplePosition == s->getLoopStart() + xfadeLength){
                     //std::cout<<std::endl<<"start after processing: "<<*outL<<std::endl;
                 }else{
                     //std::cout<<"f";
@@ -418,7 +417,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 }
                 
                 if (looping && samplePosition >= s->getLoopEnd()+0){
-                    samplePosition = s->getLoopStart() + loop_xfade_length;
+                    samplePosition = s->getLoopStart() + xfadeLength;
                     bb = true;
                     //std::cout<<std::endl<<"sample position: "<<samplePosition<<std::endl;
                     //std::cout<<std::endl<<"start over: "<<inL[(int)samplePosition]<<" "<<inL[(int)samplePosition - 1]<<" R: "<<inR[(int)samplePosition]<<" "<<inR[(int)samplePosition - 1]<<std::endl;

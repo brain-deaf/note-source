@@ -63,6 +63,7 @@ private:
     FilePlayer* filePlayer;
     ScopedPointer<Slider> loopStart;
     ScopedPointer<Slider> loopEnd;
+    ScopedPointer<Slider> xfadeLength;
     ScopedPointer<TextButton> toggleLoop;
     Zone* z;
 };

@@ -32,6 +32,7 @@ public:
     void setLength(double d){length_sec = d;}
     void setLoopStart(double d){loopStart=d;}
     void setLoopEnd(double d){loopEnd=d;}
+    void setXfadeLength(double d){xfadeLength=d;}
 private:
     WaveBin* parent;
     double vScale;
@@ -41,6 +42,7 @@ private:
     double loopStart;
     double loopEnd;
     double playPosition;
+    double xfadeLength;
     bool playing;
     AudioThumbnailCache cache;
     AudioThumbnail thumbnail;

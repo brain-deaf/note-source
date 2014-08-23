@@ -145,7 +145,7 @@ public:
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
                                  groups(group), fx_selector(fx), tf_selector(tf),
                                  sampleStart(0.0), loopStart(0.0), loopEnd(0.0), 
-                                 loopXFadeLength(0.0), loopMode(false), 
+                                 xfadeLength(0.0), loopMode(false), 
                                  sampler(s), velocity(v)
     {
         sampleRate = source.sampleRate;
@@ -164,11 +164,12 @@ public:
     void setLoopStart(double d){loopStart=d;}
     void setLoopEnd(double d){loopEnd=d;}
     void setLoopMode(bool b){loopMode = b;}
-    void setLoopXFadeLength(double d){loopXFadeLength = d;}
+    void setXfadeLength(double d){xfadeLength = d;}
     
     bool getLoopMode(){return loopMode;}
     double getLoopStart(){return loopStart;}
     double getLoopEnd(){return loopEnd;}
+    double getXfadeLength(){return xfadeLength;}
     
     Sampler* getSampler(){return sampler;}
 private:
@@ -182,7 +183,7 @@ private:
     double loopStart;
     double loopEnd;
     bool loopMode;
-    double loopXFadeLength;
+    double xfadeLength;
     Sampler* sampler;
     
 };
