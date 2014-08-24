@@ -45,6 +45,7 @@ LinearTransform::LinearTransform() : Component(),
     combo_items.add("Velocity");
     combo_items.add("Pitch Wheel");
     combo_items.add("Tuning");
+    combo_items.add("Timer");
     
     sourceBox->addItemList(combo_items, 1);
 

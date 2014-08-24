@@ -24,7 +24,8 @@ enum TransformID{
     NOTE=34,
     VELOCITY=35,
     PITCHWHEEL=36,
-    TUNING=37
+    TUNING=37,
+    TIMER=38
 };
 
 

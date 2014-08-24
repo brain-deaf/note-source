@@ -76,19 +76,15 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
     midiCollector.removeNextBlockOfMessages(incomingMidi, bufferToFill.numSamples);
 
     synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, 0, bufferToFill.numSamples);
+    
+    //send timer information to Timer transformations
     if (tf_selector != nullptr){
         for (auto i : tf_selector->getGroups()){
             TransformGroup* tf_group = i;
-            if (tf_group == nullptr)
-                return;
             for (auto fx : tf_group->group_fx){
-                if (fx == nullptr)
-                    return;
                 if (fx->getFxType() == TransformChooser::FX::LINEAR){
                     LinearTransform* ltf= (LinearTransform*)fx->getContent();
-                    if (ltf == nullptr)
-                        return;
-                    if (ltf->getLFO() != nullptr){}
+                    if (ltf->getSourceBox()->getSelectedId() == TransformID::TIMER)
                         ltf->getLFO()->elapseTime(bufferToFill.numSamples);
                 }
             }
