@@ -38,3 +38,15 @@ void TransformBin::broughtToFront(){
     addAndMakeVisible(group_editor);
     resized();
 }
+
+void TransformBin::quit(){
+    for (auto i : fx_selector->getGroups()){
+        TransformGroup* tf_group = i;
+            for (auto fx : tf_group->group_fx){
+                if (fx->getFxType() == TransformChooser::FX::LINEAR){
+                    LinearTransform* ltf= (LinearTransform*)fx->getContent();
+                    ltf->quit();
+                }
+            }
+        }
+}

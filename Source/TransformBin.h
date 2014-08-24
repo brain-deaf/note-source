@@ -23,6 +23,7 @@ public:
     ~TransformBin();
     void resized();
     void broughtToFront();
+    void quit();
     TransformComponent* getTransformComponent(){return fx_component;}
     GroupEditor* getGroupEditor(){return group_editor;}
     TransformSelector* getTransformSelector(){return fx_selector;}

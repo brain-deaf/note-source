@@ -43,14 +43,16 @@ class LFO
 {
 public:
     LFO(TransformType t, Transformation* tf) : 
-        elapsedSamples(0.0),sampleCycleLength(44100.0){transformType=t; parent=tf;}
+        elapsedSamples(0.0),quitting(false),sampleCycleLength(44100.0){transformType=t; parent=tf;}
     ~LFO(){}
     void elapseTime(int samples);
+    void quit(){quitting=true;}
 private:
     int elapsedSamples;
     int sampleCycleLength;
     int transformType;
     Transformation* parent;
+    bool quitting;
 };   
 
 class LinearGraph : public Component, public Slider::Listener
@@ -111,6 +113,7 @@ public:
     void setGValue(int g){graph->setGValue(g);}
     LFO* getLFO(){return lfo.get();}
     Array<Point<int> >* getPoints(){return &points;}
+    void quit(){lfo->quit();}
 private:
     ScopedPointer<Slider> startSlider;
     ScopedPointer<Slider> endSlider;

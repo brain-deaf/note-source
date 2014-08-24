@@ -76,6 +76,24 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
     midiCollector.removeNextBlockOfMessages(incomingMidi, bufferToFill.numSamples);
 
     synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, 0, bufferToFill.numSamples);
+    if (tf_selector != nullptr){
+        for (auto i : tf_selector->getGroups()){
+            TransformGroup* tf_group = i;
+            if (tf_group == nullptr)
+                return;
+            for (auto fx : tf_group->group_fx){
+                if (fx == nullptr)
+                    return;
+                if (fx->getFxType() == TransformChooser::FX::LINEAR){
+                    LinearTransform* ltf= (LinearTransform*)fx->getContent();
+                    if (ltf == nullptr)
+                        return;
+                    if (ltf->getLFO() != nullptr){}
+                        ltf->getLFO()->elapseTime(bufferToFill.numSamples);
+                }
+            }
+        }
+    }
     //add filter processing to the output channels 1 and 2
     //filter1.processSamples(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getNumSamples());
     //filter2.processSamples(bufferToFill.buffer->getWritePointer(1), bufferToFill.buffer->getNumSamples());
@@ -226,7 +244,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             for (auto fx : tf_group->group_fx){
                 if (fx->getFxType() == TransformChooser::FX::LINEAR){
                     LinearTransform* ltf= (LinearTransform*)fx->getContent();
-                    ltf->getLFO()->elapseTime(numSamples);
+                    //ltf->getLFO()->elapseTime(numSamples);
                     if (ltf->getTargetBox()->getSelectedId() == TransformID::VOLUME){
                         int gValue = ltf->getGraph()->getGValue();
                         if (gValue != -1)

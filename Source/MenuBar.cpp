@@ -79,6 +79,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             for (auto instrument : parent->getInstruments()){
                 scriptBin = instrument->getTabWindow().getScriptBin();
                 lua_close(scriptBin->getLuaScript()->getLuaState());
+                tf_bin->quit();
             }
             JUCEApplication::quit();
             break;

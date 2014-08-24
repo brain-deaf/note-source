@@ -477,19 +477,21 @@ void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* source, const M
 
 
 void LFO::elapseTime(int samples){
-    elapsedSamples+=samples;
-    elapsedSamples%=sampleCycleLength;
-    switch (transformType){
-    case TransformType::LINEAR :{
-        LinearTransform* t = static_cast<LinearTransform*>(parent);
-        double e = (double)elapsedSamples;
-        double c = (double)sampleCycleLength;
-        parent->setTValue(e/c*128);
-        t->setGValue(e/c*128);
-        const MessageManagerLock lock; //make component calls thread safe
-        t->getGraph()->repaint();
-        t->getGraph()->calculateTValue();
-        break;}
+    if (!quitting){
+        elapsedSamples+=samples;
+        elapsedSamples%=sampleCycleLength;
+        switch (transformType){
+        case TransformType::LINEAR :{
+            LinearTransform* t = static_cast<LinearTransform*>(parent);
+            double e = (double)elapsedSamples;
+            double c = (double)sampleCycleLength;
+            parent->setTValue(e/c*128);
+            t->setGValue(e/c*128);
+            const MessageManagerLock lock; //make component calls thread safe
+            t->getGraph()->repaint();
+            t->getGraph()->calculateTValue();
+            break;}
+        }
     }
 }
 
