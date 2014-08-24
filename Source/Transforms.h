@@ -26,19 +26,32 @@ enum TransformID{
     PITCHWHEEL=36,
     TUNING=37
 };
-    
-    
+
 
 class Transformation{
 public:
     Transformation() : tValue(-1){}
-    void setTValue(int t){tValue = t;}
-    int getTValue(){return tValue;}
+    void setTValue(double t){tValue = t;}
+    double getTValue(){return tValue;}
 private:
-    int tValue;
+    double tValue;
 
 };
-    
+
+
+class LFO
+{
+public:
+    LFO(TransformType t, Transformation* tf) : 
+        elapsedSamples(0.0),sampleCycleLength(44100.0){transformType=t; parent=tf;}
+    ~LFO(){}
+    void elapseTime(int samples);
+private:
+    int elapsedSamples;
+    int sampleCycleLength;
+    int transformType;
+    Transformation* parent;
+};   
 
 class LinearGraph : public Component, public Slider::Listener
 {
@@ -50,12 +63,15 @@ public:
                                         points(nullptr),
                                         pxThreshold(10),
                                         selectedPointIndex(-1),
-                                        gValue(-1){}
+                                        gValue(-1)
+    {
+        
+    }
     ~LinearGraph(){}
     void paint(Graphics&);
     void sliderValueChanged(Slider*);
-    void setGValue(int g){gValue=g;}
-    int getGValue(){return gValue;}
+    void setGValue(double g){gValue=g;}
+    double getGValue(){return gValue;}
     double getTValue(){return tValue;}
     void calculateTValue();
     void mouseDown(const MouseEvent&);
@@ -66,7 +82,7 @@ public:
 private:
     Slider* startSlider;
     Slider* endSlider;
-    int gValue;
+    double gValue;
     double tValue;
     bool init;
     Array<Point<int> >* points;
@@ -82,6 +98,7 @@ public:
         SharedResourcePointer<AudioDeviceManager> dm;
         dm->removeMidiInputCallback("", (MidiInputCallback*)midiCallback.get());
         midiCallback=nullptr;
+        
     }
     ComboBox* getSourceBox(){return sourceBox.get();}
     ComboBox* getTargetBox(){return targetBox.get();}
@@ -92,6 +109,7 @@ public:
     void paint(Graphics&);
     void resized();
     void setGValue(int g){graph->setGValue(g);}
+    LFO* getLFO(){return lfo.get();}
     Array<Point<int> >* getPoints(){return &points;}
 private:
     ScopedPointer<Slider> startSlider;
@@ -101,6 +119,7 @@ private:
     ScopedPointer<Label> targetLabel;
     ScopedPointer<ComboBox> sourceBox;
     ScopedPointer<ComboBox> targetBox;
+    ScopedPointer<LFO> lfo;
     ScopedPointer<MidiTransformCallback> midiCallback;
     
     StringArray combo_items;
@@ -190,6 +209,8 @@ private:
     int transformType;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiTransformCallback)
 };
+
+
 
 
 

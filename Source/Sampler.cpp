@@ -226,6 +226,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             for (auto fx : tf_group->group_fx){
                 if (fx->getFxType() == TransformChooser::FX::LINEAR){
                     LinearTransform* ltf= (LinearTransform*)fx->getContent();
+                    ltf->getLFO()->elapseTime(numSamples);
                     if (ltf->getTargetBox()->getSelectedId() == TransformID::VOLUME){
                         int gValue = ltf->getGraph()->getGValue();
                         if (gValue != -1)
