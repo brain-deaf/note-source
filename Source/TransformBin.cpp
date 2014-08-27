@@ -9,6 +9,8 @@
 */
 
 #include "TransformBin.h"
+#include "InstrumentBin.h"
+#include "MainComponent.h"
 
 TransformBin::TransformBin(MappingEditorBin* bin) : Component(), selector_height(150),
     fx_component(new TransformComponent()),
@@ -20,6 +22,7 @@ TransformBin::TransformBin(MappingEditorBin* bin) : Component(), selector_height
     addAndMakeVisible(fx_component);
     addAndMakeVisible(group_editor);
     group_editor->setTransformBin(this);
+    metronome = mapping_editor->getInstrument()->getParent()->getParent()->getMetronome()->getMetronome();
 }
 
 TransformBin::~TransformBin(){
@@ -42,11 +45,11 @@ void TransformBin::broughtToFront(){
 void TransformBin::quit(){
     for (auto i : fx_selector->getGroups()){
         TransformGroup* tf_group = i;
-            for (auto fx : tf_group->group_fx){
-                if (fx->getFxType() == TransformChooser::FX::LINEAR){
-                    LinearTransform* ltf= (LinearTransform*)fx->getContent();
-                    ltf->quit();
-                }
+        for (auto fx : tf_group->group_fx){
+            if (fx->getFxType() == TransformChooser::FX::LINEAR){
+                LinearTransform* ltf= (LinearTransform*)fx->getContent();
+                ltf->quit();
             }
         }
+    }
 }

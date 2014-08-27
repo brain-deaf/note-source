@@ -180,7 +180,7 @@ void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel
     auto n = std::make_shared<NoteEvent>();
     n->setTriggerNote(-1);
     n->setNoteNumber(midiNoteNumber);
-    n->setVelocity(velocity);
+    n->setVelocity(velocity*128);
     n->setId(sampler.getIdCount());
     
     for (int i=0; i<groups.size(); i++){
@@ -188,7 +188,11 @@ void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel
     }
     
     sampler.incIdCount();
-    sampler.getIncomingEvents().add(n);
+    for (int i=0; i<sampler.getSynth()->getNumSounds(); i++){
+        if (sampler.getSynth()->getSound(i)->appliesToNote(midiNoteNumber)){
+            sampler.getIncomingEvents().add(n);
+        }
+    }
     sampler.getMidiCollector().addMessageToQueue(*m);
 }
 
@@ -318,7 +322,6 @@ void MappingEditorGraph::itemDropped(const SourceDetails& details){
         }
         
         if (s.size() > 0){
-            std::cout<<"add file"<<std::endl;
             filesDropped(s, details.localPosition.getX(), details.localPosition.getY());
         }
     }

@@ -34,6 +34,20 @@ void Metronome::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
     midiCollector.removeNextBlockOfMessages(incomingMidi, bufferToFill.numSamples);
 
     synth->renderNextBlock(*bufferToFill.buffer, incomingMidi, 0, bufferToFill.numSamples);
+    
+    //send timer information to Timer transformations
+    /*if (tf_selector != nullptr){
+        for (auto i : tf_selector->getGroups()){
+            TransformGroup* tf_group = i;
+            for (auto fx : tf_group->group_fx){
+                if (fx->getFxType() == TransformChooser::FX::LINEAR){
+                    LinearTransform* ltf= (LinearTransform*)fx->getContent();
+                    if (ltf->getSourceBox()->getSelectedId() == TransformID::TIMER)
+                        ltf->getLFO()->elapseTime(bufferToFill.numSamples);
+                }
+            }
+        }
+    }*/
 }
 
 MetronomeSound::MetronomeSound() : SynthesiserSound(), data()
@@ -43,7 +57,7 @@ MetronomeSound::MetronomeSound() : SynthesiserSound(), data()
 
 MetronomeVoice::MetronomeVoice() : SynthesiserVoice(), sampleCount(0), volume(0.5),
                          beepLength(4410), measureCount(4), releaseMultiplier(1.0),
-                         luaScript(nullptr), firstFlag(true)
+                         luaScript(nullptr), firstFlag(true), samples_per_beat(0.0)
 {
     currentAngle = 0.0;
     double cyclesPerSecond = 440.0;
@@ -63,7 +77,7 @@ void MetronomeVoice::renderNextBlock(AudioSampleBuffer& outputBuffer, int start,
     
     
     
-    double samples_per_beat = 44100.0 / (tempo/60.0);
+    samples_per_beat = 44100.0 / (tempo/60.0);
     if (transportRunning){
         for (int i=0; i<numSamples; i++){
             if (sampleCount >= beepLength - 100 && sampleCount < beepLength){

@@ -16,6 +16,7 @@
 #include "TransformSelector.h"
 #include "GroupEditor.h"
 #include "MappingEditorBin.h"
+#include "Metronome.h"
 
 class TransformBin : public Component {
 public:
@@ -28,12 +29,14 @@ public:
     GroupEditor* getGroupEditor(){return group_editor;}
     TransformSelector* getTransformSelector(){return fx_selector;}
     MappingEditorBin* getMappingEditor(){return mapping_editor;}
+    Metronome* getMetronome(){return metronome;}
 private:
     TransformSelector* fx_selector;
     TransformComponent* fx_component;
     int selector_height;
     GroupEditor* group_editor;
     MappingEditorBin* mapping_editor;
+    Metronome* metronome;
 };
 
 

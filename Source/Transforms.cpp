@@ -9,12 +9,13 @@
 */
 
 #include "Transforms.h"
+#include "TransformBin.h"
 
 static double plotAdsr(int x1, int time, int y1, int max_volume, double curve_width, int x){
     return(max_volume - y1) / (pow(M_E, curve_width*time) - pow(M_E, curve_width*x1)) * (pow(M_E, curve_width*x) - pow(M_E, curve_width*x1)) + y1;
 }
 
-LinearTransform::LinearTransform() : Component(), 
+LinearTransform::LinearTransform(TransformBin* t) : Component(), 
                                      startSlider(new Slider()), 
                                      endSlider(new Slider()),
                                      graph(new LinearGraph(startSlider.get(), endSlider.get())),
@@ -24,6 +25,8 @@ LinearTransform::LinearTransform() : Component(),
                                      targetBox(new ComboBox()),
                                      combo_items(),
                                      points(),
+                                     tf_bin(t),
+                                     metronome(nullptr),
                                      midiCallback(new MidiTransformCallback(TransformType::LINEAR, static_cast<Transformation*>(this)))
 {
     startSlider->setSliderStyle(Slider::RotaryVerticalDrag);
@@ -65,8 +68,11 @@ LinearTransform::LinearTransform() : Component(),
     
     SharedResourcePointer<AudioDeviceManager> dm;
     dm->addMidiInputCallback("", midiCallback.get());
+
+    metronome = tf_bin->getMetronome();
     
     lfo = new LFO(TransformType::LINEAR, static_cast<Transformation*>(this));
+    lfo->setMetronome(metronome);
 }
 
 void LinearTransform::resized(){
@@ -477,9 +483,9 @@ void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* source, const M
 }
 
 
-void LFO::elapseTime(int samples){
-    if (!quitting){
-        elapsedSamples+=samples;
+void LFO::elapseTime(){
+    if (!quitting && !syncToTempo){
+        /*elapsedSamples+=samples;
         elapsedSamples%=sampleCycleLength;
         switch (transformType){
         case TransformType::LINEAR :{
@@ -488,12 +494,34 @@ void LFO::elapseTime(int samples){
             double c = (double)sampleCycleLength;
             parent->setTValue(e/c*128);
             t->setGValue(e/c*128);
-            const MessageManagerLock lock; //make component calls thread safe
+            const MessageManagerLock lock;
+            t->getGraph()->repaint();
+            t->getGraph()->calculateTValue();
+            break;}
+        }*/
+    }
+    else if(!quitting && syncToTempo){
+        MetronomeVoice* v = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+        double samples_per_beat = v->getSamplesPerBeat();
+        double sample_count = v->getSampleCount();
+        int measure_count = v->getMeasureCount();
+        double value = (sample_count+(samples_per_beat*measure_count))/(samples_per_beat*4) * 128.0;
+        switch (transformType){
+        case TransformType::LINEAR :{
+            LinearTransform* t = static_cast<LinearTransform*>(parent);
+            parent->setTValue(value);
+            t->setGValue(value);
+            const MessageManagerLock lock;
             t->getGraph()->repaint();
             t->getGraph()->calculateTValue();
             break;}
         }
     }
+}
+
+void LFOTimer::timerCallback()
+{
+    lfo->elapseTime();
 }
 
 

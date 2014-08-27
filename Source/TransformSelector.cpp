@@ -56,7 +56,8 @@ void TransformSelector::loadPatch(XmlElement* xml){
                 
                     switch (tf->getFxType()){
                         case (TransformChooser::FX::LINEAR):{
-                            LinearTransform* linear = new LinearTransform();
+                            TransformBin* t = static_cast<TransformBin*>(getParentComponent());
+                            LinearTransform* linear = new LinearTransform(t);
                             linear->getStartSlider()->setValue(tf_element->getDoubleAttribute("start"), dontSendNotification);
                             linear->getEndSlider()->setValue(tf_element->getDoubleAttribute("end"), dontSendNotification);
                             linear->getSourceBox()->setSelectedId(tf_element->getIntAttribute("source"), dontSendNotification);
@@ -362,7 +363,7 @@ void TransformChooser::callButtonClick(TransformChoiceButton* b){
     SparseSet<int> s = selector->getGroupEditor()->getListBox()->getSelectedRows();
     if (buttons.indexOf(b) == LINEAR){
         int fx_index = selector->getBoxes().indexOf((TransformBox*)(selector->fxButtonChoice->getParentComponent()));
-        LinearTransform* new_linear = new LinearTransform();
+        LinearTransform* new_linear = new LinearTransform(bin);
         for (int i=s.size()-1; i>=0; i--){
             selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = LINEAR;
             selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(static_cast<Component*>(new_linear));

@@ -11,6 +11,9 @@
 #ifndef TRANSFORMS_H_INCLUDED
 #define TRANSFORMS_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Metronome.h"
+
+class TransformBin;
 
 class MidiTransformCallback;
 
@@ -40,21 +43,44 @@ private:
 };
 
 
+class LFO;
+class LFOTimer : public Timer
+{
+public:
+    LFOTimer(LFO* parent) : lfo(parent){}
+    ~LFOTimer(){stopTimer();}
+    void timerCallback();
+private:
+    LFO* lfo;
+};
+
+
 class LFO
 {
 public:
     LFO(TransformType t, Transformation* tf) : 
-        elapsedSamples(0.0),quitting(false),sampleCycleLength(44100.0){transformType=t; parent=tf;}
+        elapsedSamples(0.0),quitting(false),
+        sampleCycleLength(44100.0),timer(this),
+        syncToTempo(true)
+    {
+        transformType=t; parent=tf;
+        timer.startTimer(10);
+    }
     ~LFO(){}
-    void elapseTime(int samples);
+    void elapseTime();
     void quit(){quitting=true;}
+    void setMetronome(Metronome* m){metronome=m;}
 private:
     int elapsedSamples;
     int sampleCycleLength;
     int transformType;
     Transformation* parent;
     bool quitting;
+    bool syncToTempo;
+    LFOTimer timer;
+    Metronome* metronome;
 };   
+
 
 class LinearGraph : public Component, public Slider::Listener
 {
@@ -96,7 +122,7 @@ private:
 class LinearTransform : public Transformation, public Component
 {
 public:
-    LinearTransform();
+    LinearTransform(TransformBin* t);
     ~LinearTransform(){
         SharedResourcePointer<AudioDeviceManager> dm;
         dm->removeMidiInputCallback("", (MidiInputCallback*)midiCallback.get());
@@ -125,6 +151,8 @@ private:
     ScopedPointer<ComboBox> targetBox;
     ScopedPointer<LFO> lfo;
     ScopedPointer<MidiTransformCallback> midiCallback;
+    TransformBin* tf_bin;
+    Metronome* metronome;
     
     StringArray combo_items;
     Array<Point<int> > points;

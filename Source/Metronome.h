@@ -41,11 +41,15 @@ public:
     void setTransport(bool b){transportRunning=b;}
     void setTempo(double d){tempo=d;}
     void setVolume(double v){volume=v;}
+    double getSamplesPerBeat(){return samples_per_beat;}
+    int getSampleCount(){return sampleCount;}
+    int getMeasureCount(){return measureCount;}
     void reset(){sampleCount=0; measureCount=4; firstFlag = true;}
     void setLuaScript(LuaScript* l){luaScript=l;}
     void renderNextBlock(AudioSampleBuffer& outputBuffer, int start, int numSamples) override;
 private:
     int sampleCount;
+    double samples_per_beat;
     int measureCount;
     double currentAngle;
     double angleDelta;
@@ -70,7 +74,6 @@ public:
     Synthesiser* getSynth(){return synth;}
 private:
     double sampleRate;
-    double sampleCount;
     bool clickOn;
     bool transportRunning;
     double tempo;

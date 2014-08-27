@@ -77,19 +77,7 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 
     synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, 0, bufferToFill.numSamples);
     
-    //send timer information to Timer transformations
-    if (tf_selector != nullptr){
-        for (auto i : tf_selector->getGroups()){
-            TransformGroup* tf_group = i;
-            for (auto fx : tf_group->group_fx){
-                if (fx->getFxType() == TransformChooser::FX::LINEAR){
-                    LinearTransform* ltf= (LinearTransform*)fx->getContent();
-                    if (ltf->getSourceBox()->getSelectedId() == TransformID::TIMER)
-                        ltf->getLFO()->elapseTime(bufferToFill.numSamples);
-                }
-            }
-        }
-    }
+    
     //add filter processing to the output channels 1 and 2
     //filter1.processSamples(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getNumSamples());
     //filter2.processSamples(bufferToFill.buffer->getWritePointer(1), bufferToFill.buffer->getNumSamples());
@@ -111,7 +99,6 @@ void SampleVoice::startNote(const int midiNoteNumber,
                             const int pitchWheelPosition)
 {   
     if (SampleSound* sound = (SampleSound*)s){
-        
         const double a = pow(2.0, 1.0/12.0);
         double old_frequency = 440.0 * pow(a, (double)sound->getRootNote() - 69.0);
         double new_frequency = old_frequency * pow(a, (float)midiNoteNumber - sound->getRootNote());
@@ -128,6 +115,7 @@ void SampleVoice::startNote(const int midiNoteNumber,
                 break;
             }
         }
+
         Array<int> groups_for_note = sound->getGroups();
         for (auto i : groups_for_note){
             FxGroup* fx_group = sound->getFxSelector()->getGroups()[i];
@@ -144,7 +132,7 @@ void SampleVoice::startNote(const int midiNoteNumber,
                 }
             }
         }
-        
+
         double tf_vel_multiplier = 1.0;
         for (auto i : groups_for_note){
             TransformGroup* tf_group = sound->getTransformSelector()->getGroups()[i];
@@ -185,8 +173,9 @@ static double getReleaseMultiplier(float releaseTime, float releaseCurve, float 
 
 void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, int numSamples){
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
-    
+
     if (s != nullptr){
+        
         double xfadeLength = s->getXfadeLength();
         bool looping = false;
         if (s->getLoopMode() && s->getLoopEnd() > s->getLoopStart())
@@ -195,7 +184,8 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
         if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()))
             looping = false;
             
-        
+       
+            
         Array<int> groups_for_note = s->getGroups();
         Array<int> groups_for_event = noteEvent->getGroups();
         bool return_flag = true;
@@ -208,6 +198,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 }
             }
         }
+        
         
         for (auto i : groups_for_note){
             FxGroup* fx_group = s->getFxSelector()->getGroups()[i];

@@ -17,7 +17,7 @@
 #include "InstrumentComponent.h"
 #include "InstrumentBin.h"
 #include "MainComponent.h"
-#include "MidiSlider.h"
+
 
 static LuaScript* luaScript = nullptr;
 static Sampler* staticSampler = nullptr;
