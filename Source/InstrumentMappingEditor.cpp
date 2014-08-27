@@ -131,6 +131,32 @@ void MappingEditorGraph::updateZones(){
         }
     }
 }
+
+void MappingEditorGraph::updateZone(MappingEditorGraph::Zone* i){
+    int zone_index = zones.indexOf(i);
+    zones.remove(zone_index);
+    sampler.getSynth()->removeSound(zone_index);
+    zones.add(i);
+    
+    float gridWidth = get_width() / getNumColumns();
+                    
+    Array<int> groups_for_zone;
+    SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+    for (int j=0; j<s.size(); j++){
+        if (groups[s[j]]->getZones()->contains(i)){
+            groups_for_zone.add(s[j]);
+        }
+    }
+                    
+    sampler.addSample(i->getName(), 
+                      i->getNote(), 
+                      round(i->getX()/gridWidth), 
+                      round(i->getX()/gridWidth) + i->get_width(),
+                      groups_for_zone,
+                      i->getPlaySettings(),
+                      i->getVelocity());
+}
+    
     
 void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
     (MidiInput* source, const MidiMessage& message) 
@@ -555,7 +581,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e)
         if (lassoSource.getLassoSelection().getItemArray().contains(draggedZone)){
             for (auto i : lassoSource.getLassoSelection()) {
                 setBoundsForComponent(*i, draggedZone->getMouseCursor(), 
-                    gridOutline, gridWidth, gridXOffset);
+                                      gridOutline, gridWidth, gridXOffset);
             }
         }else{
             setBoundsForComponent(*draggedZone, draggedZone->getMouseCursor(), gridOutline, gridWidth, gridXOffset);
@@ -568,11 +594,16 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e)
 }
 
 void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
-    getZoneInfoSet().changed();
+    //getZoneInfoSet().changed();
     auto set = lassoSource.getLassoSelection();
     int x = getMouseXYRelative().getX();
     int gridWidth = round(width/128);
     int delX = x - startDragX;
+    
+    zoneInfoSet.deselectAll();
+    for (auto i : set){
+        zoneInfoSet.addToSelection(i);
+    }
     
     if (draggedZone != nullptr){
         

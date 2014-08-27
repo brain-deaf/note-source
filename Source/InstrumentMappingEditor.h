@@ -207,6 +207,7 @@ public:
         bool isInterestedInDragSource(const SourceDetails&){return true;}
         void itemDropped(const SourceDetails&);
         void updateZones();
+        void updateZone(Zone*);
         bool isInterestedInFileDrag(const StringArray& files){return true;}
         void loadPatch(XmlElement* i);
         bool keyPressed(const KeyPress&, Component*);
