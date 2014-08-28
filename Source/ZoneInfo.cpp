@@ -59,6 +59,12 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
     //audio_thumbnail->setBounds(500, 25, 400, 100);
     addAndMakeVisible(audio_thumbnail);
     
+    vLayout = new TextButton("Make Column");
+    vLayout->addListener(this);
+    addAndMakeVisible(vLayout);
+    hLayout = new TextButton("Make Block");
+    hLayout->addListener(this);
+    addAndMakeVisible(hLayout);
     
     Array<String> noteLetters;
     noteLetters.add("C");
@@ -94,6 +100,8 @@ void ZoneInfo::changeListenerCallback(ChangeBroadcaster* source){
         velocityLabel->setText("Velocity: ", dontSendNotification);
         velocityMin->setText(String(zone->getSelectedItem(0)->getVelocity().first), dontSendNotification);
         velocityMax->setText(String(zone->getSelectedItem(0)->getVelocity().second), dontSendNotification);
+        vLayout->setBounds(5, 75, 60, 30);
+        hLayout->setBounds(70, 75, 60, 30);
     }
 }
 
@@ -104,10 +112,41 @@ void ZoneInfo::resize(){
     noteNumberLabel->setBounds(5, 30, 70, 20);
     noteName->setBounds(110, 30, 40, 20);
     audio_thumbnail->setBounds(getWidth() - 410, 50, 400, 100);
+    velocityLabel->setBounds(5, 50, 70, 20);
+    vLayout->setBounds(5, 75, 60, 30);
+    hLayout->setBounds(70, 75, 60, 30);
 }
 
 void ZoneInfo::paint(Graphics& g){
     g.fillAll (Colours::white);
+}
+
+void ZoneInfo::buttonClicked(Button* source){
+    if (source == vLayout){
+        int total_selected = zone->getNumSelected();
+        int velocity_per_zone = 128 / total_selected;
+        int note = zone->getSelectedItem(0)->getNote();
+        float y_per_velocity = mappingEditor->graph->getHeight() / 128;
+        
+        for (int i=0; i<total_selected; i++){
+            auto z = zone->getSelectedItem(i);
+            int grid_outline = 1;
+            int start_velocity = velocity_per_zone*i;
+            int end_velocity = velocity_per_zone*(i+1) - 1;
+            
+            
+            z->setNote(note);
+            z->getVelocity().first = start_velocity;
+            z->getVelocity().second = end_velocity;
+            z->setX(note * mappingEditor->graph->getWidth() / mappingEditor->graph->getNumColumns() + grid_outline);
+            z->setY((128 - end_velocity)*y_per_velocity);
+            z->setHeight((end_velocity - start_velocity) * y_per_velocity);
+            z->setBounds(z->getX(), z->getY(), 
+                         mappingEditor->graph->getWidth() / 128 - grid_outline, 
+                         z->getHeight());
+            mappingEditor->graph->updateZone(z);
+        }
+    }
 }
 
 void ZoneInfo::labelTextChanged(Label* source){

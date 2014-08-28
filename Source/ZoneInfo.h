@@ -17,7 +17,7 @@
 
 class WaveformView;
 
-class ZoneInfo : public Component, public ChangeListener, public Label::Listener {
+class ZoneInfo : public Component, public ChangeListener, public Label::Listener, public Button::Listener {
     std::shared_ptr<InstrumentMappingEditor> mappingEditor;
     SelectedItemSet<InstrumentMappingEditor::MappingEditorGraph::Zone::Ptr>* zone;
     ScopedPointer<Label> fileName;
@@ -28,6 +28,8 @@ class ZoneInfo : public Component, public ChangeListener, public Label::Listener
     ScopedPointer<Label> velocityLabel;
     ScopedPointer<Label> velocityMin;
     ScopedPointer<Label> velocityMax;
+    ScopedPointer<TextButton> vLayout;
+    ScopedPointer<TextButton> hLayout;
     Array<String> noteNames;
     WaveformView* audio_thumbnail;
 
@@ -39,6 +41,7 @@ public:
     void resize();
     void paint(Graphics& g);
     void mouseMove(const MouseEvent& e){}
+    void buttonClicked(Button*);
     //Adsr adsr;
 };
 
