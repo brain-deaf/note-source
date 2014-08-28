@@ -45,4 +45,20 @@ public:
     //Adsr adsr;
 };
 
+
+class ZoneSorter
+{
+public:
+    static int compareElements(InstrumentMappingEditor::MappingEditorGraph::Zone* z1,
+                               InstrumentMappingEditor::MappingEditorGraph::Zone* z2)
+    {
+        if (z1->getNote() < z2->getNote())
+            return -1;
+        else if (z1->getNote() > z2->getNote())
+            return 1;
+        else
+            return 0;
+    }
+};
+
 #endif  // ZONEINFO_H_INCLUDED

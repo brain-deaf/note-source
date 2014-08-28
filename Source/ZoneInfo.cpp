@@ -65,6 +65,8 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
     hLayout = new TextButton("Make Block");
     hLayout->addListener(this);
     addAndMakeVisible(hLayout);
+    vLayout->setBounds(5, 168, 60, 30);
+    hLayout->setBounds(70, 168, 60, 30);
     
     Array<String> noteLetters;
     noteLetters.add("C");
@@ -100,8 +102,7 @@ void ZoneInfo::changeListenerCallback(ChangeBroadcaster* source){
         velocityLabel->setText("Velocity: ", dontSendNotification);
         velocityMin->setText(String(zone->getSelectedItem(0)->getVelocity().first), dontSendNotification);
         velocityMax->setText(String(zone->getSelectedItem(0)->getVelocity().second), dontSendNotification);
-        vLayout->setBounds(5, 75, 60, 30);
-        hLayout->setBounds(70, 75, 60, 30);
+        
     }
 }
 
@@ -113,8 +114,8 @@ void ZoneInfo::resize(){
     noteName->setBounds(110, 30, 40, 20);
     audio_thumbnail->setBounds(getWidth() - 410, 50, 400, 100);
     velocityLabel->setBounds(5, 50, 70, 20);
-    vLayout->setBounds(5, 75, 60, 30);
-    hLayout->setBounds(70, 75, 60, 30);
+    vLayout->setBounds(5, 168, 60, 30);
+    hLayout->setBounds(70, 168, 60, 30);
 }
 
 void ZoneInfo::paint(Graphics& g){
@@ -128,12 +129,18 @@ void ZoneInfo::buttonClicked(Button* source){
         int note = zone->getSelectedItem(0)->getNote();
         float y_per_velocity = mappingEditor->graph->getHeight() / 128;
         
+        Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
         for (int i=0; i<total_selected; i++){
-            auto z = zone->getSelectedItem(i);
+            zones.add(zone->getSelectedItem(i));
+        }
+        ZoneSorter z_sorter;
+        zones.sort(z_sorter);
+        
+        for (int i=0; i<zones.size(); i++){
+            auto z = zones[i];
             int grid_outline = 1;
             int start_velocity = velocity_per_zone*i;
             int end_velocity = velocity_per_zone*(i+1) - 1;
-            
             
             z->setNote(note);
             z->getVelocity().first = start_velocity;
