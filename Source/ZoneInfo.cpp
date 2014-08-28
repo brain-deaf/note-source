@@ -133,8 +133,8 @@ void ZoneInfo::buttonClicked(Button* source){
         for (int i=0; i<total_selected; i++){
             zones.add(zone->getSelectedItem(i));
         }
-        ZoneSorter z_sorter;
-        zones.sort(z_sorter);
+        ZoneSorterByNote z_note_sorter;
+        zones.sort(z_note_sorter);
         
         for (int i=0; i<zones.size(); i++){
             auto z = zones[i];
@@ -148,6 +148,40 @@ void ZoneInfo::buttonClicked(Button* source){
             z->setX(note * mappingEditor->graph->getWidth() / mappingEditor->graph->getNumColumns() + grid_outline);
             z->setY((128 - end_velocity)*y_per_velocity);
             z->setHeight((end_velocity - start_velocity) * y_per_velocity);
+            z->setBounds(z->getX(), z->getY(), 
+                         mappingEditor->graph->getWidth() / 128 - grid_outline, 
+                         z->getHeight());
+            mappingEditor->graph->updateZone(z);
+        }
+    }
+    if (source == hLayout){
+        int total_selected = zone->getNumSelected();
+        
+        Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
+        Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones2;
+        for (int i=0; i<total_selected; i++){
+            zones.add(zone->getSelectedItem(i));
+            zones2.add(zone->getSelectedItem(i));
+        }
+        
+        ZoneSorterByVelocity z_velocity_sorter;
+        zones.sort(z_velocity_sorter);
+        
+        ZoneSorterByNote z_note_sorter;
+        zones2.sort(z_note_sorter);
+        
+        int start_note = zones2[0]->getNote();
+        
+        for (int i=0; i<zones.size(); i++){
+            auto z = zones[i];
+            int grid_outline = 1;
+            
+            z->setNote(start_note+i);
+            z->getVelocity().first = 0;
+            z->getVelocity().second = 127;
+            z->setX((start_note+i) * mappingEditor->graph->getWidth() / mappingEditor->graph->getNumColumns() + grid_outline);
+            z->setY(0);
+            z->setHeight(mappingEditor->graph->getHeight());
             z->setBounds(z->getX(), z->getY(), 
                          mappingEditor->graph->getWidth() / 128 - grid_outline, 
                          z->getHeight());

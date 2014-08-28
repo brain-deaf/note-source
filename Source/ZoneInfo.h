@@ -46,7 +46,7 @@ public:
 };
 
 
-class ZoneSorter
+class ZoneSorterByNote
 {
 public:
     static int compareElements(InstrumentMappingEditor::MappingEditorGraph::Zone* z1,
@@ -55,6 +55,21 @@ public:
         if (z1->getNote() < z2->getNote())
             return -1;
         else if (z1->getNote() > z2->getNote())
+            return 1;
+        else
+            return 0;
+    }
+};
+
+class ZoneSorterByVelocity
+{
+public:
+    static int compareElements(InstrumentMappingEditor::MappingEditorGraph::Zone* z1,
+                               InstrumentMappingEditor::MappingEditorGraph::Zone* z2)
+    {
+        if (z1->getVelocity().first < z2->getVelocity().first)
+            return -1;
+        else if (z1->getVelocity().first > z2->getVelocity().first)
             return 1;
         else
             return 0;
