@@ -92,7 +92,7 @@ public:
             void set_width(int w){width = w;}
             void setRangeLow(int n){range_low = n;}
             void setRangeHigh(int n){range_high = n;}
-            void mouseDown(const MouseEvent& event);
+            void mouseDown(const MouseEvent&);
             void mouseMove(const MouseEvent& event);
             void mouseDoubleClick(const MouseEvent& event);
             typedef ReferenceCountedObjectPtr<Zone> Ptr;
@@ -234,7 +234,7 @@ public:
         MidiDeviceCallback& getMidiCallback() { return midiCallback;}
         GroupEditor*& getGroupEditor(){return group_editor;}
         Metronome& getMetronome(){return metronome;}
-        
+        void setZoneDown(bool b){zoneDown=b;}
 
     private:
         float width;
@@ -245,6 +245,7 @@ public:
         int startDragY;
         int startDragX;
         int groupEditorY;
+        bool zoneDown;
         
         InstrumentComponent& instrument;
         MidiDeviceCallback midiCallback;

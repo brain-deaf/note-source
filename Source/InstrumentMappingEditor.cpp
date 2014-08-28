@@ -68,7 +68,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     numColumns(nc), draggedZone(nullptr), dragging(false), groupEditorY(0),
     lasso(), lassoSource(this), instrument(i), midiCallback(this), 
     keyboardState(), zones(), sampler(&(getNotesHeld())), metronome(), metronome_player(),
-    source_player(),
+    source_player(), zoneDown(false),
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard),
     luaScript(nullptr)
 {
@@ -497,7 +497,7 @@ void MappingEditorGraph::mouseDown(const MouseEvent& e) {
     lasso.beginLasso(e, &lassoSource);
     startDragY = getMouseXYRelative().getY();
     startDragX = getMouseXYRelative().getX();
-    
+    std::cout<<"graph mouse down!"<<std::endl;
 }
 
 void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
@@ -600,10 +600,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
     int gridWidth = round(width/128);
     int delX = x - startDragX;
     
-    zoneInfoSet.deselectAll();
-    for (auto i : set){
-        zoneInfoSet.addToSelection(i);
-    }
+    
     
     if (draggedZone != nullptr){
         
@@ -1033,6 +1030,15 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
         lassoSource.getLassoSelection().deselectAll();
     }
     lassoSource.setDragging(false);
+    
+    if (!zoneDown)
+        zoneInfoSet.deselectAll();
+        
+    zoneDown = false;
+    auto set2 = lassoSource.getLassoSelection();
+    for (auto i : set2){
+        zoneInfoSet.addToSelection(i);
+    }
 }
 
 
@@ -1048,9 +1054,11 @@ Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent&
 }
     
 
-void Zone::mouseDown(const MouseEvent& e) {
+void Zone::mouseDown(const MouseEvent& e){
     parent->draggedZone = this;
+    parent->getZoneInfoSet().deselectAll();
     parent->getZoneInfoSet().selectOnly(this);
+    parent->setZoneDown(true);
 }
 
 void Zone::mouseMove(const MouseEvent& e) {
