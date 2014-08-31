@@ -251,6 +251,7 @@ public:
         MidiDeviceCallback midiCallback;
         MidiKeyboardState keyboardState;
         MidiKeyboardComponent keyboard;
+        
         SelectedItemSet<std::pair<int, int> > notesHeld;
         Array<Zone::Ptr> zones;
         Array<Zone::Ptr> copied_zones;
@@ -262,6 +263,10 @@ public:
         GroupEditor* group_editor;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingEditorGraph)
         Sampler sampler;
+        
+        SamplerEventProcessor samplerProcessor;
+        ScopedPointer<TextButton> renderEventsButton;
+        
         Metronome metronome;
         AudioSourcePlayer source_player;
         AudioSourcePlayer metronome_player;

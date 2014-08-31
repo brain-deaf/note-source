@@ -50,6 +50,8 @@ private:
 };
 
 
+
+
 class PlaySettings;
 
 class Sampler : public AudioSource
@@ -65,6 +67,7 @@ public:
     void setMidiChannel(int i){midi_input_id = i;}
     void setFxSelector(FxSelector* f){fx_selector=f;}
     void setTransformSelector(TransformSelector* f){tf_selector=f;}
+    void setupRendering();
     FxSelector* getFxSelector(){return fx_selector;}
     TransformSelector* getTransformSelector(){return tf_selector;}
     IIR_Filter* getFilter(){return &filter1;}
@@ -77,6 +80,10 @@ public:
     SelectedItemSet<std::pair<int, int> >* getNotesHeld(){return notesHeld;}
     int getIdCount(){return idCount;}
     void incIdCount(){idCount++;}
+    void incWavSampleCount(){wavSampleCount++;}
+    void setWavSampleCount(){wavSampleCount=0;}
+    long long getWavSampleCount(){return wavSampleCount;}
+    AudioFormatWriter* getWavWriter(){return wavWriter;}
 private:
     MidiMessageCollector midiCollector;
     Synthesiser synth;
@@ -91,9 +98,11 @@ private:
     Array<std::shared_ptr<NoteEvent> > incomingEvents;
     SelectedItemSet<std::pair<int, int> >* notesHeld;
     int idCount;
+    WavAudioFormat* wavFormat;
+    FileOutputStream* wavOutput;
+    AudioFormatWriter* wavWriter;
+    long long wavSampleCount;
 };
-
-
 
 class SampleVoice : public SamplerVoice
 {

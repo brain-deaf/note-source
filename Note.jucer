@@ -74,16 +74,20 @@
     <FILE id="wJn5tr" name="RingModulator.h" compile="0" resource="0" file="Source/RingModulator.h"/>
     <FILE id="k7UJVr" name="RingModulator.cpp" compile="1" resource="0"
           file="Source/RingModulator.cpp"/>
+    <FILE id="gmMdRS" name="Sampler.h" compile="0" resource="0" file="Source/Sampler.h"/>
+    <FILE id="h7Ax0F" name="Sampler.cpp" compile="1" resource="0" file="Source/Sampler.cpp"/>
     <FILE id="zl1Pcs" name="SampleBrowserBin.h" compile="0" resource="0"
           file="Source/SampleBrowserBin.h"/>
     <FILE id="rGzWMJ" name="SampleBrowserBin.cpp" compile="1" resource="0"
           file="Source/SampleBrowserBin.cpp"/>
+    <FILE id="O9h0b3" name="SamplerEventProcessor.h" compile="0" resource="0"
+          file="Source/SamplerEventProcessor.h"/>
+    <FILE id="rkDjkd" name="SamplerEventProcessor.cpp" compile="1" resource="0"
+          file="Source/SamplerEventProcessor.cpp"/>
     <FILE id="rJTlZV" name="SampleFileBrowser.h" compile="0" resource="0"
           file="Source/SampleFileBrowser.h"/>
     <FILE id="zugikw" name="SampleFileBrowser.cpp" compile="1" resource="0"
           file="Source/SampleFileBrowser.cpp"/>
-    <FILE id="gmMdRS" name="Sampler.h" compile="0" resource="0" file="Source/Sampler.h"/>
-    <FILE id="h7Ax0F" name="Sampler.cpp" compile="1" resource="0" file="Source/Sampler.cpp"/>
     <FILE id="RGwk8W" name="ScriptBin.h" compile="0" resource="0" file="Source/ScriptBin.h"/>
     <FILE id="k4EU9I" name="ScriptBin.cpp" compile="1" resource="0" file="Source/ScriptBin.cpp"/>
     <FILE id="DFNy5S" name="Transforms.h" compile="0" resource="0" file="Source/Transforms.h"/>

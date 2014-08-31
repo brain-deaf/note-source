@@ -24,9 +24,14 @@ static bool isNoteHeld(SelectedItemSet<std::pair<int, int> > s, int n){
 
 Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s) 
     : AudioSource(), synth(), idCount(0), notesHeld(s), formatManager(), 
-      events(), incomingEvents(),
-      filter1(), filter2(), fx_selector(nullptr), transform_selector(nullptr) 
+      events(), incomingEvents(), wavFormat(nullptr), wavWriter(nullptr),/*wavOutput(new FileOutputStream(File(File::getCurrentWorkingDirectory()).getFullPathName() + "/temp.wav")),*/
+      filter1(), filter2(), fx_selector(nullptr), transform_selector(nullptr),
+      wavSampleCount(0.0), wavOutput(nullptr)
 {
+    //Array<int> bits = wavFormat.getPossibleBitDepths();
+    //wavWriter = wavFormat.createWriterFor(wavOutput.get(), 44100.0, 2,
+      //                                    bits[bits.size()-1], StringPairArray(), 0);
+    
     for (int i=0; i<256; i++){
         synth.addVoice(new SampleVoice());
     }
@@ -42,7 +47,13 @@ Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s)
     //filter1.setCoefficients(IIRCoefficients());
     //filter2.setCoefficients(IIRCoefficients());
 }
-    
+
+void Sampler::setupRendering(){
+    File f = File(File::getCurrentWorkingDirectory().getFullPathName() + "/temp.wav");
+    if (f.exists())
+        f.deleteFile();                                 
+}
+                                          
 void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups, PlaySettings* p, std::pair<int, int> v){
     ScopedPointer<AudioFormatReader> audioReader(formatManager.createReaderFor(File(path)));
         
@@ -175,16 +186,15 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
 
     if (s != nullptr){
+        Sampler* sampler = s->getSampler();
         
         double xfadeLength = s->getXfadeLength();
         bool looping = false;
         if (s->getLoopMode() && s->getLoopEnd() > s->getLoopStart())
             looping = true;
             
-        if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()))
+        if (!isNoteHeld(*(sampler->getNotesHeld()), noteEvent->getTriggerNote()))
             looping = false;
-            
-       
             
         Array<int> groups_for_note = s->getGroups();
         Array<int> groups_for_event = noteEvent->getGroups();

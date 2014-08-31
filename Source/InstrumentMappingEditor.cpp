@@ -12,6 +12,7 @@
 #include "InstrumentMappingEditor.h"
 #include "InstrumentBin.h"
 #include "MainComponent.h"
+#include "SamplerEventProcessor.h"
 
 
 class BadFormatException : public std::runtime_error{
@@ -68,9 +69,9 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     numColumns(nc), draggedZone(nullptr), dragging(false), groupEditorY(0),
     lasso(), lassoSource(this), instrument(i), midiCallback(this), 
     keyboardState(), zones(), sampler(&(getNotesHeld())), metronome(), metronome_player(),
-    source_player(), zoneDown(false),
+    source_player(), zoneDown(false), samplerProcessor(&sampler),
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard),
-    luaScript(nullptr)
+    luaScript(nullptr), renderEventsButton(new TextButton("Render Events"))
 {
     keyboardState.addListener(this);
     addAndMakeVisible(&keyboard);
@@ -97,6 +98,17 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     (&instrument)->getParent()->getParent()->getTransport()->setMetronome(&metronome);
     
     groupEditorY = getHeight();
+    
+    
+    //SamplerEventProcessor test...
+    SamplerEvent s;
+    s.setNoteNumber(60);
+    s.setVelocity(60.0);
+    s.getGroups().add(0);
+    samplerProcessor.addSamplerEvent(s);
+    
+    addAndMakeVisible(renderEventsButton);
+    renderEventsButton->addListener(this);
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
@@ -109,6 +121,10 @@ void MappingEditorGraph::buttonClicked(Button* source){
             delete groups[s[i]];
             groups.remove(s[i]);
         }
+    }
+    if (source == renderEventsButton){
+        sampler.setupRendering();
+        samplerProcessor.renderAllEvents();
     }
 }
 
@@ -192,6 +208,7 @@ void MappingEditorGraph::resized()
     keyboard.setBounds(
         0, getHeight(), getWidth(), getKeyboardHeight());
     keyboard.setKeyWidth(getWidth() / numColumns * 1.715); 
+    renderEventsButton->setBounds(100, 100, 100, 30);
 }
 
 void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
