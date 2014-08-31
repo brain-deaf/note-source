@@ -26,26 +26,14 @@ Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s)
     : AudioSource(), synth(), idCount(0), notesHeld(s), formatManager(), 
       events(), incomingEvents(), wavFormat(nullptr), wavWriter(nullptr),/*wavOutput(new FileOutputStream(File(File::getCurrentWorkingDirectory()).getFullPathName() + "/temp.wav")),*/
       filter1(), filter2(), fx_selector(nullptr), transform_selector(nullptr),
-      wavSampleCount(0.0), wavOutput(nullptr)
-{
-    //Array<int> bits = wavFormat.getPossibleBitDepths();
-    //wavWriter = wavFormat.createWriterFor(wavOutput.get(), 44100.0, 2,
-      //                                    bits[bits.size()-1], StringPairArray(), 0);
-    
+      wavSampleCount(0.0), wavOutput(nullptr), samplerProcessor(nullptr)
+{   
     for (int i=0; i<256; i++){
         synth.addVoice(new SampleVoice());
     }
     formatManager.registerBasicFormats();
     filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 6000.0));
     filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 10000.0));
-    /*filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
-    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
-    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
-    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));
-    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 7000.0));*/
-    
-    //filter1.setCoefficients(IIRCoefficients());
-    //filter2.setCoefficients(IIRCoefficients());
 }
 
 void Sampler::setupRendering(){
@@ -70,8 +58,6 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
     ss->setLoopStart(p->getLoopStart());
     ss->setLoopEnd(p->getLoopEnd());
     ss->setXfadeLength(p->getXfadeLength());
-    
-    //std::cout<<v.first<<" "<<v.second<<std::endl;
 }
     
 void Sampler::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {

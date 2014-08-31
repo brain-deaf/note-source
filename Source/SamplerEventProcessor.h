@@ -62,12 +62,16 @@ public:
                           tf_volume(1.0), ringAmount(1.0), angleDelta(0.0),
                           currentAngle(0.0), sound(nullptr), maxSampleCount(0), data()
     {
+        s->setSamplerProcessor(this);
     }
     ~SamplerEventProcessor(){/*delete data[0]; delete data[1]; delete data;*/}
     void renderSamplerEvent(SamplerEvent, Data&);
     void startSamplerEvent(SamplerEvent);
     void addSamplerEvent(SamplerEvent s){events.add(s);}
+    void clearAllSamplerEvents(){events.clear();}
     void renderAllEvents();
+    long long getDataSize(){return data[0].size();}
+    int getNumEvents(){return events.size();}
 private:
     Sampler* sampler;
     Array<SamplerEvent> events;

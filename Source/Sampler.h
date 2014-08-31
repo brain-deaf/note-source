@@ -51,7 +51,7 @@ private:
 
 
 
-
+class SamplerEventProcessor;
 class PlaySettings;
 
 class Sampler : public AudioSource
@@ -68,6 +68,8 @@ public:
     void setFxSelector(FxSelector* f){fx_selector=f;}
     void setTransformSelector(TransformSelector* f){tf_selector=f;}
     void setupRendering();
+    void setSamplerProcessor(SamplerEventProcessor* s){samplerProcessor=s;}
+    SamplerEventProcessor* getSamplerProcessor(){return samplerProcessor;}
     FxSelector* getFxSelector(){return fx_selector;}
     TransformSelector* getTransformSelector(){return tf_selector;}
     IIR_Filter* getFilter(){return &filter1;}
@@ -101,6 +103,7 @@ private:
     WavAudioFormat* wavFormat;
     FileOutputStream* wavOutput;
     AudioFormatWriter* wavWriter;
+    SamplerEventProcessor* samplerProcessor;
     long long wavSampleCount;
 };
 

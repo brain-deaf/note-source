@@ -10,6 +10,7 @@
 
 #include "LuaScript.h"
 #include "Sampler.h"
+#include "SamplerEventProcessor.h"
 #include "MappingEditorBin.h"
 #include "MainPage.h"
 #include <memory>
@@ -53,6 +54,33 @@ static int l_playNote(lua_State* L){
     return 1;
 }
 
+static int l_makeSamplerEvent(lua_State* L){
+    double note = lua_tonumber(L, 1);
+    double velocity = lua_tonumber(L, 2);
+    double start_time = lua_tonumber(L, 3);
+    int group = lua_tonumber(L, 4);
+    lua_pop(L, 4);
+    
+    SamplerEvent s;
+    s.setNoteNumber(note);
+    s.setVelocity(velocity);
+    s.setStart(start_time);
+    s.getGroups().add(group);
+    
+    staticSampler->getSamplerProcessor()->addSamplerEvent(s);
+    int id_count = staticSampler->getSamplerProcessor()->getNumEvents() - 1;
+    lua_pushnumber(L, id_count);
+    
+    return 1;
+}
+
+static int l_renderAllEvents(lua_State* L){
+    staticSampler->setupRendering();
+    staticSampler->getSamplerProcessor()->renderAllEvents();
+    
+    return 0;
+}
+
 static int l_setGroup(lua_State* L){
     int id = lua_tonumber(L, 1);
     int group = lua_tonumber(L, 2);
@@ -77,7 +105,6 @@ static int l_setEventVolume(lua_State* L){
         if (e != nullptr){
             if (e->getId() == id){
                 e->setVolume(volume);
-                //std::cout<<"event volume set"<<std::endl;
                 return 0;
             }
         }
@@ -86,7 +113,6 @@ static int l_setEventVolume(lua_State* L){
         if (e != nullptr){
             if (e->getId() == id){
                 e->setVolume(volume);
-                //std::cout<<"event volume set2"<<std::endl;
                 return 0;
             }
         }
@@ -534,6 +560,11 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), metro
     lua_pushcfunction(L, l_getTable);
     lua_setglobal(L, "getTable");
     
+    lua_pushcfunction(L, l_makeSamplerEvent);
+    lua_setglobal(L, "makeSamplerEvent");
+    lua_pushcfunction(L, l_renderAllEvents);
+    lua_setglobal(L, "renderAllEvents");
+    
     lua_pushcfunction(L, l_setBeatListener);
     lua_setglobal(L, "setBeatListener");
     
@@ -603,6 +634,10 @@ void LuaScript::loadScript(String f){
                          getInstrument().getTabWindow().getMainPage();
                          
     staticMainPage->resetComponents();
+    
+    if (staticSampler != nullptr){
+        staticSampler->getSamplerProcessor()->clearAllSamplerEvents();
+    }
         
     if (luaL_loadfile(L, f.toRawUTF8()) || lua_pcall(L, 0, 0, 0)){
         std::cout<<"error: "<<lua_tostring(L, -1)<<std::endl;

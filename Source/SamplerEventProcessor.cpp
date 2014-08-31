@@ -24,14 +24,12 @@ static double getReleaseMultiplier(float releaseTime, float releaseCurve, float 
 }
 
 void SamplerEventProcessor::renderAllEvents(){
-    std::cout<<"initialize vectors"<<std::endl;
     data = Data();
     data.push_back(std::vector<float>());
     data.push_back(std::vector<float>());
     sampleCount = 0;
     maxSampleCount = 0;
     for (auto i : events){
-        std::cout<<"call start event"<<std::endl;
         startSamplerEvent(i);
     }
     
@@ -44,10 +42,6 @@ void SamplerEventProcessor::renderAllEvents(){
         f_r[i] = data[1][i];
     }
     
-    /*ScopedPointer<float> f_l = new float[data[0].size()];
-    ScopedPointer<float> f_r = new float[data[1].size()];
-    f_l = &(data[0][0]);
-    f_r = &(data[1][0]);*/
 
     ScopedPointer<float*> f_d = new float*[2];
     f_d[0] = f_l;
@@ -133,7 +127,7 @@ void SamplerEventProcessor::startSamplerEvent(SamplerEvent s)
 
 void SamplerEventProcessor::renderSamplerEvent(SamplerEvent noteEvent, Data& output){
 
-        //std::cout<<"rendering event"<<std::endl;
+        std::cout<<"rendering event"<<std::endl;
         long long numSamples = (static_cast<SamplerSound*>(sound))->getAudioData()->getNumSamples();
         //std::cout<<"num samples: "<<numSamples<<std::endl;
         
@@ -219,7 +213,6 @@ void SamplerEventProcessor::renderSamplerEvent(SamplerEvent noteEvent, Data& out
         
         
         if (sound != nullptr){
-            std::cout<<"render sound"<<std::endl;
             int startSample = 0;
             const float* const inL = sound->getAudioData()->getReadPointer(0);
             const float* const inR = num_channels>1 ? sound->getAudioData()->getReadPointer(1) : nullptr;
@@ -236,11 +229,16 @@ void SamplerEventProcessor::renderSamplerEvent(SamplerEvent noteEvent, Data& out
             long long event_start = noteEvent.getStart();
             sampleCount = 0;
             for (int i=0; i<event_start; i++){
-                output[0].push_back(0.0);
-                output[1].push_back(0.0);
+                if (output[0].size() > sampleCount){
+                    output[0][i] += 0.0;
+                    output[1][i] += 0.0;
+                }else{
+                    output[0].push_back(0.0);
+                    output[1].push_back(0.0);
+                }
                 sampleCount++;
             }
-            std::cout<<"render sound 2"<<std::endl;
+
             for (int i= start; i<numSamples+start; i++){
                 double x = (samplePosition - sampleStart)/sound->getSampleRate()*1000;
                 double attack_multiplier = x<attackTime ? getAttackMultiplier(attackTime, attackCurve, x) : 1.0;                      
@@ -312,19 +310,14 @@ void SamplerEventProcessor::renderSamplerEvent(SamplerEvent noteEvent, Data& out
                     outRight += R*ringMult*ringAmount;
                 }
                 
+                if (output[0].size() > sampleCount){
+                    output[0][sampleCount] += outLeft;
+                    output[1][sampleCount] += outRight;
+                }else{
+                    output[0].push_back(outLeft);
+                    output[1].push_back(outRight);
+                }
                 
-                //channels[0].push_back(*outL);
-                //channels[1].push_back(*outR);
-                //std::cout<<"fill vectors: "<<std::endl;
-                
-                output[0].push_back(outLeft);
-                output[1].push_back(outRight);
-                
-                //std::cout<<"done filling vectors"<<std::endl;
-                //std::cout<<"processed sample"<<std::endl;
-                
-                //outL++;
-                //outR++;
                 currentAngle += angleDelta;
                 samplePosition += pitchRatio;
                 sampleCount++;
@@ -349,11 +342,4 @@ void SamplerEventProcessor::renderSamplerEvent(SamplerEvent noteEvent, Data& out
             tf_volume = tf_vol_multiplier;
         }
         std::cout<<"done rendering event"<<std::endl;
-        //float* f_l = &(channels[0][0]);
-        //float* f_r = &(channels[1][0]);
-        //float** f_d = new float*[2];
-        //f_d[0] = f_l;
-        //f_d[1] = f_r;
-        //const float* const* f_channels = static_cast<const float* const*>(f_d);
-        //sampler->getWavWriter()->writeFromFloatArrays(f_channels, 2, numSamples);
 }

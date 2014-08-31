@@ -101,14 +101,20 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     
     
     //SamplerEventProcessor test...
-    SamplerEvent s;
+    /*SamplerEvent s;
     s.setNoteNumber(60);
     s.setVelocity(60.0);
     s.getGroups().add(0);
     samplerProcessor.addSamplerEvent(s);
+    SamplerEvent s2;
+    s.setNoteNumber(63);
+    s.setVelocity(60.0);
+    s.setStart(44100);
+    s.getGroups().add(0);
+    samplerProcessor.addSamplerEvent(s);*/
     
-    addAndMakeVisible(renderEventsButton);
-    renderEventsButton->addListener(this);
+    //addAndMakeVisible(renderEventsButton);
+    //renderEventsButton->addListener(this);
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
