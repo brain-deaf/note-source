@@ -29,6 +29,11 @@ public:
     void resized();
     AudioDeviceManager* getDeviceManager(){return deviceManager;}
     
+    FxBin* getFxBin(){return fx_bin;}
+    std::shared_ptr<InstrumentMappingEditor> getMappingEditor(){return mapping_editor;}
+    ScriptBin* getScriptBin(){return scriptBin;}
+    TransformBin* getTfBin(){return tf_bin;}
+    
     class AudioSettingsWindow : public DocumentWindow
     {
     public:
@@ -61,6 +66,8 @@ private:
     FxBin* fx_bin;
     TransformBin* tf_bin;
 };
+
+
 
 
 

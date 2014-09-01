@@ -15,6 +15,7 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
+#include "MainComponent.h"
 
 MenuBar::MenuBar(InstrumentBin * i) : menuBar(this), scriptBin(nullptr), deviceManager(), file{}, view{}, edit{},
     audioSettingsWindow{nullptr}, parent(i) {
@@ -105,20 +106,33 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             scriptBin = parent->getInstruments()[parent->getCurrentTabIndex()]
             ->getTabWindow().getScriptBin();
             
-            FileChooser patch_loader("Please select the patch you want to load",
+            
+                //parent->getParent()->addAndMakeVisible(p);
+                //p->setBounds(500, 300, 400, 80);
+                
+            
+            
+            FileChooser* patch_loader(new FileChooser("Please select the patch you want to load",
                                      File::getCurrentWorkingDirectory(),
-                                     "*.xml");
+                                     "*.xml"));
             
-            if (patch_loader.browseForFileToOpen()){
-                File xml = patch_loader.getResult();
+             
+            XmlElement* instrument = nullptr;                         
+            if (patch_loader->browseForFileToOpen()){
+                
+                File xml = patch_loader->getResult();
                 XmlDocument xml_doc(xml);
-                XmlElement* instrument = xml_doc.getDocumentElement();
+                instrument = xml_doc.getDocumentElement();
+            }
+            delete patch_loader;
             
+            if (instrument != nullptr){
                 mapping_editor->graph->loadPatch(instrument);
                 fx_bin->getFxSelector()->loadPatch(instrument);
                 tf_bin->getTransformSelector()->loadPatch(instrument);
                 scriptBin->loadPatch(instrument);
             }
+            
             break;
         }
         

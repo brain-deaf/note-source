@@ -71,7 +71,8 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     keyboardState(), zones(), sampler(&(getNotesHeld())), metronome(), metronome_player(),
     source_player(), zoneDown(false), samplerProcessor(&sampler),
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard),
-    luaScript(nullptr), renderEventsButton(new TextButton("Render Events"))
+    luaScript(nullptr), renderEventsButton(new TextButton("Render Events")),
+    zoneCount(0), patchProgress(0.0)
 {
     keyboardState.addListener(this);
     addAndMakeVisible(&keyboard);
@@ -284,16 +285,24 @@ void MappingEditorGraph::paint(Graphics& g)
     g.strokePath (myPath, PathStrokeType (gridOutline));
 }
 
-void MappingEditorGraph::loadPatch(XmlElement* i){
-    
+void MappingEditorGraph::loadPatch(XmlElement* i){    
    group_editor->removeGroups();    
    groups.clear();
    zones.clear();
    getSampler().getSynth()->clearSounds();
             
    int j=0;
+   
+   double percent(0.0);
+   //ProgressBar p(percent);
+   //instrument.addAndMakeVisible(&p);
+   //p.setBounds(400, 300, 300, 80);
+   
+   new_zones.clear();
+   
    forEachXmlChildElement(*i, group){
      if (group->hasTagName("GROUP")){
+         const MessageManagerLock l;
         Group* new_group = new Group();
         new_group->setName(group->getStringAttribute("name"));
         
@@ -302,8 +311,16 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
         groups.add(new_group);
         
         j++;
-                                
+         
+        zoneCount = 0;
         forEachXmlChildElement(*group, zone){
+            zoneCount++;
+        }
+        
+        int count = 0;
+        forEachXmlChildElement(*group, zone){
+            patchProgress = ((double)(count))/((double)(zoneCount-1));
+            //patchProgress = 0.5;
             if (zone->hasTagName("ZONE")){
                 Zone* new_zone;
                 new_zone = new Zone(this, zone->getStringAttribute("file"), instrument);
@@ -344,16 +361,20 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 
                 Array<int> groups_for_zone;
                 groups_for_zone.add(j-1);
-        
-                getSampler().addSample(new_zone->getName(), new_zone->getNote(), round(new_zone->getX()/gridWidth), round(new_zone->getX()/gridWidth) + new_zone->get_width(), groups_for_zone, 
-                                       new_zone->getPlaySettings(),
-                                       new_zone->getVelocity());
+                new_zone->setGroup(j-1);
+                                       
+                new_zones.add(new_zone);
                                        
                 instrument.getTabWindow().getWaveBin()->updateZone(new_zone);
             }
+            count++;
         }
      }
    } 
+   float gridWidth = get_width() / getNumColumns();
+   ProgressWindow* p = new ProgressWindow(new_zones, &getSampler(), gridWidth);
+   p->launchThread();
+   
    group_editor->getListBox()->selectRow(0);
    getGroupEditor()->getGroupView()->refreshRows();
 }
@@ -520,7 +541,6 @@ void MappingEditorGraph::mouseDown(const MouseEvent& e) {
     lasso.beginLasso(e, &lassoSource);
     startDragY = getMouseXYRelative().getY();
     startDragX = getMouseXYRelative().getX();
-    std::cout<<"graph mouse down!"<<std::endl;
 }
 
 void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,

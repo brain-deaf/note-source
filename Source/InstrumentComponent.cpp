@@ -11,12 +11,13 @@
 #include "InstrumentComponent.h"
 
 InstrumentComponent::InstrumentComponent(InstrumentBin* p)
-: Component(), deviceManager(), mixer(), 
+: Component(), deviceManager(), mixer(), button(new TextButton("asdfasdf")),
     sourcePlayer(), parent(p), 
     tabs(*this,TabbedButtonBar::TabsAtBottom),
     master(p, this){
     addAndMakeVisible(tabs);
     addAndMakeVisible(master);
+    addChildComponent(button);
 }
 
 void InstrumentComponent::resized(){

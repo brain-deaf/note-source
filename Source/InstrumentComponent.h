@@ -26,6 +26,7 @@ public:
     StringArray& getSampleNames() {return sampleNames;}
     InstrumentTabWindow& getTabWindow(){return tabs;}
     InstrumentBin* getParent(){return parent;}
+    TextButton* getButton(){return button.get();}
 private:
     SharedResourcePointer<AudioDeviceManager> deviceManager;
     AudioSourcePlayer sourcePlayer;
@@ -36,6 +37,7 @@ private:
     InstrumentTabWindow tabs;
     InstrumentMasterComponent master;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentComponent)
+    ScopedPointer<TextButton> button;
 };
 
 
