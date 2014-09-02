@@ -19,7 +19,8 @@ class MidiTransformCallback;
 
 enum TransformType{
     LINEAR=0,
-    EXPONENTIAL=1
+    EXPONENTIAL=1,
+    SINE=2
 };
 
 enum TransformID{
@@ -61,7 +62,7 @@ public:
     LFO(TransformType t, Transformation* tf) : 
         elapsedSamples(0.0),quitting(false),
         sampleCycleLength(44100.0),timer(this),
-        syncToTempo(true)
+        syncToTempo(true), sampleCount(0.0)
     {
         transformType=t; parent=tf;
         timer.startTimer(10);
@@ -77,6 +78,7 @@ private:
     Transformation* parent;
     bool quitting;
     bool syncToTempo;
+    double sampleCount;
     LFOTimer timer;
     Metronome* metronome;
 };   
@@ -119,7 +121,7 @@ private:
     int selectedPointIndex;
 };
 
-class LinearTransform : public Transformation, public Component
+class LinearTransform : public Transformation, public Component, public ComboBox::Listener
 {
 public:
     LinearTransform(TransformBin* t);
@@ -138,6 +140,7 @@ public:
     void paint(Graphics&);
     void resized();
     void setGValue(int g){graph->setGValue(g);}
+    void comboBoxChanged(ComboBox*) override;
     LFO* getLFO(){return lfo.get();}
     Array<Point<int> >* getPoints(){return &points;}
     void quit(){lfo->quit();}
@@ -195,10 +198,10 @@ private:
     int selectedPointIndex;
 };
 
-class ExponentialTransform : public Transformation, public Component
+class ExponentialTransform : public Transformation, public Component, public ComboBox::Listener
 {
 public:
-    ExponentialTransform();
+    ExponentialTransform(TransformBin*);
     ~ExponentialTransform(){
         SharedResourcePointer<AudioDeviceManager> dm;
         dm->removeMidiInputCallback("", (MidiInputCallback*)midiCallback.get());
@@ -206,6 +209,7 @@ public:
     }
     ComboBox* getSourceBox(){return sourceBox.get();}
     ComboBox* getTargetBox(){return targetBox.get();}
+    void comboBoxChanged(ComboBox*) override;
     ExponentialGraph* getGraph(){return graph.get();}
     Slider* getStartSlider(){return startSlider.get();}
     Slider* getEndSlider(){return endSlider.get();}
@@ -222,7 +226,87 @@ private:
     ScopedPointer<Label> targetLabel;
     ScopedPointer<ComboBox> sourceBox;
     ScopedPointer<ComboBox> targetBox;
+    ScopedPointer<LFO> lfo;
     ScopedPointer<MidiTransformCallback> midiCallback;
+    Metronome* metronome;
+    TransformBin* tf_bin;
+    
+    StringArray combo_items;
+    Array<Point<int> > points;
+};
+
+class SineGraph : public Component, public Slider::Listener
+{
+public:
+    SineGraph(Slider* s, Slider* e) : Component(), 
+                                        frequencySlider(s),
+                                        amplitudeSlider(e),
+                                        init(true),
+                                        points(nullptr),
+                                        pxThreshold(10),
+                                        selectedPointIndex(-1),
+                                        gValue(-1)
+    {
+        
+    }
+    ~SineGraph(){}
+    void paint(Graphics&);
+    void sliderValueChanged(Slider*);
+    void setGValue(double g){gValue=g;}
+    double getGValue(){return gValue;}
+    double getTValue(){return tValue;}
+    void calculateTValue();
+    void mouseDown(const MouseEvent&);
+    void mouseUp(const MouseEvent&);
+    void mouseDrag(const MouseEvent&);
+    void setPoints(Array<Point<int> >* a){points = a;}
+    Array<Point<int> > getPoints(){return *points;}
+private:
+    Slider* frequencySlider;
+    Slider* amplitudeSlider;
+    double gValue;
+    double tValue;
+    bool init;
+    Array<Point<int> >* points;
+    int pxThreshold;
+    int selectedPointIndex;
+};
+
+class SineTransform : public Transformation, public Component, public ComboBox::Listener
+{
+public:
+    SineTransform(TransformBin* t);
+    ~SineTransform(){
+        SharedResourcePointer<AudioDeviceManager> dm;
+        dm->removeMidiInputCallback("", (MidiInputCallback*)midiCallback.get());
+        midiCallback=nullptr;
+        
+    }
+    ComboBox* getSourceBox(){return sourceBox.get();}
+    ComboBox* getTargetBox(){return targetBox.get();}
+    SineGraph* getGraph(){return graph.get();}
+    Slider* getFrequencySlider(){return frequencySlider.get();}
+    Slider* getAmplitudeSlider(){return amplitudeSlider.get();}
+    void addPoint(Point<int> p){points.add(p);}
+    void paint(Graphics&);
+    void resized();
+    void setGValue(int g){graph->setGValue(g);}
+    void comboBoxChanged(ComboBox*) override;
+    LFO* getLFO(){return lfo.get();}
+    Array<Point<int> >* getPoints(){return &points;}
+    void quit(){lfo->quit();}
+private:
+    ScopedPointer<Slider> frequencySlider;
+    ScopedPointer<Slider> amplitudeSlider;
+    ScopedPointer<SineGraph> graph;
+    ScopedPointer<Label> sourceLabel;
+    ScopedPointer<Label> targetLabel;
+    ScopedPointer<ComboBox> sourceBox;
+    ScopedPointer<ComboBox> targetBox;
+    ScopedPointer<LFO> lfo;
+    ScopedPointer<MidiTransformCallback> midiCallback;
+    TransformBin* tf_bin;
+    Metronome* metronome;
     
     StringArray combo_items;
     Array<Point<int> > points;

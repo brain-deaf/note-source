@@ -150,6 +150,14 @@ void SampleVoice::startNote(const int midiNoteNumber,
                             tf_vel_multiplier *= ltf->getGraph()->getTValue();
                     }
                 }
+                if (fx->getFxType() == TransformChooser::FX::SINE){
+                    SineTransform* ltf= (SineTransform*)fx->getContent();
+                    if (ltf->getTargetBox()->getSelectedId() == TransformID::VELOCITY){
+                        int gValue = ltf->getGraph()->getGValue();
+                        if (gValue != -1)
+                            tf_vel_multiplier *= ltf->getGraph()->getTValue();
+                    }
+                }
             }
         }
         bb = false;
@@ -236,6 +244,14 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 }
                 if (fx->getFxType() == TransformChooser::FX::EXPONENTIAL){
                     ExponentialTransform* ltf= (ExponentialTransform*)fx->getContent();
+                    if (ltf->getTargetBox()->getSelectedId() == TransformID::VOLUME){
+                        int gValue = ltf->getGraph()->getGValue();
+                        if (gValue != -1)
+                            tf_vol_multiplier *= ltf->getGraph()->getTValue();
+                    }
+                }
+                if (fx->getFxType() == TransformChooser::FX::SINE){
+                    SineTransform* ltf= (SineTransform*)fx->getContent();
                     if (ltf->getTargetBox()->getSelectedId() == TransformID::VOLUME){
                         int gValue = ltf->getGraph()->getGValue();
                         if (gValue != -1)
@@ -351,19 +367,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     
                     l += xfade_counter / xfadeLength * l2;
                     r += xfade_counter / xfadeLength * r2;
-                    
-                    //if (xfade_counter > loop_xfade_length/10*9)
-                        //std::cout<<xfade_counter<<std::endl;
-                    //std::cout<<xfade_counter<<" "<<(loop_xfade_length - xfade_counter) / loop_xfade_length<<std::endl;
-                    
                 }
-                
-                
-                //process fx after interpolation...
-                //l = filter1.processSingleSampleRaw(l);
-                //r = filter2.processSingleSampleRaw(r);*/
-
-                //std::cout<<noteEvent->getVolume()<<std::endl;
                 
                 double ringMult = ringMod ? sin(currentAngle) : 1.0;
                 
@@ -385,25 +389,6 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     *outR += R*ringMult*ringAmount;
                 }
                 
-                //std::cout<<*outL<<std::endl;
-                if (looping && samplePosition >= s->getLoopEnd()-1)
-                //std::cout<<std::endl<<*outL<<std::endl;
-
-                if ((int)samplePosition == s->getLoopStart() + xfadeLength){
-                    //std::cout<<std::endl<<"start after processing: "<<*outL<<std::endl;
-                }else{
-                    //std::cout<<"f";
-                }
-                if (bb){
-                    //std::cout<<"start output L: "<<*outL<<" R: "<<*outR<<std::endl;
-                    //std::cout<<samplePosition<<std::endl;
-                    bb = false;
-                }
-                if (looping && samplePosition >= s->getLoopEnd()-1){
-                    //std::cout<<"end output L: "<<*outL<<" R: "<<*outR<<std::endl;
-                }
-                //std::cout<<*outL;
-                
                 outL++;
                 outR++;
                 currentAngle += angleDelta;
@@ -421,10 +406,6 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 
                 if (looping && samplePosition >= s->getLoopEnd()+0){
                     samplePosition = s->getLoopStart() + xfadeLength;
-                    bb = true;
-                    //std::cout<<std::endl<<"sample position: "<<samplePosition<<std::endl;
-                    //std::cout<<std::endl<<"start over: "<<inL[(int)samplePosition]<<" "<<inL[(int)samplePosition - 1]<<" R: "<<inR[(int)samplePosition]<<" "<<inR[(int)samplePosition - 1]<<std::endl;
-                    //return;
                 }
             }
             

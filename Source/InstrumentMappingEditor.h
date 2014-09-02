@@ -95,6 +95,8 @@ public:
             void mouseDown(const MouseEvent&);
             void mouseMove(const MouseEvent& event);
             void mouseDoubleClick(const MouseEvent& event);
+            void setGroup(int i){group=i;}
+            int getGroup(){return group;}
             typedef ReferenceCountedObjectPtr<Zone> Ptr;
             
             
@@ -110,6 +112,7 @@ public:
             int range_low;
             int range_high;
             int width;
+            int group;
             PlaySettings playSettings;
 
             const String name;
@@ -235,6 +238,7 @@ public:
         GroupEditor*& getGroupEditor(){return group_editor;}
         Metronome& getMetronome(){return metronome;}
         void setZoneDown(bool b){zoneDown=b;}
+        double* getPatchProgress(){return &patchProgress;}
 
     private:
         float width;
@@ -246,11 +250,15 @@ public:
         int startDragX;
         int groupEditorY;
         bool zoneDown;
+        Array<Zone*> new_zones;
         
         InstrumentComponent& instrument;
         MidiDeviceCallback midiCallback;
         MidiKeyboardState keyboardState;
         MidiKeyboardComponent keyboard;
+        
+        int zoneCount;
+        double patchProgress;
         
         SelectedItemSet<std::pair<int, int> > notesHeld;
         Array<Zone::Ptr> zones;
@@ -286,6 +294,41 @@ public:
 private:
     InstrumentComponent& instrument;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMappingEditor)
+};
+
+class ProgressWindow  : public ThreadWithProgressWindow
+{
+public:
+    ProgressWindow(Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> a, Sampler* s, float f)    
+        : ThreadWithProgressWindow ("loading...", true, false), zones(a), sampler(s), gridWidth(f)
+    {
+    }
+    void run()
+    {
+        double progress(0.0);
+        for (int i=0; i<zones.size(); i++){
+            if (threadShouldExit())
+                break;
+            InstrumentMappingEditor::MappingEditorGraph::Zone* z = zones[i];
+                
+            Array<int> groups_for_zone;
+            groups_for_zone.add(z->getGroup());
+                
+                
+            sampler->addSample(z->getName(), z->getNote(), round(z->getX()/gridWidth), 
+                round(z->getX()/gridWidth) + z->get_width(), groups_for_zone, 
+                z->getPlaySettings(), z->getVelocity());
+            progress = i / (double)zones.size();
+            setProgress (progress);
+        }
+    }
+    void threadComplete(bool b){
+        std::cout<<"thread complete!"<<std::endl;
+    }
+private:
+    Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
+    Sampler* sampler;
+    float gridWidth;
 };
 
 #endif  // INSTRUMENTMAPPINGEDITOR_H_INCLUDED

@@ -29,6 +29,10 @@ void TransformComponent::loadFx(int x, Component* c){
         visibleFx = TransformChooser::FX::EXPONENTIAL;
         content = c;
     }
+    else if (x == TransformChooser::FX::SINE){
+        visibleFx = TransformChooser::FX::SINE;
+        content = c;
+    }
     else if (x == TransformChooser::FX::NONE){
         visibleFx = TransformChooser::FX::NONE;
     }
@@ -43,6 +47,11 @@ void TransformComponent::showFx(){
         break;
     
     case TransformChooser::FX::EXPONENTIAL:
+        addAndMakeVisible(content);
+        resized();
+        break;
+        
+    case TransformChooser::FX::SINE:
         addAndMakeVisible(content);
         resized();
         break;

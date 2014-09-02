@@ -73,7 +73,8 @@ void TransformSelector::loadPatch(XmlElement* xml){
                             break;
                         }
                         case (TransformChooser::FX::EXPONENTIAL):{
-                            ExponentialTransform* exponential = new ExponentialTransform();
+                            TransformBin* t = static_cast<TransformBin*>(getParentComponent());
+                            ExponentialTransform* exponential = new ExponentialTransform(t);
                             exponential->getStartSlider()->setValue(tf_element->getDoubleAttribute("start"), dontSendNotification);
                             exponential->getEndSlider()->setValue(tf_element->getDoubleAttribute("end"), dontSendNotification);
                             exponential->getSourceBox()->setSelectedId(tf_element->getIntAttribute("source"), dontSendNotification);
@@ -166,6 +167,9 @@ void TransformSelector::updateFx(){
             else if (fx->getFxType() == TransformChooser::FX::EXPONENTIAL){
                 fx_boxes[j]->getButton()->setButtonText("EXPONENTIAL");
             }
+            else if (fx->getFxType() == TransformChooser::FX::SINE){
+                fx_boxes[j]->getButton()->setButtonText("SINUSOID");
+            }
             else{
                 if (used_index.indexOf(j) == -1) fx_boxes[j]->getButton()->setButtonText("");
             }
@@ -216,6 +220,12 @@ void TransformButton::mouseDown(const MouseEvent& e){
             case FX::EXPONENTIAL:{
                 if (fx->getFxType() == FX::EXPONENTIAL){
                     bin->getTransformComponent()->loadFx(FX::EXPONENTIAL, fx->getContent());
+                    return;
+                }
+            }
+            case FX::SINE:{
+                if (fx->getFxType() == FX::SINE){
+                    bin->getTransformComponent()->loadFx(FX::SINE, fx->getContent());
                     return;
                 }
             }
@@ -333,6 +343,7 @@ TransformChooser::TransformChooser(int rows, int columns, TransformSelector * f)
     }
     buttons[0]->setButtonText("LINEAR");
     buttons[1]->setButtonText("EXPONENTIAL");
+    buttons[2]->setButtonText("SINUSOID");
 }
 
 TransformChooser::~TransformChooser(){
@@ -374,7 +385,7 @@ void TransformChooser::callButtonClick(TransformChoiceButton* b){
     }
     else if (buttons.indexOf(b) == EXPONENTIAL){
         int fx_index = selector->getBoxes().indexOf((TransformBox*)(selector->fxButtonChoice->getParentComponent()));
-        ExponentialTransform* new_exponential= new ExponentialTransform();
+        ExponentialTransform* new_exponential= new ExponentialTransform(bin);
         for (int i=s.size()-1; i>=0; i--){
             selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = EXPONENTIAL;
             selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(static_cast<Component*>(new_exponential));
@@ -382,6 +393,18 @@ void TransformChooser::callButtonClick(TransformChoiceButton* b){
         }
         selector->fxButtonChoice->setFx(EXPONENTIAL);
         bin->getTransformComponent()->loadFx(EXPONENTIAL, new_exponential);
+    }
+    else if (buttons.indexOf(b) == SINE){
+        int fx_index = selector->getBoxes().indexOf((TransformBox*)(selector->fxButtonChoice->getParentComponent()));
+        SineTransform* new_sine= new SineTransform(bin);
+        std::cout<<"new sine transform"<<std::endl;
+        for (int i=s.size()-1; i>=0; i--){
+            selector->getGroups()[s[i]]->group_fx[fx_index]->getFxType() = SINE;
+            selector->getGroups()[s[i]]->group_fx[fx_index]->setContent(static_cast<Component*>(new_sine));
+            
+        }
+        selector->fxButtonChoice->setFx(SINE);
+        bin->getTransformComponent()->loadFx(SINE, new_sine);
     }
     else{ 
             

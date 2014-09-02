@@ -27,6 +27,7 @@ LinearTransform::LinearTransform(TransformBin* t) : Component(),
                                      points(),
                                      tf_bin(t),
                                      metronome(nullptr),
+                                     lfo(nullptr),
                                      midiCallback(new MidiTransformCallback(TransformType::LINEAR, static_cast<Transformation*>(this)))
 {
     startSlider->setSliderStyle(Slider::RotaryVerticalDrag);
@@ -56,6 +57,9 @@ LinearTransform::LinearTransform(TransformBin* t) : Component(),
     targetBox->addItem("Velocity", TransformID::VELOCITY);
     targetBox->addItem("Pitch Wheel", TransformID::PITCHWHEEL);
     
+    sourceBox->addListener(this);
+    targetBox->addListener(this);
+    
     graph->setPoints(getPoints());
     
     addAndMakeVisible(startSlider);
@@ -71,8 +75,8 @@ LinearTransform::LinearTransform(TransformBin* t) : Component(),
 
     metronome = tf_bin->getMetronome();
     
-    lfo = new LFO(TransformType::LINEAR, static_cast<Transformation*>(this));
-    lfo->setMetronome(metronome);
+    //lfo = new LFO(TransformType::LINEAR, static_cast<Transformation*>(this));
+    //lfo->setMetronome(metronome);
 }
 
 void LinearTransform::resized(){
@@ -83,6 +87,17 @@ void LinearTransform::resized(){
     graph->setBounds(0, 80, getWidth(), getHeight()/5*4 - 100);
     startSlider->setBounds(0, getHeight()/5*4, 100, 100);
     endSlider->setBounds(getWidth() - 100, getHeight()/5*4, 100, 100);
+}
+
+void LinearTransform::comboBoxChanged(ComboBox* source){
+    if (source == sourceBox){
+        if (sourceBox->getSelectedId() == TransformID::TIMER){
+            lfo = new LFO(TransformType::LINEAR, static_cast<Transformation*>(this));
+            lfo->setMetronome(metronome);
+        }else{
+            lfo = nullptr;
+        }
+    }
 }
 
 void LinearTransform::paint(Graphics& g){
@@ -213,7 +228,8 @@ void LinearGraph::sliderValueChanged(Slider* source){
     }
 }
 
-ExponentialTransform::ExponentialTransform() : Component(), 
+ExponentialTransform::ExponentialTransform(TransformBin* t) : Component(), 
+                                     tf_bin(t),
                                      startSlider(new Slider()), 
                                      endSlider(new Slider()),
                                      graph(new ExponentialGraph(startSlider.get(), endSlider.get())),
@@ -244,12 +260,16 @@ ExponentialTransform::ExponentialTransform() : Component(),
     combo_items.add("Velocity");
     combo_items.add("Pitch Wheel");
     combo_items.add("Tuning");
+    combo_items.add("Timer");
     
     sourceBox->addItemList(combo_items, 1);
 
     targetBox->addItem("Volume", TransformID::VOLUME);
     targetBox->addItem("Velocity", TransformID::VELOCITY);
     targetBox->addItem("Pitch Wheel", TransformID::PITCHWHEEL);
+    
+    sourceBox->addListener(this);
+    targetBox->addListener(this);
     
     graph->setPoints(getPoints());
     
@@ -261,8 +281,21 @@ ExponentialTransform::ExponentialTransform() : Component(),
     addAndMakeVisible(sourceBox);
     addAndMakeVisible(targetBox);
     
+    metronome = tf_bin->getMetronome();
+    
     SharedResourcePointer<AudioDeviceManager> dm;
     dm->addMidiInputCallback("", midiCallback.get());
+}
+
+void ExponentialTransform::comboBoxChanged(ComboBox* source){
+    if (source == sourceBox){
+        if (sourceBox->getSelectedId() == TransformID::TIMER){
+            lfo = new LFO(TransformType::EXPONENTIAL, static_cast<Transformation*>(this));
+            lfo->setMetronome(metronome);
+        }else{
+            lfo = nullptr;
+        }
+    }
 }
 
 void ExponentialTransform::resized(){
@@ -430,6 +463,214 @@ void ExponentialGraph::sliderValueChanged(Slider* source){
     }
 }
 
+
+
+
+SineTransform::SineTransform(TransformBin* t) : Component(), 
+                                     frequencySlider(new Slider()), 
+                                     amplitudeSlider(new Slider()),
+                                     graph(new SineGraph(frequencySlider.get(), amplitudeSlider.get())),
+                                     sourceLabel(new Label("", "Source")),
+                                     targetLabel(new Label("", "Target")),
+                                     sourceBox(new ComboBox()),
+                                     targetBox(new ComboBox()),
+                                     combo_items(),
+                                     points(),
+                                     tf_bin(t),
+                                     metronome(nullptr),
+                                     lfo(nullptr),
+                                     midiCallback(new MidiTransformCallback(TransformType::SINE, static_cast<Transformation*>(this)))
+{
+    frequencySlider->setSliderStyle(Slider::RotaryVerticalDrag);
+    frequencySlider->setTextBoxStyle(Slider::NoTextBox, false, 50, 20);
+    frequencySlider->setRange(5, 200);
+    amplitudeSlider->setSliderStyle(Slider::RotaryVerticalDrag);
+    amplitudeSlider->setTextBoxStyle(Slider::NoTextBox, false, 50, 20);
+    amplitudeSlider->setRange(0.01, 115);
+    amplitudeSlider->setValue(100.0, dontSendNotification);
+    
+    frequencySlider->addListener(graph);
+    amplitudeSlider->addListener(graph);
+    
+    for (int i=0; i<32; i++){
+        combo_items.add(String("CC# ") + String(i+1));
+    }
+    combo_items.add("Volume");
+    combo_items.add("Note");
+    combo_items.add("Velocity");
+    combo_items.add("Pitch Wheel");
+    combo_items.add("Tuning");
+    combo_items.add("Timer");
+    
+    sourceBox->addItemList(combo_items, 1);
+
+    targetBox->addItem("Volume", TransformID::VOLUME);
+    targetBox->addItem("Velocity", TransformID::VELOCITY);
+    targetBox->addItem("Pitch Wheel", TransformID::PITCHWHEEL);
+    
+    sourceBox->addListener(this);
+    targetBox->addListener(this);
+    
+    graph->setPoints(getPoints());
+    
+    addAndMakeVisible(frequencySlider);
+    addAndMakeVisible(amplitudeSlider);
+    addAndMakeVisible(graph);
+    addAndMakeVisible(sourceLabel);
+    addAndMakeVisible(targetLabel);
+    addAndMakeVisible(sourceBox);
+    addAndMakeVisible(targetBox);
+    
+    SharedResourcePointer<AudioDeviceManager> dm;
+    dm->addMidiInputCallback("", midiCallback.get());
+
+    metronome = tf_bin->getMetronome();
+    
+    //lfo = new LFO(TransformType::LINEAR, static_cast<Transformation*>(this));
+    //lfo->setMetronome(metronome);
+}
+
+void SineTransform::resized(){
+    sourceLabel->setBounds(80, 0, 50, 20);
+    targetLabel->setBounds(getWidth()-130, 0, 50, 20);
+    sourceBox->setBounds(40, 30, 130, 30);
+    targetBox->setBounds(getWidth() - 170, 30, 130, 30);
+    graph->setBounds(0, 80, getWidth(), getHeight()/5*4 - 100);
+    frequencySlider->setBounds(0, getHeight()/5*4, 50, 50);
+    amplitudeSlider->setBounds(getWidth() - 50, getHeight()/5*4, 50, 50);
+}
+
+void SineTransform::comboBoxChanged(ComboBox* source){
+    if (source == sourceBox){
+        if (sourceBox->getSelectedId() == TransformID::TIMER){
+            lfo = new LFO(TransformType::SINE, static_cast<Transformation*>(this));
+            lfo->setMetronome(metronome);
+        }else{
+            lfo = nullptr;
+        }
+    }
+}
+
+void SineTransform::paint(Graphics& g){
+    g.fillAll(Colours::green);
+}
+
+void SineGraph::calculateTValue(){
+    Path myPath;
+    double angle_per_px = M_PI/8 / (double)getWidth();
+    for (int i=0; i<getWidth(); i++){
+        if (i==0)
+            myPath.startNewSubPath(0,0);
+        myPath.lineTo(i, getHeight()/2 + amplitudeSlider->getValue()*sin(M_PI*2*frequencySlider->getValue()*(i*angle_per_px)));
+    }
+
+    if (gValue != -1){
+        Point<float> intersection = myPath.getPointAlongPath(myPath.getLength()/128*gValue);
+        tValue = (intersection.getY()) / getHeight();
+        if (tValue < 0)
+            tValue = 0.0;
+        tValue = 1.0 - tValue;
+    }
+}
+    
+
+void SineGraph::paint(Graphics& g){
+    g.fillAll(Colours::grey);
+    g.setColour(Colours::black);
+   
+    Path myPath;
+    double angle_per_px = M_PI/8 / (double)getWidth();
+    for (int i=0; i<getWidth(); i++){
+        if (i==0)
+            myPath.startNewSubPath(0,getHeight()/2);
+        myPath.lineTo(i, getHeight()/2 + amplitudeSlider->getValue()*sin(M_PI*2*frequencySlider->getValue()*(i*angle_per_px)));
+    }
+    
+    g.strokePath (myPath, PathStrokeType (1.0f));
+    
+    if (gValue != -1){
+        Point<float> intersection = myPath.getPointAlongPath(myPath.getLength()/128*gValue);
+        float ellipse_width = 10.0;
+        g.setColour(Colours::red);
+        g.drawEllipse(intersection.getX()-ellipse_width/2, intersection.getY()-ellipse_width/2, ellipse_width, ellipse_width, 2.0);
+    }
+}
+
+void SineGraph::mouseDown(const MouseEvent& m){}
+
+void SineGraph::mouseUp(const MouseEvent& m){}
+
+void SineGraph::mouseDrag(const MouseEvent& m){}
+        
+void SineGraph::sliderValueChanged(Slider* source){
+    if (source == frequencySlider){
+        repaint();
+    }
+    if (source == amplitudeSlider){
+        repaint();
+    }
+}
+
+
+void LFO::elapseTime(){
+    if (!quitting && !syncToTempo){
+        /*elapsedSamples+=samples;
+        elapsedSamples%=sampleCycleLength;
+        switch (transformType){
+        case TransformType::LINEAR :{
+            LinearTransform* t = static_cast<LinearTransform*>(parent);
+            double e = (double)elapsedSamples;
+            double c = (double)sampleCycleLength;
+            parent->setTValue(e/c*128);
+            t->setGValue(e/c*128);
+            const MessageManagerLock lock;
+            t->getGraph()->repaint();
+            t->getGraph()->calculateTValue();
+            break;}
+        }*/
+    }
+    else if(!quitting && syncToTempo){
+        MetronomeVoice* v = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
+        double samples_per_beat = v->getSamplesPerBeat();
+        if (sampleCount == v->getSampleCount())
+            return;
+        sampleCount = v->getSampleCount();
+        int measure_count = v->getMeasureCount();
+        double value = (sampleCount+(samples_per_beat*measure_count))/(samples_per_beat*4) * 128.0;
+        switch (transformType){
+        case TransformType::LINEAR :{
+            LinearTransform* t = static_cast<LinearTransform*>(parent);
+            parent->setTValue(value);
+            t->setGValue(value);
+            const MessageManagerLock lock;
+            t->getGraph()->repaint();
+            t->getGraph()->calculateTValue();
+            break;}
+        case TransformType::EXPONENTIAL :{
+            ExponentialTransform* t = static_cast<ExponentialTransform*>(parent);
+            parent->setTValue(value);
+            t->setGValue(value);
+            const MessageManagerLock lock;
+            t->getGraph()->repaint();
+            t->getGraph()->calculateTValue();
+            break;}
+        case TransformType::SINE:{
+            SineTransform* t = static_cast<SineTransform*>(parent);
+            parent->setTValue(value);
+            t->setGValue(value);
+            const MessageManagerLock lock;
+            t->getGraph()->repaint();
+            t->getGraph()->calculateTValue();
+            break;}
+        }
+    }
+}
+
+void LFOTimer::timerCallback()
+{
+    lfo->elapseTime();
+}
+
 void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
 {
     if (message.getChannel() == midi_input_id || midi_input_id== -1){ 
@@ -477,53 +718,33 @@ void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* source, const M
                 t->getGraph()->calculateTValue();
             }
             break;}
+            
+        case TransformType::SINE:{
+            SineTransform* t = static_cast<SineTransform*>(parent);
+            if (message.isController() && message.getControllerNumber() 
+                == t->getSourceBox()->getSelectedId())
+            {
+                int controller_value = message.getControllerValue();
+                if (controller_value < 1) controller_value = 1;
+                parent->setTValue(controller_value);
+                t->setGValue(controller_value);
+                const MessageManagerLock lock; //make component calls thread safe
+                t->getGraph()->repaint();
+                t->getGraph()->calculateTValue();
+            }
+            if (message.isNoteOn() && t->getSourceBox()->getSelectedId() == TransformID::VELOCITY)
+            {
+                parent->setTValue(message.getVelocity());
+                t->setGValue(message.getVelocity());
+                const MessageManagerLock lock; //make component calls thread safe
+                t->getGraph()->repaint();
+                t->getGraph()->calculateTValue();
+            }
+            break;}
         
         }
     }
 }
-
-
-void LFO::elapseTime(){
-    if (!quitting && !syncToTempo){
-        /*elapsedSamples+=samples;
-        elapsedSamples%=sampleCycleLength;
-        switch (transformType){
-        case TransformType::LINEAR :{
-            LinearTransform* t = static_cast<LinearTransform*>(parent);
-            double e = (double)elapsedSamples;
-            double c = (double)sampleCycleLength;
-            parent->setTValue(e/c*128);
-            t->setGValue(e/c*128);
-            const MessageManagerLock lock;
-            t->getGraph()->repaint();
-            t->getGraph()->calculateTValue();
-            break;}
-        }*/
-    }
-    else if(!quitting && syncToTempo){
-        MetronomeVoice* v = static_cast<MetronomeVoice*>(metronome->getSynth()->getVoice(0));
-        double samples_per_beat = v->getSamplesPerBeat();
-        double sample_count = v->getSampleCount();
-        int measure_count = v->getMeasureCount();
-        double value = (sample_count+(samples_per_beat*measure_count))/(samples_per_beat*4) * 128.0;
-        switch (transformType){
-        case TransformType::LINEAR :{
-            LinearTransform* t = static_cast<LinearTransform*>(parent);
-            parent->setTValue(value);
-            t->setGValue(value);
-            const MessageManagerLock lock;
-            t->getGraph()->repaint();
-            t->getGraph()->calculateTValue();
-            break;}
-        }
-    }
-}
-
-void LFOTimer::timerCallback()
-{
-    lfo->elapseTime();
-}
-
 
 
 
