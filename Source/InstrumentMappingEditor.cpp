@@ -33,6 +33,9 @@ InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, In
     
     group_editor->getCreateGroupButton()->addListener(graph);
     group_editor->getDeleteGroupButton()->addListener(graph);
+    group_editor->getGroupDownButton()->addListener(graph);
+    group_editor->getGroupUpButton()->addListener(graph);
+    
     group_editor->setBounds(0, 0, group_editor_width, 333 + 100);
     group_editor->getModel();
     addAndMakeVisible(view_port);
@@ -129,10 +132,25 @@ void MappingEditorGraph::buttonClicked(Button* source){
             groups.remove(s[i]);
         }
     }
-    if (source == renderEventsButton){
+    else if (source == group_editor->getGroupDownButton()){
+        SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+        int size = group_editor->getModel()->getGroupNames().size();
+        for (int i=s.size()-1; i>=0; i--){
+            int new_index = s[i] + 1 < size ? s[i]+1 : size-1; 
+            groups.move(s[i], new_index);
+        }
+    }
+    else if (source == group_editor->getGroupUpButton()){
+        SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+        for (int i=0; i<s.size(); i++){
+            int new_index = s[i] - 1 >= 0 ? s[i] - 1 : 0;
+            groups.move(s[i], new_index);
+        }
+    }
+    /*if (source == renderEventsButton){
         sampler.setupRendering();
         samplerProcessor.renderAllEvents();
-    }
+    }*/
 }
 
 void MappingEditorGraph::updateZones(){

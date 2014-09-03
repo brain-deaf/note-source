@@ -253,6 +253,14 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                                 
                             break;
                         }
+                         case (TransformChooser::FX::SINE):{
+                            SineTransform* sine = static_cast<SineTransform*>(insert_fx->getContent());
+                            tf->setAttribute("frequency", sine->getFrequencySlider()->getValue());
+                            tf->setAttribute("amplitude", sine->getAmplitudeSlider()->getValue());
+                            tf->setAttribute("source", sine->getSourceBox()->getSelectedId());
+                            tf->setAttribute("target", sine->getTargetBox()->getSelectedId());
+                            break;
+                        }
                         case (FxChooser::FX::NONE) :
                             break;
                     }

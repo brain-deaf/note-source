@@ -90,6 +90,18 @@ void TransformSelector::loadPatch(XmlElement* xml){
                             bin->getTransformComponent()->loadFx(TransformChooser::FX::EXPONENTIAL, exponential);
                             break;
                         }
+                         case (TransformChooser::FX::SINE):{
+                            TransformBin* t = static_cast<TransformBin*>(getParentComponent());
+                            SineTransform* sine= new SineTransform(t);
+                            sine->getFrequencySlider()->setValue(tf_element->getDoubleAttribute("frequency"), dontSendNotification);
+                            sine->getAmplitudeSlider()->setValue(tf_element->getDoubleAttribute("amplitude"), dontSendNotification);
+                            sine->getSourceBox()->setSelectedId(tf_element->getIntAttribute("source"), dontSendNotification);
+                            sine->getTargetBox()->setSelectedId(tf_element->getIntAttribute("target"), dontSendNotification);
+                            tf->setContent(sine);
+                            TransformBin* bin = static_cast<TransformBin*>(getParentComponent());
+                            bin->getTransformComponent()->loadFx(TransformChooser::FX::SINE, sine);
+                            break;
+                        }
                         case (TransformChooser::FX::NONE):
                             tf->setContent(nullptr);
                             break;
@@ -108,6 +120,8 @@ void TransformSelector::registerGroupEditor(){
         group_editor = parent->getGroupEditor();
         group_editor->getCreateGroupButton()->addListener(this);
         group_editor->getDeleteGroupButton()->addListener(this);
+        group_editor->getGroupDownButton()->addListener(this);
+        group_editor->getGroupUpButton()->addListener(this);
     }
 }
 
@@ -142,6 +156,21 @@ void TransformSelector::buttonClicked(Button* b){
         SparseSet<int> s = group_editor->getListBox()->getSelectedRows();
         for (int i=s.size()-1; i>=0; i--){
             groups.remove(s[i]);
+        }
+    }
+    else if (b == group_editor->getGroupDownButton()){
+        SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+        int size = group_editor->getModel()->getGroupNames().size();
+        for (int i=s.size()-1; i>=0; i--){
+            int new_index = s[i] + 1 < size ? s[i]+1 : size-1; 
+            groups.move(s[i], new_index);
+        }
+    }
+    else if (b == group_editor->getGroupUpButton()){
+        SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
+        for (int i=0; i<s.size(); i++){
+            int new_index = s[i] - 1 >= 0 ? s[i] - 1 : 0;
+            groups.move(s[i], new_index);
         }
     }
 }

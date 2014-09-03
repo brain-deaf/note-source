@@ -62,6 +62,8 @@ public:
     ListBox* getListBox(){return list_box;}
     TextButton* getCreateGroupButton(){return create_group_button;}
     TextButton* getDeleteGroupButton(){return delete_group_button;}
+    ArrowButton* getGroupDownButton(){return groupDownButton.get();}
+    ArrowButton* getGroupUpButton(){return groupUpButton.get();}
     InstrumentMappingEditor* getMappingEditor(){return mapping_editor;}
     GroupView* getGroupView(){return group_view;}
     void setFxBin(FxBin*);
@@ -84,6 +86,8 @@ private:
     ListBox* list_box;
     TextButton* create_group_button;
     TextButton* delete_group_button;
+    ScopedPointer<ArrowButton> groupUpButton;
+    ScopedPointer<ArrowButton> groupDownButton;
     InstrumentMappingEditor* mapping_editor;
     String temp;
     FxBin* fx_bin;

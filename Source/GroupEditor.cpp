@@ -19,7 +19,10 @@ GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component()
     header_height(50), footer_height(25), model(new GroupBoxModel()), list_box(new ListBox("list box", nullptr)),
     group_name_lbl(new Label("")), group_number_lbl(new Label("")),
     group_name(new Label("")), group_number(new Label("")), temp("123lkj"), fx_bin(nullptr), transform_bin(nullptr),
-    create_group_button(new TextButton("Create Group")), delete_group_button(new TextButton("Delete Group")){
+    create_group_button(new TextButton("+")), delete_group_button(new TextButton("-")),
+    groupDownButton(new ArrowButton("down", 0.25, Colours::black)),
+    groupUpButton(new ArrowButton("up", 0.75, Colours::black))
+{
     setBounds(0, 0, w, h);
     
     addAndMakeVisible(list_box);
@@ -55,10 +58,17 @@ GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component()
     
     addAndMakeVisible(create_group_button);
     create_group_button->addListener(this);
-    create_group_button->setBounds(3, height - footer_height + 3, 80, 20);
+    create_group_button->setBounds(3, height - footer_height + 3, 30, 20);
     addAndMakeVisible(delete_group_button);
     delete_group_button->addListener(this);
-    delete_group_button->setBounds(86, height - footer_height + 3, 80, 20);
+    delete_group_button->setBounds(36, height - footer_height + 3, 30, 20);
+    
+    addAndMakeVisible(groupDownButton);
+    groupDownButton->addListener(this);
+    groupDownButton->setBounds(86, height - footer_height + 3, 30, 20);
+    addAndMakeVisible(groupUpButton);
+    groupUpButton->addListener(this);
+    groupUpButton->setBounds(119, height - footer_height + 3, 30, 20);
     
     list_box->selectRow(0);
 }
@@ -142,6 +152,40 @@ void GroupEditor::buttonClicked(Button* source){
             list_box->repaintRow(i);
         }
     }
+    else if (source == groupDownButton){
+        SparseSet<int> s = list_box->getSelectedRows();
+        for (int i=s.size()-1; i>=0; i--){
+            int new_selected_row = s[i] + 1 < model->getGroupNames().size() ? s[i] + 1 : model->getGroupNames().size()-1;
+            model->getGroupNames().move(s[i], new_selected_row);
+        }
+        list_box->deselectAllRows();
+        for (int i=0; i<s.size(); i++){
+            int new_selected_row = s[i] + 1 < model->getGroupNames().size() ? s[i] + 1 : model->getGroupNames().size()-1;
+            list_box->selectRow(new_selected_row, false, false);
+        }
+        list_box->updateContent();
+        for (int i=0; i<model->getNumRows(); i++){
+            list_box->repaintRow(i);
+        }
+    }
+    else if (source == groupUpButton){
+        SparseSet<int> s = list_box->getSelectedRows();
+        for (int i=0; i<s.size(); i++){
+            int new_selected_row = s[i] - 1 >= 0 ? s[i] - 1 : 0;
+            model->getGroupNames().move(s[i], new_selected_row);
+        }
+        list_box->deselectAllRows();
+        for (int i=0; i<s.size(); i++){
+            int new_selected_row = s[i] - 1 >= 0 ? s[i] - 1 : 0;
+            std::cout<<new_selected_row<<std::endl;
+            list_box->selectRow(new_selected_row, false, false);
+        }
+    
+        list_box->updateContent();
+        for (int i=0; i<model->getNumRows(); i++){
+            list_box->repaintRow(i);
+        }
+    }
     group_view->refreshRows();
 }
 
@@ -177,6 +221,8 @@ void GroupBoxModel::selectedRowsChanged(int row){
 }
 
 void GroupEditor::resized(){
-    create_group_button->setBounds(3, getHeight() - footer_height + 3, 80, 20);
-    delete_group_button->setBounds(86, getHeight() - footer_height + 3, 80, 20);
+    create_group_button->setBounds(3, getHeight() - footer_height + 3, 30, 20);
+    delete_group_button->setBounds(36, getHeight() - footer_height + 3, 30, 20);
+    groupDownButton->setBounds(126, getHeight() - footer_height + 6, 30, 17);
+    groupUpButton->setBounds(159, getHeight() - footer_height + 6, 30, 17);
 }

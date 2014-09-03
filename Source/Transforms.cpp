@@ -483,7 +483,7 @@ SineTransform::SineTransform(TransformBin* t) : Component(),
 {
     frequencySlider->setSliderStyle(Slider::RotaryVerticalDrag);
     frequencySlider->setTextBoxStyle(Slider::NoTextBox, false, 50, 20);
-    frequencySlider->setRange(5, 200);
+    frequencySlider->setRange(2.6, 100);
     amplitudeSlider->setSliderStyle(Slider::RotaryVerticalDrag);
     amplitudeSlider->setTextBoxStyle(Slider::NoTextBox, false, 50, 20);
     amplitudeSlider->setRange(0.01, 115);
@@ -557,11 +557,17 @@ void SineTransform::paint(Graphics& g){
 
 void SineGraph::calculateTValue(){
     Path myPath;
+    if (getHeight() == 0 || getWidth() == 0)
+        return;
+    
     double angle_per_px = M_PI/8 / (double)getWidth();
     for (int i=0; i<getWidth(); i++){
-        if (i==0)
-            myPath.startNewSubPath(0,0);
-        myPath.lineTo(i, getHeight()/2 + amplitudeSlider->getValue()*sin(M_PI*2*frequencySlider->getValue()*(i*angle_per_px)));
+        double y = getHeight()/2 + amplitudeSlider->getValue()*sin(M_PI*2*frequencySlider->getValue()*(i*angle_per_px));
+        if (i==0){
+            myPath.startNewSubPath(0,getHeight()/2);
+        }
+        if (std::isfinite(y))
+            myPath.lineTo(i, y);
     }
 
     if (gValue != -1){
@@ -580,10 +586,18 @@ void SineGraph::paint(Graphics& g){
    
     Path myPath;
     double angle_per_px = M_PI/8 / (double)getWidth();
+    
+    if (getWidth() == 0 || getHeight() == 0)
+        return;
+        
     for (int i=0; i<getWidth(); i++){
-        if (i==0)
+        double y = getHeight()/2 + amplitudeSlider->getValue()*sin(M_PI*2*frequencySlider->getValue()*(i*angle_per_px));
+        if (i==0){
             myPath.startNewSubPath(0,getHeight()/2);
-        myPath.lineTo(i, getHeight()/2 + amplitudeSlider->getValue()*sin(M_PI*2*frequencySlider->getValue()*(i*angle_per_px)));
+        }
+        
+        if (std::isfinite(y))
+            myPath.lineTo(i, y);
     }
     
     g.strokePath (myPath, PathStrokeType (1.0f));
