@@ -13,6 +13,8 @@
 
 #include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "LevelMeter.h"
+
 class InstrumentComponent;
 class InstrumentBin;
 
@@ -76,6 +78,7 @@ private:
     InstrumentButton xButton;
     ComboBox* midi_input_menu;
     Label* midi_input_lbl;
+    ScopedPointer<LevelMeter> levelMeter;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMasterComponent)
 };
 

@@ -86,6 +86,7 @@ public:
     void setWavSampleCount(){wavSampleCount=0;}
     long long getWavSampleCount(){return wavSampleCount;}
     AudioFormatWriter* getWavWriter(){return wavWriter;}
+    float getPeak(){return peak;}
 private:
     MidiMessageCollector midiCollector;
     Synthesiser synth;
@@ -105,6 +106,7 @@ private:
     AudioFormatWriter* wavWriter;
     SamplerEventProcessor* samplerProcessor;
     long long wavSampleCount;
+    float peak;
 };
 
 class SampleVoice : public SamplerVoice

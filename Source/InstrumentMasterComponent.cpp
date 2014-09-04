@@ -14,7 +14,7 @@
 
 InstrumentMasterComponent::InstrumentMasterComponent(InstrumentBin* p, InstrumentComponent* i)
 : Component{}, parent{p}, midi_input_menu(new ComboBox()),
-    instrument_parent(i),
+    instrument_parent(i), levelMeter(new LevelMeter()),
     instrumentLabel{"component name", "New Instrument", p},
     midi_input_lbl(new Label("MIDI Input Channel")),
     xButton{"close", Colour(50, 50, 50), Colour(60, 60, 60), 
@@ -50,6 +50,9 @@ InstrumentMasterComponent::InstrumentMasterComponent(InstrumentBin* p, Instrumen
     instrument_parent->getTabWindow().getMappingEditorBin()->
     getMappingEditor()->graph->getMidiCallback().setMidiChannel(-1);
     
+    addAndMakeVisible(levelMeter.get());
+    
+    
     midi_input_menu->addListener(this);
 }
 
@@ -58,10 +61,15 @@ void InstrumentMasterComponent::paint (Graphics& g){
 }
 
 void InstrumentMasterComponent::resized(){
+    if (levelMeter->getSampler() == nullptr)
+        levelMeter->setSampler(&(parent->getInstrumentComponent()->getTabWindow().
+            getMappingEditorBin()->getMappingEditor()->graph->getSampler()));
+    
     instrumentLabel.setBounds(0, 0, getWidth(), getHeight());
     xButton.setBounds(getWidth() - 16, 4, 12, 12);
     midi_input_menu->setBounds(28, 52, 70, 20);
     midi_input_lbl->setBounds(5, 31, 120, 20);
+    levelMeter->setBounds(getWidth() - 60, 10, 20, getHeight() - 20);
 }
 
 void InstrumentMasterComponent::buttonClicked(Button* button){

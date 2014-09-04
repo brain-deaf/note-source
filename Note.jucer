@@ -45,6 +45,8 @@
           file="Source/InstrumentTabWindow.h"/>
     <FILE id="RAmgon" name="InstrumentTabWindow.cpp" compile="1" resource="0"
           file="Source/InstrumentTabWindow.cpp"/>
+    <FILE id="bjThHE" name="LevelMeter.h" compile="0" resource="0" file="Source/LevelMeter.h"/>
+    <FILE id="SWcvz8" name="LevelMeter.cpp" compile="1" resource="0" file="Source/LevelMeter.cpp"/>
     <FILE id="XOFcHp" name="LuaScript.h" compile="0" resource="0" file="Source/LuaScript.h"/>
     <FILE id="efjR3R" name="LuaScript.cpp" compile="1" resource="0" file="Source/LuaScript.cpp"/>
     <FILE id="KjKOXS" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
