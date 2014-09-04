@@ -133,18 +133,22 @@ void GroupEditor::updateLabels(String name, int index){
 
 void GroupEditor::buttonClicked(Button* source){
     if (source == create_group_button){
+        Sampler* sampler = &(mapping_editor->graph->getSampler());
         model->incNumRows();
         list_box->updateContent();
         list_box->repaintRow(model->getNumRows());
         model->addGroupName("New Group");
+        sampler->getGroups().add(new SampleGroup());
     }
     else if (source == delete_group_button){
         SparseSet<int> s = list_box->getSelectedRows();
+        Sampler* sampler = &(mapping_editor->graph->getSampler());
         for (int i=0; i<s.size(); i++){
             model->getGroupNames().set(s[i], temp);
         }
         for (int i=s.size()-1; i>=0; i--){
             model->getGroupNames().remove(s[i]);
+            sampler->getGroups().remove(s[i]);
             model->decNumRows();
         }
         list_box->updateContent();
@@ -154,30 +158,36 @@ void GroupEditor::buttonClicked(Button* source){
     }
     else if (source == groupDownButton){
         SparseSet<int> s = list_box->getSelectedRows();
+        Sampler* sampler = &(mapping_editor->graph->getSampler());
+        int new_selected_row;
         for (int i=s.size()-1; i>=0; i--){
-            int new_selected_row = s[i] + 1 < model->getGroupNames().size() ? s[i] + 1 : model->getGroupNames().size()-1;
+            new_selected_row = s[i] + 1 < model->getGroupNames().size() ? s[i] + 1 : model->getGroupNames().size()-1;
             model->getGroupNames().move(s[i], new_selected_row);
+            sampler->getGroups().move(s[i], new_selected_row);
         }
         list_box->deselectAllRows();
+        
         for (int i=0; i<s.size(); i++){
-            int new_selected_row = s[i] + 1 < model->getGroupNames().size() ? s[i] + 1 : model->getGroupNames().size()-1;
+            new_selected_row = s[i] + 1 < model->getGroupNames().size() ? s[i] + 1 : model->getGroupNames().size()-1;
             list_box->selectRow(new_selected_row, false, false);
         }
         list_box->updateContent();
         for (int i=0; i<model->getNumRows(); i++){
             list_box->repaintRow(i);
-        }
+        }   
     }
     else if (source == groupUpButton){
         SparseSet<int> s = list_box->getSelectedRows();
+        Sampler* sampler = &(mapping_editor->graph->getSampler());
+        int new_selected_row;
         for (int i=0; i<s.size(); i++){
-            int new_selected_row = s[i] - 1 >= 0 ? s[i] - 1 : 0;
+            new_selected_row = s[i] - 1 >= 0 ? s[i] - 1 : 0;
             model->getGroupNames().move(s[i], new_selected_row);
+            sampler->getGroups().move(s[i], new_selected_row);
         }
         list_box->deselectAllRows();
         for (int i=0; i<s.size(); i++){
-            int new_selected_row = s[i] - 1 >= 0 ? s[i] - 1 : 0;
-            std::cout<<new_selected_row<<std::endl;
+            new_selected_row = s[i] - 1 >= 0 ? s[i] - 1 : 0;
             list_box->selectRow(new_selected_row, false, false);
         }
     

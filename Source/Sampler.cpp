@@ -26,7 +26,7 @@ Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s)
     : AudioSource(), synth(), idCount(0), notesHeld(s), formatManager(), 
       events(), incomingEvents(), wavFormat(nullptr), wavWriter(nullptr),/*wavOutput(new FileOutputStream(File(File::getCurrentWorkingDirectory()).getFullPathName() + "/temp.wav")),*/
       filter1(), filter2(), fx_selector(nullptr), transform_selector(nullptr),
-      wavSampleCount(0.0), wavOutput(nullptr), samplerProcessor(nullptr)
+      wavSampleCount(0.0), wavOutput(nullptr), samplerProcessor(nullptr), groups()
 {   
     for (int i=0; i<256; i++){
         synth.addVoice(new SampleVoice());
@@ -34,6 +34,8 @@ Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s)
     formatManager.registerBasicFormats();
     filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 6000.0));
     filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 10000.0));
+    
+    groups.add(new SampleGroup());
 }
 
 void Sampler::setupRendering(){
@@ -42,7 +44,7 @@ void Sampler::setupRendering(){
         f.deleteFile();                                 
 }
                                           
-void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& groups, PlaySettings* p, std::pair<int, int> v){
+void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& group, PlaySettings* p, std::pair<int, int> v){
     ScopedPointer<AudioFormatReader> audioReader(formatManager.createReaderFor(File(path)));
         
     BigInteger allNotes;
@@ -52,12 +54,14 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
     SampleSound* ss;
     synth.addSound(ss = new SampleSound("demo sound", *audioReader,
                                     allNotes, root_note,
-                                    0.0, 0.0, 10.0, groups, fx_selector, tf_selector, this, v));
+                                    0.0, 0.0, 10.0, group, fx_selector, tf_selector, this, v));
     ss->setSampleStart(p->getSampleStart());
     ss->setLoopMode(p->getLoopMode());
     ss->setLoopStart(p->getLoopStart());
     ss->setLoopEnd(p->getLoopEnd());
     ss->setXfadeLength(p->getXfadeLength());
+    
+    groups[group[0]]->add(ss);
 }
     
 void Sampler::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
@@ -195,13 +199,9 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
         Array<int> groups_for_note = s->getGroups();
         Array<int> groups_for_event = noteEvent->getGroups();
         bool return_flag = true;
-        if (groups_for_event.size() > 0){
-            for (auto i : groups_for_note){
-                for (auto j : groups_for_event){
-                    if (j == i){ 
-                        return_flag = false;
-                    }
-                }
+        for (auto j : groups_for_event){
+            if (sampler->getGroups()[j]->getSounds().contains(s)){ 
+                return_flag = false;
             }
         }
         

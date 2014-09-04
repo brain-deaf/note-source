@@ -146,7 +146,15 @@ void MappingEditorGraph::buttonClicked(Button* source){
             int new_index = s[i] - 1 >= 0 ? s[i] - 1 : 0;
             groups.move(s[i], new_index);
         }
+        
+                
+            
     }
+    /*for (int i=0; i<groups.size(); i++){
+        for (int j=0; j<sampler.getSynth()->getNumSounds(); j++){
+            SampleSound* sound = sampler.getSynth()->getSound(j);
+            sound->setGroup(0, */
+                
     /*if (source == renderEventsButton){
         sampler.setupRendering();
         samplerProcessor.renderAllEvents();
