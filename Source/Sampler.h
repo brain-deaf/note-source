@@ -53,6 +53,17 @@ private:
 
 class SamplerEventProcessor;
 class PlaySettings;
+class SampleSound;
+
+class SampleGroup
+{
+public:
+    SampleGroup() : sounds(){}
+    void add(SampleSound* s){sounds.add(s);}
+    Array<SampleSound*>& getSounds(){return sounds;}
+private:
+    Array<SampleSound*> sounds;
+};
 
 class Sampler : public AudioSource
 {
@@ -89,6 +100,7 @@ public:
     float getPeak(){return peak;}
     void setInstrumentVolume(double d){instrumentVolume=d;}
     double getInstrumentVolume(){return instrumentVolume;}
+    OwnedArray<SampleGroup>& getGroups(){return groups;}
 private:
     MidiMessageCollector midiCollector;
     Synthesiser synth;
@@ -109,7 +121,11 @@ private:
     SamplerEventProcessor* samplerProcessor;
     long long wavSampleCount;
     float peak;
+<<<<<<< HEAD
     double instrumentVolume;
+=======
+    OwnedArray<SampleGroup> groups;
+>>>>>>> d4300e8d956aa147188107bea466ee316c975b18
 };
 
 class SampleVoice : public SamplerVoice
@@ -190,6 +206,11 @@ public:
     double getXfadeLength(){return xfadeLength;}
     void setTuning(double d){tuning=d;}
     double getTuning(){return tuning;}
+    
+    //Array<int>& getGroups(){return groups;}
+    void setGroup(int index, int value){
+        groups.set(index, value);
+    }
     
     Sampler* getSampler(){return sampler;}
 private:
