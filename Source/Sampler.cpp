@@ -26,7 +26,8 @@ Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s)
     : AudioSource(), synth(), idCount(0), notesHeld(s), formatManager(), 
       events(), incomingEvents(), wavFormat(nullptr), wavWriter(nullptr),/*wavOutput(new FileOutputStream(File(File::getCurrentWorkingDirectory()).getFullPathName() + "/temp.wav")),*/
       filter1(), filter2(), fx_selector(nullptr), transform_selector(nullptr),
-      wavSampleCount(0.0), wavOutput(nullptr), samplerProcessor(nullptr)
+      wavSampleCount(0.0), wavOutput(nullptr), samplerProcessor(nullptr),
+      instrumentVolume(1.0)
 {   
     for (int i=0; i<256; i++){
         synth.addVoice(new SampleVoice());
@@ -100,7 +101,7 @@ void SampleVoice::startNote(const int midiNoteNumber,
     if (SampleSound* sound = (SampleSound*)s){
         const double a = pow(2.0, 1.0/12.0);
         double old_frequency = 440.0 * pow(a, (double)sound->getRootNote() - 69.0);
-        double new_frequency = old_frequency * pow(a, (float)midiNoteNumber - sound->getRootNote());
+        double new_frequency = old_frequency * pow(a, ((float)midiNoteNumber + sound->getTuning()) - sound->getRootNote());
         pitchRatio = new_frequency/old_frequency;
         releaseStart = 0.0f;
         samplePosition = sound->getSampleStart();
@@ -375,11 +376,13 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 
                 *outL += l*attack_multiplier*release_multiplier*
                          (volume+difference_per_sample*(i-start))*
-                         (tf_volume+tf_difference_per_sample*(i-start));
+                         (tf_volume+tf_difference_per_sample*(i-start))*
+                         sampler->getInstrumentVolume();
                          
                 *outR += r*attack_multiplier*release_multiplier*
                          (volume+difference_per_sample*(i-start))*
-                         (tf_volume+tf_difference_per_sample*(i-start));
+                         (tf_volume+tf_difference_per_sample*(i-start))*
+                         sampler->getInstrumentVolume();
                          
                 if (ringMod){
                     float L = *outL;

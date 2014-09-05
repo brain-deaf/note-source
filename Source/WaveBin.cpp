@@ -65,6 +65,13 @@ WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m),
     toggleLoop->addListener(this);
     addAndMakeVisible(toggleLoop);
     
+    tuneSlider= new Slider(Slider::SliderStyle::RotaryVerticalDrag, Slider::TextEntryBoxPosition::TextBoxBelow);
+    tuneSlider->setRange(-3, 3);
+    tuneSlider->setValue(0.0);
+    tuneSlider->setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::yellow);
+    tuneSlider->addListener(this);
+    addAndMakeVisible(tuneSlider);
+    
     group_view_width = 800;
     vport_width = 300;
     lower_limit = 100;
@@ -116,6 +123,7 @@ void WaveBin::updateZone(Zone* _zone){
         loopStart->setValue(z->getPlaySettings()->getLoopStart(), sendNotification);
         loopEnd->setValue(z->getPlaySettings()->getLoopEnd(), sendNotification);
         xfadeLength->setValue(z->getPlaySettings()->getXfadeLength(), sendNotification);
+        tuneSlider->setValue(z->getPlaySettings()->getTuning(), sendNotification);
         if (filePlayer != nullptr){
             delete filePlayer;
             filePlayer = nullptr;
@@ -149,6 +157,7 @@ void WaveBin::resized(){
     loopEnd->setBounds(vport_width + waveform_padding+100, waveform_height + 50, 50, 50);
     xfadeLength->setBounds(vport_width + waveform_padding+150, waveform_height + 50, 50, 50);
     toggleLoop->setBounds(vport_width + waveform_padding+200, waveform_height + 50, 80, 40);
+    tuneSlider->setBounds(vport_width + waveform_padding+290, waveform_height + 50, 50, 50);
 }
 
 void WaveBin::paint(Graphics& g){
@@ -206,6 +215,14 @@ void WaveBin::sliderValueChanged(Slider* s){
             InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
             int zone_index = m->getZones().indexOf(z);
             static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setXfadeLength(xfadeLength->getValue());
+        }
+    }
+    if (s == tuneSlider){
+        if (z != nullptr){
+            z->getPlaySettings()->setTuning(tuneSlider->getValue());
+            InstrumentMappingEditor::MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
+            int zone_index = m->getZones().indexOf(z);
+            static_cast<SampleSound*>(m->getSampler().getSynth()->getSound(zone_index))->setTuning(tuneSlider->getValue());
         }
     }
 }

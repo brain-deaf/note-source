@@ -12,6 +12,10 @@
 #include "Sampler.h"
 #include <math.h>  
 
+void LevelMeterHandle::paint(Graphics& g){
+    g.fillAll(Colours::black);
+}
+
 void LevelMeterTimer::timerCallback(){
     levelMeter->drawAmplitude();
 }
@@ -85,7 +89,34 @@ void LevelMeter::paint(Graphics& g){
         g.drawRect(0, 0, getWidth(), getHeight());
         return;
     }
-    
-    
+}
+
+void LevelMeter::mouseDrag(const MouseEvent& m){
+    int y = m.getPosition().getY();
+    handle->setBounds(0, y, getWidth(), 3);
+    float handleRatio = handle->getPosition().getY() / getHeight();
+    float px_per_decibel = (1.5 + 0.0) / getHeight();
+    handleValue = px_per_decibel * (getHeight() - handle->getPosition().getY()) + 0.0;
+    handleValue = handleValue <= 1.5 ? handleValue : 1.5;
+    handleValue = handleValue > 0 ? handleValue : 0.0;
+    sampler->setInstrumentVolume(handleValue);
+}
+
+void LevelMeter::mouseDown(const MouseEvent& m){
+    int y = m.getPosition().getY();
+    handle->setBounds(0, y, getWidth(), 3);
+    float handleRatio = handle->getPosition().getY() / getHeight();
+    float px_per_decibel = (1.5 + 0.0) / getHeight();
+    handleValue = px_per_decibel * (getHeight() - handle->getPosition().getY()) + 0.0;
+    handleValue = handleValue <= 1.5 ? handleValue : 1.5;
+    handleValue = handleValue > 0 ? handleValue : 0.0;
+    sampler->setInstrumentVolume(handleValue);
+}
+
+void LevelMeter::resized(){
+    handle->setBounds(0, 20, getWidth(), 3);
+    float handleRatio = handle->getPosition().getY() / getHeight();
+    float px_per_decibel = (1.5 + 0.0) / getHeight();
+    handleValue = px_per_decibel * (getHeight() - handle->getPosition().getY()) + 0.0;
 }
     

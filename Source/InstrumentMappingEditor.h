@@ -23,7 +23,8 @@ class InstrumentComponent;
 class PlaySettings
 {
 public:
-    PlaySettings() : sampleStart(0.0),loopStart(0.0),loopEnd(0.0),xfadeLength(0.0),loopMode(false){}
+    PlaySettings() : sampleStart(0.0),loopStart(0.0),loopEnd(0.0),
+                     xfadeLength(0.0),loopMode(false), tuning(0.0){}
     double getSampleStart(){return sampleStart;}
     void setSampleStart(double d){sampleStart=d;}
     void setLoopStart(double d){loopStart=d;}
@@ -34,12 +35,15 @@ public:
     double getLoopStart(){return loopStart;}
     double getLoopEnd(){return loopEnd;}
     double getXfadeLength(){return xfadeLength;}
+    double getTuning(){return tuning;}
+    void setTuning(double d){tuning=d;}
 private:
     double sampleStart;
     double loopStart;
     double loopEnd;
     bool loopMode;
     double xfadeLength;
+    double tuning;
 };
 
 class InstrumentMappingEditor : public Component

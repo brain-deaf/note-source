@@ -87,6 +87,8 @@ public:
     long long getWavSampleCount(){return wavSampleCount;}
     AudioFormatWriter* getWavWriter(){return wavWriter;}
     float getPeak(){return peak;}
+    void setInstrumentVolume(double d){instrumentVolume=d;}
+    double getInstrumentVolume(){return instrumentVolume;}
 private:
     MidiMessageCollector midiCollector;
     Synthesiser synth;
@@ -107,6 +109,7 @@ private:
     SamplerEventProcessor* samplerProcessor;
     long long wavSampleCount;
     float peak;
+    double instrumentVolume;
 };
 
 class SampleVoice : public SamplerVoice
@@ -160,7 +163,7 @@ public:
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
                                  groups(group), fx_selector(fx), tf_selector(tf),
                                  sampleStart(0.0), loopStart(0.0), loopEnd(0.0), 
-                                 xfadeLength(0.0), loopMode(false), 
+                                 xfadeLength(0.0), loopMode(false), tuning(0.0),
                                  sampler(s), velocity(v)
     {
         sampleRate = source.sampleRate;
@@ -185,6 +188,8 @@ public:
     double getLoopStart(){return loopStart;}
     double getLoopEnd(){return loopEnd;}
     double getXfadeLength(){return xfadeLength;}
+    void setTuning(double d){tuning=d;}
+    double getTuning(){return tuning;}
     
     Sampler* getSampler(){return sampler;}
 private:
@@ -200,7 +205,7 @@ private:
     bool loopMode;
     double xfadeLength;
     Sampler* sampler;
-    
+    double tuning;
 };
 
                     

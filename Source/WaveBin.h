@@ -64,6 +64,7 @@ private:
     ScopedPointer<Slider> loopStart;
     ScopedPointer<Slider> loopEnd;
     ScopedPointer<Slider> xfadeLength;
+    ScopedPointer<Slider> tuneSlider;
     ScopedPointer<TextButton> toggleLoop;
     Zone* z;
 };

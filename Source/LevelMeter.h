@@ -15,6 +15,18 @@
 class Sampler;
 class LevelMeter;
 
+
+class LevelMeterHandle : public Component
+{
+public:
+    LevelMeterHandle(LevelMeter* l) : levelMeter(l), Component(){}
+    ~LevelMeterHandle(){}
+    void paint(Graphics&);
+private:
+    LevelMeter* levelMeter;
+    float decibelValue;
+};
+
 class LevelMeterTimer : public Timer
 {
 public:
@@ -36,15 +48,22 @@ public:
                                 greenRangeHigh(-16.0),
                                 yellowRangeHigh(-5.0),
                                 orangeRangeHigh(0.0),
+                                handleYPosition(0),
+                                handleValue(1.0),
                                 sampler(nullptr)
     {
         levelMeterTimer = new LevelMeterTimer(this);
+        handle = new LevelMeterHandle(this);
+        addAndMakeVisible(handle);
     }
     ~LevelMeter(){};
     void setDecibelRange(float low, float high){decibelRangeLow=low, decibelRangeHigh=high;}
     void paint(Graphics&);
     void drawAmplitude(){repaint();}
     void setSampler(Sampler* s){sampler=s;}
+    void mouseDrag(const MouseEvent&);
+    void mouseDown(const MouseEvent&);
+    void resized();
     Sampler* getSampler(){return sampler;}
 private:
     float decibelRangeLow;
@@ -53,7 +72,10 @@ private:
     float yellowRangeHigh;
     float orangeRangeHigh;
     Sampler* sampler;
+    ScopedPointer<LevelMeterHandle> handle;
     ScopedPointer<LevelMeterTimer> levelMeterTimer;
+    int handleYPosition;
+    float handleValue;
 };
 
 
