@@ -121,11 +121,8 @@ private:
     SamplerEventProcessor* samplerProcessor;
     long long wavSampleCount;
     float peak;
-<<<<<<< HEAD
     double instrumentVolume;
-=======
     OwnedArray<SampleGroup> groups;
->>>>>>> d4300e8d956aa147188107bea466ee316c975b18
 };
 
 class SampleVoice : public SamplerVoice
