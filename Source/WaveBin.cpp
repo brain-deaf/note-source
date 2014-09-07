@@ -97,22 +97,20 @@ WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m),
 }
 
 WaveBin::~WaveBin(){
-    delete group_view;
     group_view = nullptr;
-    delete Vport;
     Vport = nullptr;
-    delete waveform;
     waveform = nullptr;
-    delete sample_start;
     sample_start = nullptr;
-    delete WaveVport;
     WaveVport = nullptr;
-    delete vScaling;
     vScaling = nullptr;
-    delete hScaling;
     hScaling = nullptr;
-    delete playButton;
     playButton = nullptr;
+	filePlayer = nullptr;
+	loopStart = nullptr;
+	loopEnd = nullptr;
+	xfadeLength = nullptr;
+	tuneSlider = nullptr;
+	toggleLoop = nullptr;
 }
 
 void WaveBin::updateZone(Zone* _zone){

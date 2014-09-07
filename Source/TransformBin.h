@@ -31,8 +31,8 @@ public:
     MappingEditorBin* getMappingEditor(){return mapping_editor;}
     Metronome* getMetronome(){return metronome;}
 private:
-    TransformSelector* fx_selector;
-    TransformComponent* fx_component;
+    ScopedPointer<TransformSelector> fx_selector;
+    ScopedPointer<TransformComponent> fx_component;
     int selector_height;
     GroupEditor* group_editor;
     MappingEditorBin* mapping_editor;

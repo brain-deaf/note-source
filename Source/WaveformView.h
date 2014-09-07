@@ -33,6 +33,10 @@ public:
     void setLoopStart(double d){loopStart=d;}
     void setLoopEnd(double d){loopEnd=d;}
     void setXfadeLength(double d){xfadeLength=d;}
+	AudioThumbnailCache& getCache(){ return cache; }
+	AudioThumbnail& getThumbnail(){ return thumbnail; }
+	AudioFormatManager& getFormatManager(){ return formatManager; }
+
 private:
     WaveBin* parent;
     double vScale;

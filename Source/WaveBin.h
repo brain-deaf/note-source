@@ -40,7 +40,7 @@ public:
     void timerCallback();
     WaveformView* getWaveformView(){return waveform;}
 private:
-    GroupView* group_view;
+    ScopedPointer<GroupView> group_view;
     MappingEditorBin* mapping_editor;
     int group_view_width;
     int vport_width;
@@ -53,14 +53,14 @@ private:
     int scaling_slider_height;
     double fileLength;
     bool dragging;
-    Viewport* Vport;
-    Viewport* WaveVport;
-    WaveformView* waveform;
-    Slider* sample_start;
-    Slider* vScaling;
-    Slider* hScaling;
-    TextButton* playButton;
-    FilePlayer* filePlayer;
+    ScopedPointer<Viewport> Vport;
+    ScopedPointer<Viewport> WaveVport;
+    ScopedPointer<WaveformView> waveform;
+    ScopedPointer<Slider> sample_start;
+    ScopedPointer<Slider> vScaling;
+    ScopedPointer<Slider> hScaling;
+    ScopedPointer<TextButton> playButton;
+    ScopedPointer<FilePlayer> filePlayer;
     ScopedPointer<Slider> loopStart;
     ScopedPointer<Slider> loopEnd;
     ScopedPointer<Slider> xfadeLength;

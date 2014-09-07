@@ -34,15 +34,10 @@ ScriptBin::ScriptBin(MappingEditorBin* m) : codeDocument(new CodeDocument()),
 }
                        
 ScriptBin::~ScriptBin(){
-    delete codeEditor;
     codeEditor = nullptr;
-    delete compileButton;
     compileButton = nullptr;
-    delete codeDocument;
     codeDocument = nullptr;
-    delete luaScript;
     luaScript = nullptr;
-    delete saveAsButton;
     saveAsButton = nullptr;
 }
 

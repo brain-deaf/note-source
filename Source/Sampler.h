@@ -69,7 +69,9 @@ class Sampler : public AudioSource
 {
 public:
     Sampler(SelectedItemSet<std::pair<int, int> >*);
-    ~Sampler(){}
+    ~Sampler(){
+		groups.clear(true);
+	}
     void addSample(String path, int root_note, int note_low, int note_high, 
                    Array<int>&, PlaySettings*, std::pair<int, int>);
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate);

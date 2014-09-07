@@ -20,16 +20,16 @@ public:
     ~ScriptBin();
     void paint(Graphics&);
     void resized();
-    LuaScript* getLuaScript(){return luaScript;}
+    LuaScript* getLuaScript(){return luaScript.get();}
     void buttonClicked(Button*);
     void loadPatch(XmlElement*);
     String getScriptPath(){return scriptPath;}
 private:
-    CodeDocument* codeDocument;
-    CodeEditorComponent* codeEditor;
-    TextButton* compileButton;
-    TextButton* saveAsButton;
-    LuaScript* luaScript;
+    ScopedPointer<CodeDocument> codeDocument;
+    ScopedPointer<CodeEditorComponent> codeEditor;
+    ScopedPointer<TextButton> compileButton;
+    ScopedPointer<TextButton> saveAsButton;
+    ScopedPointer<LuaScript> luaScript;
     MappingEditorBin* mapping_editor;
     String scriptPath;
 };

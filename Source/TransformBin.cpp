@@ -26,8 +26,17 @@ TransformBin::TransformBin(MappingEditorBin* bin) : Component(), selector_height
 }
 
 TransformBin::~TransformBin(){
-    delete fx_selector;
-    delete fx_component;
+	for (auto i : fx_selector->getGroups()){
+		TransformGroup* tf_group = i;
+		for (auto fx : tf_group->group_fx){
+			if (fx->getFxType() == TransformChooser::FX::LINEAR){
+				LinearTransform* ltf = (LinearTransform*)fx->getContent();
+				ltf->quit();
+			}
+		}
+	}
+    fx_selector = nullptr;
+    fx_component = nullptr;
 }
 
 void TransformBin::resized(){
@@ -43,13 +52,5 @@ void TransformBin::broughtToFront(){
 }
 
 void TransformBin::quit(){
-    for (auto i : fx_selector->getGroups()){
-        TransformGroup* tf_group = i;
-        for (auto fx : tf_group->group_fx){
-            if (fx->getFxType() == TransformChooser::FX::LINEAR){
-                LinearTransform* ltf= (LinearTransform*)fx->getContent();
-                ltf->quit();
-            }
-        }
-    }
+    
 }

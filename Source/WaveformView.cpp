@@ -14,7 +14,7 @@
 WaveformView::WaveformView()
 : Component(), formatManager(), parent(nullptr), cache(5), 
   vScale(0.7), sample_rate(44100.0), playPosition(0.0), playing(false),
-  length_sec(0.1), thumbnail(256, formatManager, cache), loopStart(0.0),
+  length_sec(0.1), thumbnail(256, getFormatManager(), getCache()), loopStart(0.0),
   loopEnd(0.0), zone(nullptr)
 {
     formatManager.registerBasicFormats();

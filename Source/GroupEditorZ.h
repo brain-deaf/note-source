@@ -37,6 +37,10 @@ class GroupView : public TreeView
 {
 public:
     GroupView(GroupEditor*, WaveBin*);
+	~GroupView(){
+		tree_view.deleteRootItem();
+		tree_view.setRootItem(nullptr);
+	}
     void refreshRows();
     void paint(Graphics&);
     WaveBin* getParent(){return parent;}

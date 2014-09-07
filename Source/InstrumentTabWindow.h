@@ -24,6 +24,14 @@ class InstrumentTabWindow : public TabbedComponent
 {
 public:
     InstrumentTabWindow(InstrumentComponent& instrument, TabbedButtonBar::Orientation orientation);
+	~InstrumentTabWindow()
+	{
+		mainPage = nullptr;
+		mappingEditor = nullptr;
+		fxbin = nullptr;
+		transformBin = nullptr;
+		scriptBin = nullptr;
+	}
     MappingEditorBin* getMappingEditorBin(){return mappingEditor;}
     WaveBin* getWaveBin(){return waveBin;}
     FxBin* getFxBin(){return fxbin;}
@@ -38,7 +46,7 @@ private:
     ScopedPointer<FxBin> fxbin;
     ScopedPointer<TransformBin> transformBin;
     ScopedPointer<ScriptBin> scriptBin;
-    ScopedPointer<TextButton> zoomButton;
+    //ScopedPointer<TextButton> zoomButton;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentTabWindow)
 };
 
