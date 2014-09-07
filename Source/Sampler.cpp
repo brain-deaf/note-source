@@ -11,6 +11,8 @@
 #include "Sampler.h"
 #include "Adsr.h"
 #include "InstrumentMappingEditor.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 static bool isNoteHeld(SelectedItemSet<std::pair<int, int> > s, int n){
     for (auto pair : s){

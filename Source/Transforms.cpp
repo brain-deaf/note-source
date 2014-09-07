@@ -10,6 +10,8 @@
 
 #include "Transforms.h"
 #include "TransformBin.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 static double plotAdsr(int x1, int time, int y1, int max_volume, double curve_width, int x){
     return(max_volume - y1) / (pow(M_E, curve_width*time) - pow(M_E, curve_width*x1)) * (pow(M_E, curve_width*x) - pow(M_E, curve_width*x1)) + y1;

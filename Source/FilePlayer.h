@@ -13,6 +13,11 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+class BadFormatException : public std::runtime_error{
+public:
+	BadFormatException(String s) : std::runtime_error(s.toStdString()){}
+};
+
 class FilePlayer : public ChangeListener {
 public:
     FilePlayer(const String& sample_name);

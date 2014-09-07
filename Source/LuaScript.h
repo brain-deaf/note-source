@@ -12,9 +12,12 @@
 #define LUASCRIPT_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+
+extern "C" {
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
+}
 #include "Metronome.h"
 #include "SamplerEventProcessor.h"
 

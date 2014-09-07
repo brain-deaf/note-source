@@ -11,6 +11,8 @@
 #include "SamplerEventProcessor.h"
 #include "Adsr.h"
 #include "InstrumentMappingEditor.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 //y = (y2-y1)/(e^wx2 - e^wx1) * (e^wx - e^wx1) + y1
 static double getAttackMultiplier(float attackTime, float attackCurve, float x){
@@ -33,11 +35,11 @@ void SamplerEventProcessor::renderAllEvents(){
         startSamplerEvent(i);
     }
     
-    float f_l[data[0].size()];
+	float* f_l = &(data[0][0]);
     for (int i=0; i<data[0].size(); i++){
         f_l[i] = data[0][i];
     }
-    float f_r[data[1].size()];
+    float* f_r = &(data[1][0]);
     for (int i=0; i<data[1].size(); i++){
         f_r[i] = data[1][i];
     }

@@ -552,7 +552,7 @@ static int l_sleep(lua_State* L){
 
 LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), metronome(nullptr),
                                             guiId(1), lastPlayedNote(0), beatListening(false){
-    L = lua_open();
+    L = luaL_newstate();
     luaL_openlibs(L);
     
     lua_pushcfunction(L, l_makeTable);

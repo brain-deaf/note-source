@@ -9,6 +9,7 @@
 */
 
 #include "Adsr.h"
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 Adsr::Adsr() : Component(), adsr_plot(this), attack_time(new MidiSlider()), attack_curve(new MidiSlider()),

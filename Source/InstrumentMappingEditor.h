@@ -197,6 +197,13 @@ public:
         };
 
         MappingEditorGraph(float,float,float,int,InstrumentComponent&, GroupEditor*);
+		~MappingEditorGraph()
+		{
+			SharedResourcePointer<AudioDeviceManager> dm;
+			dm->removeAudioCallback(&source_player);
+			dm->removeAudioCallback(&metronome_player);
+			dm->removeMidiInputCallback("", &midiCallback);
+		}
         void changeListenerCallback(ChangeBroadcaster* source){repaint();};
         void setBoundsForComponent(Zone& z, MouseCursor cursor,
             float grid_outline, float gridWidth, int gridXOffset);
@@ -291,8 +298,8 @@ public:
     virtual void resized() override;
     void refreshGroupEditor(){addAndMakeVisible(group_editor);resized();}
     ScopedPointer<MappingEditorGraph> graph;
-    Viewport* view_port;
-    GroupEditor* group_editor;
+    ScopedPointer<Viewport> view_port;
+    ScopedPointer<GroupEditor> group_editor;
     InstrumentComponent& getInstrument(){return instrument;}
     
 private:

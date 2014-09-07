@@ -272,7 +272,7 @@ void WaveBin::changeListenerCallback(ChangeBroadcaster* source){
 
 void WaveBin::mouseMove(const MouseEvent& e){
     if (!dragging){
-        if (fabs(e.getPosition().getX() - vport_width) <= drag_threshold){
+        if (std::abs(e.getPosition().getX() - vport_width) <= drag_threshold){
             setMouseCursor(MouseCursor::LeftRightResizeCursor);
         }else{
             if (getMouseCursor() != MouseCursor()){

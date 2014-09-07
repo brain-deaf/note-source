@@ -154,15 +154,15 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
             
             XmlElement instrument("INSTRUMENT");
             
-            XmlElement* script_element = new XmlElement("SCRIPT");
+            ScopedPointer<XmlElement> script_element = new XmlElement("SCRIPT");
             script_element->setAttribute("path", scriptBin->getScriptPath());
             instrument.addChildElement(script_element);
             
             for (int i=0; i<mapping_editor->graph->getGroups().size(); i++){
-                XmlElement* group = new XmlElement("GROUP");
+                ScopedPointer<XmlElement> group = new XmlElement("GROUP");
                 group->setAttribute("name", mapping_editor->graph->getGroupEditor()->getModel()->getGroupNames()[i]);
                 for (int j=0; j<mapping_editor->graph->getGroups()[i]->getZones()->size(); j++){
-                    XmlElement* zone = new XmlElement("ZONE");
+                    ScopedPointer<XmlElement> zone = new XmlElement("ZONE");
                     Zone* z = (*( (mapping_editor->graph->getGroups()) [i] -> getZones() )) [j];
                     String path(z->getName());
                     int    x(z->getX());
@@ -186,7 +186,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                     group->addChildElement(zone);
                 }
                 for (int j=0; j<fx_group_list[i]->group_fx.size(); j++){
-                    XmlElement* fx = new XmlElement("FX");
+                    ScopedPointer<XmlElement> fx = new XmlElement("FX");
                     Fx* insert_fx = fx_group_list[i]->group_fx[j];
                     fx->setAttribute("type", insert_fx->getFxType());
                     
@@ -214,7 +214,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                     group->addChildElement(fx);
                 }
                 for (int j=0; j<fx_group_list[i]->group_fx.size(); j++){
-                    XmlElement* tf = new XmlElement("TRANSFORM");
+                    ScopedPointer<XmlElement> tf = new XmlElement("TRANSFORM");
                     Transform* insert_fx = tf_group_list[i]->group_fx[j];
                     tf->setAttribute("type", insert_fx->getFxType());
                     
@@ -227,7 +227,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                             tf->setAttribute("target", linear->getTargetBox()->getSelectedId());
                             Array<Point<int> > points = linear->getGraph()->getPoints();
                             for (int i=0; i<points.size(); i++){
-                                XmlElement* tfa = new XmlElement("POINT");
+                                ScopedPointer<XmlElement> tfa = new XmlElement("POINT");
                                 tfa->setAttribute("x", points[i].getX());
                                 tfa->setAttribute("y", points[i].getY());
                                 tf->addChildElement(tfa);
@@ -244,7 +244,7 @@ void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
                             Array<Point<int> > points = exponential->getGraph()->getPoints();
                             Array<double> curves = exponential->getGraph()->getCurves();
                             for (int i=0; i<points.size(); i++){
-                                XmlElement* tfa = new XmlElement("POINT");
+								ScopedPointer<XmlElement> tfa = new XmlElement("POINT");
                                 tfa->setAttribute("x", points[i].getX());
                                 tfa->setAttribute("y", points[i].getY());
                                 tfa->setAttribute("curve", curves[i]);

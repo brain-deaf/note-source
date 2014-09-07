@@ -42,7 +42,7 @@ public:
     void setMidiCC(int c){cc=c;}
     int getAssignedCC(){return cc;}
     void mouseDown(const MouseEvent&);
-    bool setLearning(bool b){learning = b;}
+    void setLearning(bool b){learning = b;}
     bool isLearning(){return learning;}
 private:
     int cc;

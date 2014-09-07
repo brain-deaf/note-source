@@ -34,7 +34,7 @@ void SampleFileBrowser::paint(Graphics& g){
 void SampleFileBrowser::mouseMove(const MouseEvent& m){
     int x = m.getPosition().getX();
     MouseCursor mc = getMouseCursor();
-    if (fabs(getWidth() - x) <= 5){
+    if (std::abs(getWidth() - x) <= 5){
         if (mc != MouseCursor::LeftRightResizeCursor)
             setMouseCursor(MouseCursor::LeftRightResizeCursor);
     }else{

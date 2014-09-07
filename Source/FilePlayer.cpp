@@ -9,10 +9,7 @@
 */
 #include <stdexcept>
 #include "FilePlayer.h"
-class BadFormatException : public std::runtime_error{
-public:
-    BadFormatException(String s) : std::runtime_error(s.toStdString()){}
-};
+
 
 FilePlayer::FilePlayer(const String& s): ChangeListener{},
     sampleName{s}, deviceManager{}, formatManager{}, transportSource{},
@@ -29,7 +26,8 @@ FilePlayer::FilePlayer(const String& s): ChangeListener{},
         File f (sampleName);
         auto r = formatManager.createReaderFor(f);
         if( r == nullptr) {
-            throw BadFormatException("cannot play "+sampleName);
+            //throw BadFormatException("cannot play "+sampleName);
+			throw BadFormatException(std::string("cannot play this sample"));
             //delete this;
         }else{
             readerSource = new AudioFormatReaderSource (r,true);

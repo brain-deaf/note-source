@@ -13,17 +13,13 @@
 #include "InstrumentBin.h"
 #include "MainComponent.h"
 #include "SamplerEventProcessor.h"
+#include "FilePlayer.h"
 
-
-class BadFormatException : public std::runtime_error{
-public:
-    BadFormatException(String s) : std::runtime_error(s.toStdString()){}
-};
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, InstrumentComponent& i)
 :   Component(), instrument(i), view_port(new Viewport(componentName)),
     group_editor(new GroupEditor(200, 333 + 100, this)),
-    graph(new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i, group_editor))
+    graph(new MappingEditorGraph(1800.0f, 315.0f, 100.0f, 128, i, group_editor.get()))
 {
     
     graph->getGroupEditor() = group_editor;
@@ -57,9 +53,9 @@ void InstrumentMappingEditor::resized()
 }
 
 InstrumentMappingEditor::~InstrumentMappingEditor(){
-    delete view_port;
+	
+	graph = nullptr;
     view_port = nullptr;
-    delete group_editor;
     group_editor = nullptr;
 }
 
@@ -429,12 +425,14 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
     Zone* newZone;
     for (int i=0; i<files.size(); i++){
         
+		
+
         if (File(files[i]).isDirectory()){continue;}
-        
         try{
             newZone = new Zone(this, files[i], instrument);
-        }catch (BadFormatException const & e){
+        }catch (BadFormatException& e){
             //there's a crash here...why?
+			std::cout << "exception" << std::endl;
             continue;
         }  
         zones.add(newZone);
