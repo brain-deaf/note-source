@@ -87,7 +87,7 @@ class TransformBox : public Component, public DragAndDropTarget{
 public:
     TransformBox(TransformButton* button, TransformSelector* parent);
     ~TransformBox(){delete _button;}
-    bool isInterestedInDragSource(const SourceDetails& dragSourceDetails) override {return true;}
+    bool isInterestedInDragSource(const SourceDetails& ) override {return true;}
     void itemDropped(const SourceDetails& dragSourceDetails) override;
     void itemDragEnter(const SourceDetails& dragSourceDetails);
     void itemDragExit(const SourceDetails& dragSourceDetails);

@@ -60,8 +60,8 @@ class LFO
 {
 public:
     LFO(TransformType t, Transformation* tf) : 
-        elapsedSamples(0.0),quitting(false),
-        sampleCycleLength(44100.0),timer(this),
+        elapsedSamples(0),quitting(false),
+        sampleCycleLength(44100),timer(this),
         syncToTempo(true), sampleCount(0.0)
     {
         transformType=t; parent=tf;

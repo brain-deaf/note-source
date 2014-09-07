@@ -57,7 +57,7 @@ public:
     BadMenuException(String menuName) : std::runtime_error(menuName.toStdString()){}
 };
 
-PopupMenu MenuBar::getMenuForIndex(int topLevelMenuIndex, const String& menuName){
+PopupMenu MenuBar::getMenuForIndex(int /*topLevelMenuIndex*/, const String& menuName){
     if (menuName == "File"){
         return file;
     }
@@ -74,7 +74,7 @@ PopupMenu MenuBar::getMenuForIndex(int topLevelMenuIndex, const String& menuName
     }
 }
 
-void MenuBar::menuItemSelected(int menuItemID, int topLevelMenuIndex){
+void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
     switch (menuItemID) {
         case ID_Quit: {
             for (auto instrument : parent->getInstruments()){

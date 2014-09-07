@@ -92,7 +92,7 @@ void InstrumentMasterComponent::InstrumentLabel::textWasEdited(){
     parent->setTabName(parent->getCurrentTabIndex(), getText());
 }
 
-void InstrumentMasterComponent::InstrumentButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown){
+void InstrumentMasterComponent::InstrumentButton::paintButton(Graphics& g, bool /*isMouseOver*/, bool /*isButtonDown*/){
     Path myPath;
     myPath.startNewSubPath (0.0f, 0.0f);    // move the current position to (10, 10)
     myPath.lineTo (12.0f, 12.0f);           // draw a line from here to (100, 200)

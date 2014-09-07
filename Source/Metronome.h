@@ -19,8 +19,8 @@ class MetronomeSound : public SynthesiserSound
 public:
     MetronomeSound();
     ~MetronomeSound(){}
-    bool appliesToNote(int n){return true;}
-    bool appliesToChannel(int n){return true;}
+    bool appliesToNote(const int){return true;}
+    bool appliesToChannel(const int){return true;}
     Array<double> getData(){return data;}
 private:
     Array<double> data;
@@ -31,12 +31,12 @@ class MetronomeVoice : public SynthesiserVoice
 public: 
     MetronomeVoice();
     ~MetronomeVoice();
-    void aftertouchChanged(int i){}
-    bool canPlaySound(SynthesiserSound* s){return true;}
-    void startNote(int i, float f, SynthesiserSound* s, int d){}
-    void stopNote(bool t){}
-    void pitchWheelMoved(int i){}
-    void controllerMoved(int i, int d){}
+    void aftertouchChanged(int){}
+    bool canPlaySound(SynthesiserSound*){return true;}
+    void startNote(int, float, SynthesiserSound*, int){}
+    void stopNote(bool ){}
+    void pitchWheelMoved(int ){}
+    void controllerMoved(int , int ){}
     void setClick(bool b){clickOn=b;}
     void setTransport(bool b){transportRunning=b;}
     void setTempo(double d){tempo=d;}

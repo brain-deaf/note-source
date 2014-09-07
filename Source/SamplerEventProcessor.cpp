@@ -215,7 +215,7 @@ void SamplerEventProcessor::renderSamplerEvent(SamplerEvent noteEvent, Data& out
         
         
         if (sound != nullptr){
-            int startSample = 0;
+            //int startSample = 0;
             const float* const inL = sound->getAudioData()->getReadPointer(0);
             const float* const inR = num_channels>1 ? sound->getAudioData()->getReadPointer(1) : nullptr;
             //float* outL = sound->getAudioData()->getWritePointer(0, startSample);

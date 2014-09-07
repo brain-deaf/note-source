@@ -47,7 +47,7 @@ void SampleFileBrowser::mouseDrag(const MouseEvent& m){
     int x = m.getPosition().getX();
     MouseCursor mc = getMouseCursor();
     if (mc == MouseCursor::LeftRightResizeCursor){
-        if (x < 400 & x >= 100){
+        if (x < 400 && x >= 100){
             getParentComponent()->setSize(x, getParentComponent()->getHeight());
         }
     }
@@ -77,7 +77,7 @@ void SampleFileBrowser::fileDoubleClicked(const File& f){
     }
 }
 
-void SampleFileBrowser::fileClicked(const File& f, const MouseEvent& e){
+void SampleFileBrowser::fileClicked(const File& , const MouseEvent& ){
     if (dragButton != nullptr){
         dragButton->getFileList().clear();
         

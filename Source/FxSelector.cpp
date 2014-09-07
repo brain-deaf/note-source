@@ -108,7 +108,7 @@ void FxSelector::resized(){
     }
 }
 
-void FxSelector::paint(Graphics& g){
+void FxSelector::paint(Graphics&){
     
     if (isDragAndDropActive()){
     }else{
@@ -185,7 +185,7 @@ void FxBox::resized(){
     _button->setSize(getWidth(), getHeight());
 }
 
-void FxButton::mouseDrag(const MouseEvent& e){
+void FxButton::mouseDrag(const MouseEvent& ){
     DragAndDropContainer::findParentDragContainerFor(this)->startDragging("fx", this);
     parent->setDragObject(this);
 }
@@ -296,12 +296,12 @@ void FxBox::itemDropped(const SourceDetails& dragSourceDetails){
     parent->resized();
 }
 
-void FxBox::itemDragEnter(const SourceDetails& dragSourceDetails){
+void FxBox::itemDragEnter(const SourceDetails& ){
     item_entered = true;
     repaint();
 }
 
-void FxBox::itemDragExit(const SourceDetails& dragSourceDetails){
+void FxBox::itemDragExit(const SourceDetails& ){
     item_entered = false;
     repaint();
 }
@@ -319,17 +319,17 @@ void FxBox::paint(Graphics& g){
     }
 }
 
-void FxChoiceButton::mouseDown(const MouseEvent& e){
+void FxChoiceButton::mouseDown(const MouseEvent& ){
     ((FxSelector*)((FxChooser*)getParentComponent())->getParentComponent())->updateButtonText(getButtonText());
     getParentComponent()->setVisible(false);
     ((FxChooser*)getParentComponent())->callButtonClick(this);
 }
 
-void FxChoiceButton::mouseEnter(const MouseEvent& e){
+void FxChoiceButton::mouseEnter(const MouseEvent& ){
     ((FxChooser*)(getParentComponent()))->focusButton(this);
 }
 
-void FxChoiceButton::mouseExit(const MouseEvent& e){
+void FxChoiceButton::mouseExit(const MouseEvent& ){
     ((FxChooser*)(getParentComponent()))->unfocusButton(this);
 }
 

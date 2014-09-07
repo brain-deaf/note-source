@@ -204,7 +204,7 @@ public:
 			dm->removeAudioCallback(&metronome_player);
 			dm->removeMidiInputCallback("", &midiCallback);
 		}
-        void changeListenerCallback(ChangeBroadcaster* source){repaint();};
+        void changeListenerCallback(ChangeBroadcaster* ){repaint();};
         void setBoundsForComponent(Zone& z, MouseCursor cursor,
             float grid_outline, float gridWidth, int gridXOffset);
         void paint(Graphics& g);
@@ -222,7 +222,7 @@ public:
         void itemDropped(const SourceDetails&);
         void updateZones();
         void updateZone(Zone*);
-        bool isInterestedInFileDrag(const StringArray& files){return true;}
+        bool isInterestedInFileDrag(const StringArray& ){return true;}
         void loadPatch(XmlElement* i);
         bool keyPressed(const KeyPress&, Component*);
         Array<Zone::Ptr> getZones(){return zones;}
@@ -239,7 +239,7 @@ public:
         float getKeyboardHeight(){return keyboardHeight;}
         void setNumColumns(int nc){numColumns=nc;}
         int getNumColumns(){return numColumns;}
-        int get_width(){return width;}
+        int get_width(){return (int)width;}
         bool isDragging(){return dragging;}
         InstrumentComponent& getInstrument(){return instrument;}
         Sampler& getSampler(){return sampler;}
@@ -333,7 +333,7 @@ public:
             setProgress (progress);
         }
     }
-    void threadComplete(bool b){
+    void threadComplete(bool){
         std::cout<<"thread complete!"<<std::endl;
     }
 private:

@@ -35,7 +35,7 @@ void LevelMeter::paint(Graphics& g){
     float green_px = (greenRangeHigh - decibelRangeLow) * px_per_decibel;
     float yellow_px = (yellowRangeHigh - greenRangeHigh) * px_per_decibel;
     float orange_px = (orangeRangeHigh - yellowRangeHigh) * px_per_decibel;
-    float red_px = (decibelRangeHigh - orangeRangeHigh) * px_per_decibel;
+    //float red_px = (decibelRangeHigh - orangeRangeHigh) * px_per_decibel;
     float px = px_per_decibel*(decibels-decibelRangeLow);
     
     if (decibels > greenRangeHigh){
@@ -94,7 +94,7 @@ void LevelMeter::paint(Graphics& g){
 void LevelMeter::mouseDrag(const MouseEvent& m){
     int y = m.getPosition().getY();
     handle->setBounds(0, y, getWidth(), 3);
-    float handleRatio = handle->getPosition().getY() / getHeight();
+    //float handleRatio = handle->getPosition().getY() / getHeight();
     float px_per_decibel = (1.5 + 0.0) / getHeight();
     handleValue = px_per_decibel * (getHeight() - handle->getPosition().getY()) + 0.0;
     handleValue = handleValue <= 1.5 ? handleValue : 1.5;
@@ -105,7 +105,7 @@ void LevelMeter::mouseDrag(const MouseEvent& m){
 void LevelMeter::mouseDown(const MouseEvent& m){
     int y = m.getPosition().getY();
     handle->setBounds(0, y, getWidth(), 3);
-    float handleRatio = handle->getPosition().getY() / getHeight();
+    //float handleRatio = handle->getPosition().getY() / getHeight();
     float px_per_decibel = (1.5 + 0.0) / getHeight();
     handleValue = px_per_decibel * (getHeight() - handle->getPosition().getY()) + 0.0;
     handleValue = handleValue <= 1.5 ? handleValue : 1.5;
@@ -115,7 +115,7 @@ void LevelMeter::mouseDown(const MouseEvent& m){
 
 void LevelMeter::resized(){
     handle->setBounds(0, 20, getWidth(), 3);
-    float handleRatio = handle->getPosition().getY() / getHeight();
+    //float handleRatio = handle->getPosition().getY() / getHeight();
     float px_per_decibel = (1.5 + 0.0) / getHeight();
     handleValue = px_per_decibel * (getHeight() - handle->getPosition().getY()) + 0.0;
 }

@@ -136,7 +136,7 @@ void TransformSelector::resized(){
     }
 }
 
-void TransformSelector::paint(Graphics& g){
+void TransformSelector::paint(Graphics& ){
     
     if (isDragAndDropActive()){
     }else{
@@ -214,7 +214,7 @@ void TransformBox::resized(){
     _button->setSize(getWidth(), getHeight());
 }
 
-void TransformButton::mouseDrag(const MouseEvent& e){
+void TransformButton::mouseDrag(const MouseEvent& ){
     DragAndDropContainer::findParentDragContainerFor(this)->startDragging("fx", this);
     parent->setDragObject(this);
 }
@@ -320,12 +320,12 @@ void TransformBox::itemDropped(const SourceDetails& dragSourceDetails){
     parent->resized();
 }
 
-void TransformBox::itemDragEnter(const SourceDetails& dragSourceDetails){
+void TransformBox::itemDragEnter(const SourceDetails& /*dragSourceDetails*/){
     item_entered = true;
     repaint();
 }
 
-void TransformBox::itemDragExit(const SourceDetails& dragSourceDetails){
+void TransformBox::itemDragExit(const SourceDetails& /*dragSourceDetails*/){
     item_entered = false;
     repaint();
 }
@@ -343,17 +343,17 @@ void TransformBox::paint(Graphics& g){
     }
 }
 
-void TransformChoiceButton::mouseDown(const MouseEvent& e){
+void TransformChoiceButton::mouseDown(const MouseEvent& ){
     ((TransformSelector*)((TransformChooser*)getParentComponent())->getParentComponent())->updateButtonText(getButtonText());
     getParentComponent()->setVisible(false);
     ((TransformChooser*)getParentComponent())->callButtonClick(this);
 }
 
-void TransformChoiceButton::mouseEnter(const MouseEvent& e){
+void TransformChoiceButton::mouseEnter(const MouseEvent& ){
     ((TransformChooser*)(getParentComponent()))->focusButton(this);
 }
 
-void TransformChoiceButton::mouseExit(const MouseEvent& e){
+void TransformChoiceButton::mouseExit(const MouseEvent& ){
     ((TransformChooser*)(getParentComponent()))->unfocusButton(this);
 }
 

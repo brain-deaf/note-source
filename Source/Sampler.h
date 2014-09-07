@@ -44,7 +44,7 @@ private:
     int noteNumber;
     int triggerNote;
     float velocity;
-    float volume;
+    double volume;
     int id;
     Array<int> groups;
 };
@@ -132,7 +132,7 @@ class SampleVoice : public SamplerVoice
 public:
     SampleVoice();
     void renderNextBlock(AudioSampleBuffer&, int startSample, int numSamples) override;
-    void startNote(const int, const float, SynthesiserSound*, const int);
+    void startNote(int, float, SynthesiserSound*, int);
 private:
     IIR_Filter filter1;
     IIR_Filter filter2;

@@ -38,7 +38,7 @@ void MidiSlider::mouseDown(const MouseEvent& m){
     }
 }
 
-void MidiSliderCallback::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
+void MidiSliderCallback::handleIncomingMidiMessage(MidiInput* /*source*/, const MidiMessage& message)
 {
     if (message.getChannel() == midi_input_id || midi_input_id== -1){ 
         if (message.isController() && parent->isLearning())

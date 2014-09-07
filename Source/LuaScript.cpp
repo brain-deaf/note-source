@@ -74,7 +74,7 @@ static int l_makeSamplerEvent(lua_State* L){
     return 1;
 }
 
-static int l_renderAllEvents(lua_State* L){
+static int l_renderAllEvents(lua_State* ){
     staticSampler->setupRendering();
     staticSampler->getSamplerProcessor()->renderAllEvents();
     
@@ -139,14 +139,14 @@ static int l_makeTable(lua_State* L){
 }
 
 static int l_getTable(lua_State* L){
-    int guiId;
+    //int guiId;
     if (!lua_istable(L, -1)){
         std::cout<<"first parameter must be a table!"<<std::endl;
         return 0;
     }else{
         lua_pushstring(L, "id");
         lua_gettable(L, -2);
-        int id = lua_tonumber(L, -1);
+        //int id = lua_tonumber(L, -1);
         
         lua_pop(L, 1);
     }
@@ -243,7 +243,7 @@ static int l_makeKnob(lua_State* L){
 
 static int l_makeButton(lua_State* L){
     const char* name = lua_tostring(L, 1);
-    bool toggle = lua_toboolean(L, 2);
+    bool toggle = lua_toboolean(L, 2)!=0;
     lua_pop(L, 2);
     
     auto s = new MainButton(name, luaScript->getGuiId());
@@ -498,7 +498,7 @@ static int l_Show(lua_State* L){
 }
 
 static int l_setBeatListener(lua_State* L){
-    bool b = lua_toboolean(L, 1);
+    bool b = lua_toboolean(L, 1)!=0;
     lua_pop(L, 1);
 
     luaScript->setBeatListener(b);

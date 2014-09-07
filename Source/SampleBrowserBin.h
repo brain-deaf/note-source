@@ -18,7 +18,7 @@ class DragButton : public TextButton
 public:
     DragButton() : TextButton("Drag Selection"), files(){}
     ~DragButton(){}
-    void mouseDrag(const MouseEvent& e){
+    void mouseDrag(const MouseEvent& ){
         static DragAndDropContainer* d = DragAndDropContainer::findParentDragContainerFor(this);
         d->startDragging("file name", this);
     }

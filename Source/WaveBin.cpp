@@ -280,13 +280,13 @@ void WaveBin::mouseMove(const MouseEvent& e){
     }
 }
 
-void WaveBin::mouseDown(const MouseEvent& e){
+void WaveBin::mouseDown(const MouseEvent& ){
     if (getMouseCursor() == MouseCursor::LeftRightResizeCursor){
         dragging = true;
     }
 }
 
-void WaveBin::mouseUp(const MouseEvent& e){
+void WaveBin::mouseUp(const MouseEvent& ){
     dragging = false;
 }
 

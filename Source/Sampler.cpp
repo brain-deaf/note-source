@@ -67,7 +67,7 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
     groups[group[0]]->add(ss);
 }
     
-void Sampler::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
+void Sampler::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate) {
     midiCollector.reset(sampleRate);
     synth.setCurrentPlaybackSampleRate(sampleRate);
 }
@@ -90,8 +90,8 @@ void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 }
 
 SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
-                             attackTime(10.0), attackCurve(0.05), releaseTime(50.0), 
-                             sampleStart(0.0), releaseCurve(0.01), volume(1.0), ringMod(false),
+                             attackTime(10.0f), attackCurve(0.05f), releaseTime(50.0f), 
+                             sampleStart(0.0), releaseCurve(0.01f), volume(1.0), ringMod(false),
                              noteEvent(nullptr), tf_volume(1.0), ringAmount(1.0), angleDelta(0.0),
                              currentAngle(0.0)
 {
@@ -100,9 +100,9 @@ SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePos
 }
 
 void SampleVoice::startNote(const int midiNoteNumber,
-                            const float velocity,
+                            const float /*velocity*/,
                             SynthesiserSound* s,
-                            const int pitchWheelPosition)
+                            const int /*pitchWheelPosition*/)
 {   
     if (SampleSound* sound = (SampleSound*)s){
         const double a = pow(2.0, 1.0/12.0);

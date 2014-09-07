@@ -89,7 +89,7 @@ class FxBox : public Component, public DragAndDropTarget{
 public:
     FxBox(FxButton* button, FxSelector* parent);
     ~FxBox(){delete _button;}
-    bool isInterestedInDragSource(const SourceDetails& dragSourceDetails) override {return true;}
+    bool isInterestedInDragSource(const SourceDetails& ) override {return true;}
     void itemDropped(const SourceDetails& dragSourceDetails) override;
     void itemDragEnter(const SourceDetails& dragSourceDetails);
     void itemDragExit(const SourceDetails& dragSourceDetails);

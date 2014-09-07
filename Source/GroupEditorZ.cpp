@@ -15,9 +15,9 @@
 GroupViewItem::GroupViewItem(String s, bool b, InstrumentMappingEditor::MappingEditorGraph::Zone* zone, GroupView* p) : 
     TreeViewItem(), name(s), canBeOpened(b), z(zone), parent(p){}
 
-void GroupViewItem::itemOpennessChanged(bool isOpen){}
+void GroupViewItem::itemOpennessChanged(bool ){}
 
-void GroupViewItem::itemClicked(const MouseEvent& e){
+void GroupViewItem::itemClicked(const MouseEvent& ){
     if (z != nullptr){
         parent->getParent()->getWaveformView()->updateWaveformForFilePlayer(z);
         parent->getParent()->updateZone(z);

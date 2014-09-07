@@ -199,7 +199,7 @@ void LinearGraph::mouseDown(const MouseEvent& m){
     }   
 }
 
-void LinearGraph::mouseUp(const MouseEvent& m){
+void LinearGraph::mouseUp(const MouseEvent& ){
     selectedPointIndex = -1;
     repaint();
 }
@@ -420,7 +420,7 @@ void ExponentialGraph::mouseDown(const MouseEvent& m){
     }   
 }
 
-void ExponentialGraph::mouseUp(const MouseEvent& m){
+void ExponentialGraph::mouseUp(const MouseEvent& ){
     selectedPointIndex = -1;
     repaint();
 }
@@ -612,11 +612,11 @@ void SineGraph::paint(Graphics& g){
     }
 }
 
-void SineGraph::mouseDown(const MouseEvent& m){}
+void SineGraph::mouseDown(const MouseEvent& ){}
 
-void SineGraph::mouseUp(const MouseEvent& m){}
+void SineGraph::mouseUp(const MouseEvent& ){}
 
-void SineGraph::mouseDrag(const MouseEvent& m){}
+void SineGraph::mouseDrag(const MouseEvent& ){}
         
 void SineGraph::sliderValueChanged(Slider* source){
     if (source == frequencySlider){
@@ -687,7 +687,7 @@ void LFOTimer::timerCallback()
     lfo->elapseTime();
 }
 
-void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message)
+void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* /*source*/, const MidiMessage& message)
 {
     if (message.getChannel() == midi_input_id || midi_input_id== -1){ 
         switch (transformType){

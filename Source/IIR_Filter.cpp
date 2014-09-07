@@ -71,7 +71,7 @@ void IIR_Filter::setCoefficients(const IIRCoefficients& newCoefficients){
     //for (auto i : sinx){std::cout<<i<<std::endl;}
     
     int NFFTW = impulseResponse.size();
-    double samplerate = 44100.0;
+    //double samplerate = 44100.0;
     
     fftw_complex *outFFTW;
     double* inFFTW;
@@ -87,7 +87,7 @@ void IIR_Filter::setCoefficients(const IIRCoefficients& newCoefficients){
     }
     
     fftw_execute(pFFTW);
-    double hz_per_sample = samplerate/NFFTW;
+    //double hz_per_sample = samplerate/NFFTW;
     /*for (int k=0; k<NFFTW; k++){
         std::cout<<"hz: "<<hz_per_sample*k<<" out: "<<fabs(outFFTW[k][0] + outFFTW[k][1])<<" in: "<<inFFTW[k]<<std::endl;
     }*/

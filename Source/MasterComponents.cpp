@@ -42,7 +42,7 @@ TransportComponent::~TransportComponent(){
     delete tempoSlider;
 }
 
-void TransportComponent::paint(Graphics& g){
+void TransportComponent::paint(Graphics& ){
     //g.fillAll(Colours::red);
 }
 
@@ -128,7 +128,7 @@ void MetronomeComponent::resized(){
     clickButton->setBounds(0, getHeight()-20, getWidth(), 20);
 }
 
-void MetronomeComponent::paint(Graphics& g){
+void MetronomeComponent::paint(Graphics& ){
 }
 
 void MetronomeComponent::buttonClicked(Button* source){

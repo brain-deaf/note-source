@@ -27,7 +27,7 @@ InstrumentTabWindow::InstrumentTabWindow(InstrumentComponent& i,
     addTab("Script", Colour(100, 100, 100), scriptBin, false);
 }
 
-void InstrumentTabWindow::currentTabChanged(int new_index, const String& tab_name){
+void InstrumentTabWindow::currentTabChanged(int new_index, const String& /*tab_name*/){
     if (new_index == 2){
         mappingEditor->getMappingEditor()->refreshGroupEditor();
     }

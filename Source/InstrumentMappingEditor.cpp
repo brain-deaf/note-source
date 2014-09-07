@@ -91,7 +91,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     metronome_player.setSource(&metronome);
     sampler.prepareToPlay(0, 44100.0);
     metronome.prepareToPlay(0, 44100.0);
-    MainContentComponent* m = static_cast<MainContentComponent*>((&instrument)->getParent()->getParent());
+    //MainContentComponent* m = static_cast<MainContentComponent*>((&instrument)->getParent()->getParent());
     //std::cout<<"post parent: "<<m<<std::endl;
     //std::cout<<"asdf: "<< m->getMetronome()<<" asdd"<<std::endl;
     (&instrument)->getParent()->getParent()->getMetronome()->setMetronome(&metronome);
@@ -204,7 +204,7 @@ void MappingEditorGraph::updateZone(MappingEditorGraph::Zone* i){
     
     
 void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
-    (MidiInput* source, const MidiMessage& message) 
+    (MidiInput* , const MidiMessage& message) 
 {
     if (message.getChannel() == midi_input_id || midi_input_id== -1){
         if (message.isNoteOn()) 
@@ -240,7 +240,7 @@ void MappingEditorGraph::resized()
     renderEventsButton->setBounds(100, 100, 100, 30);
 }
 
-void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity){
+void MappingEditorGraph::handleNoteOn(MidiKeyboardState* /*source*/, int /*midiChannel*/, int midiNoteNumber, float velocity){
     notesHeld.addToSelection(std::pair<int, int>(midiNoteNumber, velocity*128));
     //sampler.getSynth()->noteOn(midiChannel, midiNoteNumber, velocity/**128*/);
     if (luaScript == nullptr)
@@ -268,7 +268,7 @@ void MappingEditorGraph::handleNoteOn(MidiKeyboardState* source, int midiChannel
     sampler.getMidiCollector().addMessageToQueue(*m);
 }
 
-void MappingEditorGraph::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber){
+void MappingEditorGraph::handleNoteOff(MidiKeyboardState* /*source*/, int /*midiChannel*/, int midiNoteNumber){
     for (auto pair : notesHeld){
         if (pair.first == midiNoteNumber){
             notesHeld.deselect(pair);
@@ -315,7 +315,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
             
    int j=0;
    
-   double percent(0.0);
+   //double percent(0.0);
    //ProgressBar p(percent);
    //instrument.addAndMakeVisible(&p);
    //p.setBounds(400, 300, 300, 80);
@@ -370,7 +370,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 
                 new_zone->set_width(zone->getIntAttribute("width"));
                 new_zone->getPlaySettings()->setSampleStart(zone->getDoubleAttribute("sample_start"));
-                new_zone->getPlaySettings()->setLoopMode(zone->getIntAttribute("loop_mode"));
+                new_zone->getPlaySettings()->setLoopMode(zone->getIntAttribute("loop_mode")!=0);
                 new_zone->getPlaySettings()->setLoopStart(zone->getDoubleAttribute("loop_start"));
                 new_zone->getPlaySettings()->setLoopEnd(zone->getDoubleAttribute("loop_end"));
                 new_zone->getPlaySettings()->setXfadeLength(zone->getDoubleAttribute("xfade_length"));
@@ -419,7 +419,7 @@ void MappingEditorGraph::itemDropped(const SourceDetails& details){
     }
 }
 
-void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
+void MappingEditorGraph::filesDropped(const StringArray& files, int x, int /*y*/){
     float gridOutline = 1.0f;
     float gridWidth = width / numColumns;
     Zone* newZone;
@@ -430,7 +430,7 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
         if (File(files[i]).isDirectory()){continue;}
         try{
             newZone = new Zone(this, files[i], instrument);
-        }catch (BadFormatException& e){
+        }catch (BadFormatException& /*e*/){
             //there's a crash here...why?
 			std::cout << "exception" << std::endl;
             continue;
@@ -439,9 +439,9 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int y){
         
         Array<int> groups_for_zone;
         SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
-        for (int i=0; i<s.size(); i++){
-            groups[s[i]]->getZones()->add(newZone);
-            groups_for_zone.add(s[i]);
+        for (int j=0; j<s.size(); j++){
+            groups[s[j]]->getZones()->add(newZone);
+            groups_for_zone.add(s[j]);
         }
 
         newZone->removeListener(this);
@@ -568,15 +568,15 @@ void MappingEditorGraph::mouseDown(const MouseEvent& e) {
 }
 
 void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
-    float gridOutline, float gridWidth, int gridXOffset){
+    float gridOutline, float gridWidth, int /*gridXOffset*/){
     int y = getMouseXYRelative().getY();
     int delY = y - startDragY;
     int x = getMouseXYRelative().getX();
     int delX = x - startDragX;
     if (cursor == MouseCursor::NormalCursor){
-        int gridX = roundToInt((c.getX()) / gridWidth);
+        //int gridX = roundToInt((c.getX()) / gridWidth);
         Range<int> r(0,numColumns-1);
-        int newGridX = r.clipValue(gridXOffset + gridX); 
+        //int newGridX = r.clipValue(gridXOffset + gridX); 
         int delX_grid_units = (int)(delX / gridWidth);
         
         int newY = 0;
@@ -613,7 +613,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
         if (c.getVelocity().second > 127){c.getVelocity().second = 127;}
     }
     else if (cursor == MouseCursor::BottomEdgeResizeCursor){
-        int y = getMouseXYRelative().getY();
+        //int y = getMouseXYRelative().getY();
         int newHeight = c.getHeight() + delY;
         if (newHeight + c.getY() > height){
             newHeight = height - (c.getY() + c.getHeight()) + c.getHeight();
@@ -660,12 +660,12 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e)
     }
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& e){
+void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
     //getZoneInfoSet().changed();
     auto set = lassoSource.getLassoSelection();
-    int x = getMouseXYRelative().getX();
+    //int x = getMouseXYRelative().getX();
     int gridWidth = round(width/128);
-    int delX = x - startDragX;
+    //int delX = x - startDragX;
     
     
     
@@ -1121,7 +1121,7 @@ Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent&
 }
     
 
-void Zone::mouseDown(const MouseEvent& e){
+void Zone::mouseDown(const MouseEvent& ){
     parent->draggedZone = this;
     parent->getZoneInfoSet().deselectAll();
     parent->getZoneInfoSet().selectOnly(this);
@@ -1150,4 +1150,4 @@ void Zone::mouseMove(const MouseEvent& e) {
     }
 }
 
-void Zone::mouseDoubleClick(const MouseEvent& e){}
+void Zone::mouseDoubleClick(const MouseEvent& ){}

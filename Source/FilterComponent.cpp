@@ -12,14 +12,14 @@
 #include <cmath>
 
 
-static int check_band(double d, Array<int> bands){
+/*static int check_band(double d, Array<int> bands){
     for (int i=0; i<bands.size(); i++){
         if (d >= bands[i] && d < bands[i+1]){
             return i;
         }
     }
     return -1;
-}
+}*/
 
 FilterComponent::FilterComponent() : Component(), filter(nullptr){}
 
@@ -37,7 +37,7 @@ void FilterComponent::paint(Graphics& g){
         Path myPath;
         myPath.startNewSubPath(0, getHeight()/5.0f * 4.0f);
         
-        float sample_resolution = 20.0;
+        //float sample_resolution = 20.0;
         
         /*for (int i=0; i<impulse_response.size(); i++){
             if (i < filter->getZeroHeadingSize()){
@@ -66,11 +66,11 @@ void FilterComponent::paint(Graphics& g){
         double hz_per_sample = 44100.0/((double)(frequency_response.size()));
         double max_hz = 15000.0;
         
-        int num_bands = 10;
-        int start_band_offset = 40;
+        //int num_bands = 10;
+        //int start_band_offset = 40;
         
         double actual_width = getWidth() - 200.0; //why is getWidth() not working?
-        double band_width = actual_width/num_bands;
+        //double band_width = actual_width/num_bands;
         
         /*for (int i=0; i<num_bands; i++){
             myPath.startNewSubPath(band_width*i, 0);
@@ -81,7 +81,7 @@ void FilterComponent::paint(Graphics& g){
         grid_width = actual_width/(max_hz/hz_per_sample);
         
         double C = actual_width / log2(max_hz/hz_per_sample - 1);
-        int band;
+        //int band;
         for (int i=0; i<max_hz/hz_per_sample; i++){
             double y =  (getHeight()/5.0f*4.5f) - 200.0* frequency_response[i];
             if (!std::isnan(y)){

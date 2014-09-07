@@ -42,7 +42,7 @@ private:
     int noteNumber;
     int triggerNote;
     float velocity;
-    float volume;
+    double volume;
     int id;
     long long start;
     long long end;
@@ -57,8 +57,8 @@ class SamplerEventProcessor
 {
 public:
     SamplerEventProcessor(Sampler* s) : sampler(s), sampleCount(0), events(),samplePosition(0.0f),
-                          attackTime(10.0), attackCurve(0.05), releaseTime(50.0), 
-                          sampleStart(0.0), releaseCurve(0.01), volume(1.0), ringMod(false),
+                          attackTime(10.0f), attackCurve(0.05f), releaseTime(50.0f), 
+                          sampleStart(0.0f), releaseCurve(0.01f), volume(1.0), ringMod(false),
                           tf_volume(1.0), ringAmount(1.0), angleDelta(0.0),
                           currentAngle(0.0), sound(nullptr), maxSampleCount(0), data()
     {

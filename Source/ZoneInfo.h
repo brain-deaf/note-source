@@ -40,7 +40,7 @@ public:
     void changeListenerCallback(ChangeBroadcaster* source);
     void resize();
     void paint(Graphics& g);
-    void mouseMove(const MouseEvent& e){}
+    void mouseMove(const MouseEvent& ){}
     void buttonClicked(Button*);
     //Adsr adsr;
 };

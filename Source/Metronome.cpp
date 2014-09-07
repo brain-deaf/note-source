@@ -24,7 +24,7 @@ Metronome::Metronome() : AudioSource(), synth(new Synthesiser), midiCollector(),
     synth->addSound(new MetronomeSound());
 }
 
-void Metronome::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
+void Metronome::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate) {
     midiCollector.reset(sampleRate);
     synth->setCurrentPlaybackSampleRate(sampleRate);
 }
