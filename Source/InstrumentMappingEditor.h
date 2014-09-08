@@ -102,9 +102,6 @@ public:
             void setGroup(int i){group=i;}
             int getGroup(){return group;}
             typedef ReferenceCountedObjectPtr<Zone> Ptr;
-            
-            
-            
             PlaySettings* getPlaySettings(){return &playSettings;}
         private:
             MappingEditorGraph * parent;
@@ -203,6 +200,9 @@ public:
 			dm->removeAudioCallback(&source_player);
 			dm->removeAudioCallback(&metronome_player);
 			dm->removeMidiInputCallback("", &midiCallback);
+			for (int i = 0; i < zones.size(); i++){
+				zones[i].get()->decReferenceCount();
+			}
 		}
         void changeListenerCallback(ChangeBroadcaster* ){repaint();};
         void setBoundsForComponent(Zone& z, MouseCursor cursor,

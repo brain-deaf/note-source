@@ -47,9 +47,11 @@ void Sampler::setupRendering(){
         f.deleteFile();                                 
 }
                                           
-void Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& group, PlaySettings* p, std::pair<int, int> v){
+bool Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& group, PlaySettings* p, std::pair<int, int> v){
     ScopedPointer<AudioFormatReader> audioReader(formatManager.createReaderFor(File(path)));
-        
+	if (audioReader == nullptr){
+		return false;
+	}
     BigInteger allNotes;
     for (int i=note_low; i<note_high; i++){
         allNotes.setBit(i);
@@ -65,6 +67,8 @@ void Sampler::addSample(String path, int root_note, int note_low, int note_high,
     ss->setXfadeLength(p->getXfadeLength());
     
     groups[group[0]]->add(ss);
+	audioReader = nullptr;
+	return true;
 }
     
 void Sampler::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate) {

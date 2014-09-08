@@ -34,6 +34,16 @@ public:
     };
 
     Adsr();
+	~Adsr()
+	{
+		attack_time = nullptr;
+		attack_curve = nullptr;
+		decay_time = nullptr;
+		decay_curve = nullptr;
+		sustain = nullptr;
+		release_time = nullptr;
+		release_curve = nullptr;
+	}
     void paint(Graphics&);
     void resized();
     void sliderValueChanged(Slider*);

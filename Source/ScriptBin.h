@@ -25,6 +25,7 @@ public:
     void loadPatch(XmlElement*);
     String getScriptPath(){return scriptPath;}
 private:
+	ScopedPointer<LuaTokeniser> tokeniser;
     ScopedPointer<CodeDocument> codeDocument;
     ScopedPointer<CodeEditorComponent> codeEditor;
     ScopedPointer<TextButton> compileButton;

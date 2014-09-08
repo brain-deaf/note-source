@@ -165,7 +165,7 @@ void Adsr::Graph::paint(Graphics& g){
     
     //PathStrokeType(1.0f).createDashedStroke(myPath, myPath, 3.0f, 10);
     
-    float* dashed_lengths;
+    float dashed_lengths[2];
     dashed_lengths[0] = 2.0f;
     dashed_lengths[1] = 4.0f;
     

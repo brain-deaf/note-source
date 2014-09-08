@@ -38,8 +38,8 @@ class GroupView : public TreeView
 public:
     GroupView(GroupEditor*, WaveBin*);
 	~GroupView(){
-		tree_view.deleteRootItem();
-		tree_view.setRootItem(nullptr);
+		deleteRootItem();
+		setRootItem(nullptr);
 	}
     void refreshRows();
     void paint(Graphics&);
@@ -47,7 +47,7 @@ public:
 private:
     GroupViewItem* root_item;
     GroupEditor* group_editor;
-    TreeView tree_view;
+    //TreeView tree_view;
     Array<InstrumentMappingEditor::MappingEditorGraph::Group*> groups;
     WaveBin* parent;
 };

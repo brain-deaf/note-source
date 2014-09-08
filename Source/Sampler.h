@@ -70,9 +70,12 @@ class Sampler : public AudioSource
 public:
     Sampler(SelectedItemSet<std::pair<int, int> >*);
     ~Sampler(){
+		synth.clearSounds();
+		synth.clearVoices();
+		int y = synth.getNumSounds();
 		groups.clear(true);
 	}
-    void addSample(String path, int root_note, int note_low, int note_high, 
+    bool addSample(String path, int root_note, int note_low, int note_high, 
                    Array<int>&, PlaySettings*, std::pair<int, int>);
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
     void releaseResources() override;

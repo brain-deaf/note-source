@@ -344,7 +344,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
             patchProgress = ((double)(count))/((double)(zoneCount-1));
             //patchProgress = 0.5;
             if (zone->hasTagName("ZONE")){
-                Zone* new_zone;
+                Zone::Ptr new_zone;
                 new_zone = new Zone(this, zone->getStringAttribute("file"), instrument);
                 zones.add(new_zone);
                 new_group->getZones()->add(new_zone);
@@ -422,19 +422,10 @@ void MappingEditorGraph::itemDropped(const SourceDetails& details){
 void MappingEditorGraph::filesDropped(const StringArray& files, int x, int /*y*/){
     float gridOutline = 1.0f;
     float gridWidth = width / numColumns;
-    Zone* newZone;
+    Zone::Ptr newZone;
     for (int i=0; i<files.size(); i++){
-        
-		
-
         if (File(files[i]).isDirectory()){continue;}
-        try{
-            newZone = new Zone(this, files[i], instrument);
-        }catch (BadFormatException& /*e*/){
-            //there's a crash here...why?
-			std::cout << "exception" << std::endl;
-            continue;
-        }  
+        newZone = new Zone(this, files[i], instrument);
         zones.add(newZone);
         
         Array<int> groups_for_zone;
@@ -468,8 +459,18 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int /*y*/
         
         lassoSource.getZones().add(newZone);
         
-        sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote()+1, groups_for_zone, 
-                          newZone->getPlaySettings(), newZone->getVelocity());
+		if (!sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote() + 1, groups_for_zone,
+			newZone->getPlaySettings(), newZone->getVelocity()))
+		{
+			newZone->removeListener(this);
+			zones.removeFirstMatchingValue(newZone);
+			for (int j = 0; j<s.size(); j++){
+				groups[s[j]]->getZones()->removeFirstMatchingValue(newZone);
+			}
+			removeChildComponent(newZone);
+			newZone = nullptr;
+			return;
+		}
         
     }
     getZoneInfoSet().selectOnly(newZone);
@@ -489,7 +490,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
         if (modifier_keys.isCtrlDown() && key.getKeyCode() == KEY_C){
             copied_zones.clear();
             for (auto zone : lassoSource.getLassoSelection()){
-                Zone* new_zone = new Zone(this, zone->getName(), instrument);
+                Zone::Ptr new_zone = new Zone(this, zone->getName(), instrument);
                 new_zone->removeListener(this);
                 new_zone->addListener(this);
                 new_zone->removeMouseListener(new_zone);

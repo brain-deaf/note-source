@@ -31,15 +31,14 @@ WaveformView::WaveformView(WaveBin* w)
 void WaveformView::updateWaveformForFilePlayer(Zone* z){
     zone = z;
     
-    AudioFormatReader* afr = formatManager.createReaderFor(File(z->getName()));
+    ScopedPointer<AudioFormatReader> afr = formatManager.createReaderFor(File(z->getName()));
     sample_rate = afr->sampleRate;
-    
     thumbnail.setSource(new FileInputSource(File(z->getName())));
     sample_start = z->getPlaySettings()->getSampleStart();
     if (parent != nullptr){ 
         parent->setFileLength(sample_rate*thumbnail.getTotalLength());
     }
-    
+	afr = nullptr;
     repaint();
 }
 

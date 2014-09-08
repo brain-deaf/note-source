@@ -11,12 +11,13 @@
 #include "ScriptBin.h"
 
 ScriptBin::ScriptBin(MappingEditorBin* m) : codeDocument(new CodeDocument()), 
-                       codeEditor(new CodeEditorComponent(*codeDocument, new LuaTokeniser())),
-                       compileButton(new TextButton("compile")),
-                       saveAsButton(new TextButton("save as...")),
-                       luaScript(new LuaScript(m)),
-                       mapping_editor(m),
-                       scriptPath(File::getCurrentWorkingDirectory().getFullPathName() + "/script.lua")
+					tokeniser(new LuaTokeniser()),
+                    codeEditor(new CodeEditorComponent(*codeDocument, tokeniser)),
+                    compileButton(new TextButton("compile")),
+                    saveAsButton(new TextButton("save as...")),
+                    luaScript(new LuaScript(m)),
+                    mapping_editor(m),
+                    scriptPath(File::getCurrentWorkingDirectory().getFullPathName() + "/script.lua")
 {
     addAndMakeVisible(codeEditor);
     addAndMakeVisible(compileButton);
@@ -25,11 +26,10 @@ ScriptBin::ScriptBin(MappingEditorBin* m) : codeDocument(new CodeDocument()),
     saveAsButton->addListener(this);
     
     File f(scriptPath);
-    FileInputStream* stream = new FileInputStream(f);
+    ScopedPointer<FileInputStream> stream = new FileInputStream(f);
     codeDocument->loadFromStream(*stream);
     buttonClicked(compileButton);
     
-    delete stream;
     stream = nullptr;
 }
                        
@@ -79,11 +79,10 @@ void ScriptBin::loadPatch(XmlElement* xml){
         scriptPath = element->getStringAttribute("path");
         
         File f(scriptPath);
-        FileInputStream* stream = new FileInputStream(f);
+        ScopedPointer<FileInputStream> stream = new FileInputStream(f);
         codeDocument->loadFromStream(*stream);
         buttonClicked(compileButton);
     
-        delete stream;
         stream = nullptr;
      }
    }

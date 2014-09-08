@@ -74,7 +74,7 @@ GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component()
 }
 
 GroupEditor::~GroupEditor(){
-    delete model; 
+    /*delete model; 
     model = nullptr; 
     delete list_box; 
     list_box = nullptr;
@@ -85,7 +85,7 @@ GroupEditor::~GroupEditor(){
     delete create_group_button;
     create_group_button = nullptr;
     delete delete_group_button;
-    delete_group_button = nullptr;
+    delete_group_button = nullptr;*/
 }
 
 void GroupEditor::setFxBin(FxBin* f){

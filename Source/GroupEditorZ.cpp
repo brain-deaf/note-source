@@ -19,8 +19,8 @@ void GroupViewItem::itemOpennessChanged(bool ){}
 
 void GroupViewItem::itemClicked(const MouseEvent& ){
     if (z != nullptr){
-        parent->getParent()->getWaveformView()->updateWaveformForFilePlayer(z);
         parent->getParent()->updateZone(z);
+		parent->getParent()->getWaveformView()->updateWaveformForFilePlayer(z);
     }
 }
 

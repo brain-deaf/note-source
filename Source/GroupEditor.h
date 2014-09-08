@@ -59,7 +59,7 @@ public:
     int get_height(){return height;}
     int getRowHeight(){return row_height;}
     GroupBoxModel* getModel(){return model;}
-    ListBox* getListBox(){return list_box;}
+    ListBox* getListBox(){return list_box.get();}
     TextButton* getCreateGroupButton(){return create_group_button;}
     TextButton* getDeleteGroupButton(){return delete_group_button;}
     ArrowButton* getGroupDownButton(){return groupDownButton.get();}
@@ -78,14 +78,14 @@ private:
     int row_height;
     int header_height;
     int footer_height;
-    Label* group_name_lbl;
-    Label* group_number_lbl;
-    Label* group_name;
-    Label* group_number;
-    GroupBoxModel* model;
-    ListBox* list_box;
-    TextButton* create_group_button;
-    TextButton* delete_group_button;
+    ScopedPointer<Label> group_name_lbl;
+    ScopedPointer<Label> group_number_lbl;
+	ScopedPointer<Label> group_name;
+	ScopedPointer<Label> group_number;
+	ScopedPointer<GroupBoxModel> model;
+    ScopedPointer<ListBox> list_box;
+    ScopedPointer<TextButton> create_group_button;
+    ScopedPointer<TextButton> delete_group_button;
     ScopedPointer<ArrowButton> groupUpButton;
     ScopedPointer<ArrowButton> groupDownButton;
     InstrumentMappingEditor* mapping_editor;

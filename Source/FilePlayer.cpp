@@ -30,6 +30,7 @@ FilePlayer::FilePlayer(const String& s): ChangeListener{},
 			throw BadFormatException(std::string("cannot play this sample"));
             //delete this;
         }else{
+			readerSource = nullptr;
             readerSource = new AudioFormatReaderSource (r,true);
             transportSource.setSource (readerSource);
         }
@@ -38,6 +39,7 @@ FilePlayer::FilePlayer(const String& s): ChangeListener{},
 FilePlayer::~FilePlayer() {
     changeState(Stopping);
     deviceManager->removeAudioCallback(&sourcePlayer);
+	//readerSource = nullptr;
 }
 
 

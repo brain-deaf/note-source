@@ -31,10 +31,12 @@ class ZoneInfo : public Component, public ChangeListener, public Label::Listener
     ScopedPointer<TextButton> vLayout;
     ScopedPointer<TextButton> hLayout;
     Array<String> noteNames;
-    WaveformView* audio_thumbnail;
+    ScopedPointer<WaveformView> audio_thumbnail;
 
 public:
     ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m);
+	~ZoneInfo();
+	
     void labelTextChanged(Label* source);
     WaveformView* getAudioThumbnai(){return audio_thumbnail;}
     void changeListenerCallback(ChangeBroadcaster* source);

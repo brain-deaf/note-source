@@ -50,16 +50,16 @@ void SamplerEventProcessor::renderAllEvents(){
     f_d[1] = f_r;
     const float* const* f_channels = static_cast<const float* const*>(f_d.get());
     
-    WavAudioFormat* w = new WavAudioFormat();
+    ScopedPointer<WavAudioFormat> w = new WavAudioFormat();
     Array<int> bits = w->getPossibleBitDepths();
     File f = File(File::getCurrentWorkingDirectory().getFullPathName() + "/temp.wav");
-    AudioFormatWriter* a = w->createWriterFor(new FileOutputStream(f), 44100.0, 2,
+    ScopedPointer<AudioFormatWriter> a = w->createWriterFor(new FileOutputStream(f), 44100.0, 2,
                                                bits[bits.size()-1], StringPairArray(), 0);
     
     a->writeFromFloatArrays(f_channels, 2, data[0].size());
     
-    delete a;
-    delete w;
+	a = nullptr;
+    w = nullptr;
 }
 
 void SamplerEventProcessor::startSamplerEvent(SamplerEvent s)

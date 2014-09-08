@@ -90,6 +90,12 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
     adsr.setBounds(100, 5, 400, 150);*/
 }
 
+ZoneInfo::~ZoneInfo()
+{
+	audio_thumbnail->getThumbnail().clear();
+	audio_thumbnail = nullptr;
+}
+
 void ZoneInfo::changeListenerCallback(ChangeBroadcaster* /*source*/){
     if (zone->getSelectedItem(0) != nullptr){
         audio_thumbnail->setBounds(getWidth() - 410, 50, 400, 100);

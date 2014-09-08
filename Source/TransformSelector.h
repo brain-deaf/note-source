@@ -55,10 +55,10 @@ public:
     Transform() : fx_type(-1), content(nullptr){}
     Transform(int i, Component* c) : fx_type(i), content(c){}
     int& getFxType(){return fx_type;}
-    Component* getContent(){return content;}
+    Component* getContent(){return content.get();}
     void setContent(Component* c){content=c;}
 private:
-    Component* content;
+    ScopedPointer<Component> content;
     int fx_type;
 };
 

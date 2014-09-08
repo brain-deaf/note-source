@@ -123,10 +123,15 @@ void WaveBin::updateZone(Zone* _zone){
         xfadeLength->setValue(z->getPlaySettings()->getXfadeLength(), sendNotification);
         tuneSlider->setValue(z->getPlaySettings()->getTuning(), sendNotification);
         if (filePlayer != nullptr){
-            delete filePlayer;
             filePlayer = nullptr;
         }
-        filePlayer = new FilePlayer(z->getName());
+		try{
+			filePlayer = new FilePlayer(z->getName());
+		}
+		catch (BadFormatException& b){
+			filePlayer = nullptr;
+			return;
+		}
         filePlayer->getTransportSource().addChangeListener(this);
     }
 }
