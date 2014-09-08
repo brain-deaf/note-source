@@ -71,7 +71,7 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     source_player(), zoneDown(false), samplerProcessor(&sampler),
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard),
     luaScript(nullptr), renderEventsButton(new TextButton("Render Events")),
-    zoneCount(0), patchProgress(0.0)
+	zoneCount(0), patchProgress(0.0), progressWindow(nullptr)
 {
     keyboardState.addListener(this);
     addAndMakeVisible(&keyboard);
@@ -394,8 +394,8 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
      }
    } 
    float gridWidth = get_width() / getNumColumns();
-   ProgressWindow* p = new ProgressWindow(new_zones, &getSampler(), gridWidth);
-   p->launchThread();
+   progressWindow = new ProgressWindow(new_zones, &getSampler(), gridWidth);
+   progressWindow->launchThread();
    
    group_editor->getListBox()->selectRow(0);
    getGroupEditor()->getGroupView()->refreshRows();

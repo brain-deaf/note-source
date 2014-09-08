@@ -19,6 +19,7 @@
 
 class Sampler;
 class InstrumentComponent;
+class ProgressWindow;
 
 class PlaySettings
 {
@@ -203,6 +204,7 @@ public:
 			for (int i = 0; i < zones.size(); i++){
 				zones[i].get()->decReferenceCount();
 			}
+			progressWindow = nullptr;
 		}
         void changeListenerCallback(ChangeBroadcaster* ){repaint();};
         void setBoundsForComponent(Zone& z, MouseCursor cursor,
@@ -262,6 +264,7 @@ public:
         int groupEditorY;
         bool zoneDown;
         Array<Zone*> new_zones;
+		ScopedPointer<ProgressWindow> progressWindow;
         
         InstrumentComponent& instrument;
         MidiDeviceCallback midiCallback;
