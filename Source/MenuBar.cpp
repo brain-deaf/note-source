@@ -37,7 +37,7 @@ MenuBar::AudioSettingsWindow::AudioSettingsWindow(const String& name, Colour bac
 : DocumentWindow{name, backgroundColour, requiredButtons, addToDesktop}, _parent(parent){}
 
 void MenuBar::AudioSettingsWindow::closeButtonPressed(){
-    XmlElement* state = _parent->getDeviceManager()->createStateXml();
+    ScopedPointer<XmlElement> state = _parent->getDeviceManager()->createStateXml();
     File p(File::getCurrentWorkingDirectory().getChildFile("audio_settings.xml"));
     state->writeToFile(p, StringRef(""));
     delete this;

@@ -25,10 +25,10 @@ public:
     void setMetronome(Metronome* m){metronome=m;}
     void sliderValueChanged(Slider*);
 private:
-    TextButton* playButton;
-    TextButton* pauseButton;
-    TextButton* stopButton;
-    Slider* tempoSlider;
+    ScopedPointer<TextButton> playButton;
+    ScopedPointer<TextButton> pauseButton;
+    ScopedPointer<TextButton> stopButton;
+    ScopedPointer<Slider> tempoSlider;
     Metronome* metronome;
 };
 

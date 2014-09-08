@@ -19,7 +19,8 @@ class InstrumentComponent;
 class InstrumentBin;
 
 class InstrumentMasterComponent : public Component, public Button::Listener,
-      public ComboBox::Listener{
+      public ComboBox::Listener
+{
 public:
     enum MidiInputId {
         omni=-1,
@@ -66,7 +67,12 @@ public:
     };
 
     InstrumentMasterComponent(InstrumentBin* p, InstrumentComponent*);
-    ~InstrumentMasterComponent(){delete midi_input_menu;}
+    ~InstrumentMasterComponent()
+	{
+		midi_input_menu = nullptr;
+		levelMeter = nullptr;
+		midi_input_lbl = nullptr;
+	}
     void paint(Graphics& g);
     void resized();
     void buttonClicked(Button* button);
@@ -76,8 +82,8 @@ private:
     InstrumentComponent* instrument_parent;
     InstrumentLabel instrumentLabel;
     InstrumentButton xButton;
-    ComboBox* midi_input_menu;
-    Label* midi_input_lbl;
+    ScopedPointer<ComboBox> midi_input_menu;
+    ScopedPointer<Label> midi_input_lbl;
     ScopedPointer<LevelMeter> levelMeter;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMasterComponent)
 };

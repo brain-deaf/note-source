@@ -24,19 +24,25 @@ class MainContentComponent : public Component, public Button::Listener, public D
 {
 public:
     MainContentComponent();
-    ~MainContentComponent(){delete instrumentBin; delete menuBar; delete metronome;}
-    MetronomeComponent* getMetronome(){return metronome;}
+    ~MainContentComponent()
+	{
+		instrumentBin = nullptr; 
+		menuBar = nullptr; 
+		metronome = nullptr;
+		toggleBrowser = nullptr;
+	}
+    MetronomeComponent* getMetronome(){return metronome.get();}
     TransportComponent* getTransport(){return &transport;}
     void resized();
     void buttonClicked(Button*);
 private:
     SharedResourcePointer<AudioDeviceManager> deviceManager;
-    MenuBar* menuBar;
-    MetronomeComponent* metronome;
+    ScopedPointer<MenuBar> menuBar;
+    ScopedPointer<MetronomeComponent> metronome;
     TransportComponent transport;
-    InstrumentBin* instrumentBin;
+    ScopedPointer<InstrumentBin> instrumentBin;
     ScopedPointer<SampleBrowserBin> browser;
-    BrowserButton* toggleBrowser;
+    ScopedPointer<BrowserButton> toggleBrowser;
     int browserWidth;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };

@@ -128,7 +128,7 @@ void WaveBin::updateZone(Zone* _zone){
 		try{
 			filePlayer = new FilePlayer(z->getName());
 		}
-		catch (BadFormatException& b){
+		catch (BadFormatException& ){
 			filePlayer = nullptr;
 			return;
 		}

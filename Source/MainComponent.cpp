@@ -16,7 +16,7 @@ MainContentComponent::MainContentComponent() : deviceManager{},
 {
     browser = new SampleBrowserBin();
     instrumentBin = new InstrumentBin(TabbedButtonBar::TabsAtTop, this);
-    menuBar = new MenuBar(instrumentBin);
+    menuBar = new MenuBar(instrumentBin.get());
     XmlDocument xml_file(File::getCurrentWorkingDirectory().getChildFile("audio_settings.xml"));
     deviceManager->initialise (0,2,xml_file.getDocumentElement(),true);
     

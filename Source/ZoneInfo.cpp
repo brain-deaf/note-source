@@ -94,6 +94,17 @@ ZoneInfo::~ZoneInfo()
 {
 	audio_thumbnail->getThumbnail().clear();
 	audio_thumbnail = nullptr;
+
+	fileName = nullptr;
+	fileNameLabel = nullptr;
+	noteNumber = nullptr;
+	noteNumberLabel = nullptr;
+	noteName = nullptr;
+	velocityLabel = nullptr;
+	velocityMin = nullptr;
+	velocityMax = nullptr;
+	vLayout = nullptr;
+	hLayout = nullptr;
 }
 
 void ZoneInfo::changeListenerCallback(ChangeBroadcaster* /*source*/){

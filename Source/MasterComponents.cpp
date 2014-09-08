@@ -36,10 +36,10 @@ TransportComponent::TransportComponent() : Component()
 }
 
 TransportComponent::~TransportComponent(){
-    delete playButton;
-    delete stopButton;
-    delete pauseButton;
-    delete tempoSlider;
+	playButton = nullptr;
+	stopButton = nullptr;
+	pauseButton = nullptr;
+	tempoSlider = nullptr;
 }
 
 void TransportComponent::paint(Graphics& ){

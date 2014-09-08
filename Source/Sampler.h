@@ -72,7 +72,7 @@ public:
     ~Sampler(){
 		synth.clearSounds();
 		synth.clearVoices();
-		int y = synth.getNumSounds();
+		//int y = synth.getNumSounds();
 		groups.clear(true);
 	}
     bool addSample(String path, int root_note, int note_low, int note_high, 

@@ -63,9 +63,9 @@ public:
     public:
         MainWindow()  : DocumentWindow ("MainWindow",
                                         Colours::lightgrey,
-                                        DocumentWindow::allButtons)
+										DocumentWindow::allButtons), content(new MainContentComponent())
         {
-            setContentOwned (new MainContentComponent(), true);
+            setContentOwned (content, true);
 
             centreWithSize (getWidth(), getHeight());
             setVisible (true);
@@ -76,6 +76,7 @@ public:
             // This is called when the user tries to close this window. Here, we'll just
             // ask the app to quit when this happens, but you can change this to do
             // whatever you need.
+			content = nullptr;
             JUCEApplication::getInstance()->systemRequestedQuit();
         }
 
@@ -87,6 +88,7 @@ public:
         */
 
     private:
+		ScopedPointer<MainContentComponent> content;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
 
