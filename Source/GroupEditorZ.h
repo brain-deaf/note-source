@@ -14,13 +14,14 @@
 #include "GroupEditor.h"
 #include "InstrumentMappingEditor.h"
 
-
+class Zone;
 class WaveBin;
 class GroupView;
+class Group;
 class GroupViewItem : public TreeViewItem
 {
 public:
-    GroupViewItem(String, bool, InstrumentMappingEditor::MappingEditorGraph::Zone*, GroupView*);
+    GroupViewItem(String, bool, Zone*, GroupView*);
     void itemOpennessChanged(bool);
     void paintItem(Graphics&, int, int) override;
     String getUniqueName(){return name;}
@@ -29,7 +30,7 @@ public:
 private:
     String name;
     bool canBeOpened;
-    InstrumentMappingEditor::MappingEditorGraph::Zone* z;
+    Zone* z;
     GroupView* parent;
 };
 
@@ -48,7 +49,7 @@ private:
     GroupViewItem* root_item;
     GroupEditor* group_editor;
     //TreeView tree_view;
-    Array<InstrumentMappingEditor::MappingEditorGraph::Group*> groups;
+    Array<Group*> groups;
     WaveBin* parent;
 };
 

@@ -14,7 +14,8 @@
 #include "MainComponent.h"
 #include "SamplerEventProcessor.h"
 #include "FilePlayer.h"
-
+#include "MainComponent.h"
+#include "InstrumentTabWindow.h"
 
 InstrumentMappingEditor::InstrumentMappingEditor(const String& componentName, InstrumentComponent& i)
 :   Component(), instrument(i), view_port(new Viewport(componentName)),
@@ -60,15 +61,13 @@ InstrumentMappingEditor::~InstrumentMappingEditor(){
 }
 
 
-typedef InstrumentMappingEditor::MappingEditorGraph MappingEditorGraph;
-
 MappingEditorGraph::MappingEditorGraph(float w, float h,
     float kh, int nc, InstrumentComponent& i, GroupEditor* g)
 : Component(), width(w), height(h), keyboardHeight(kh), group_editor(g),
     numColumns(nc), draggedZone(nullptr), dragging(false), groupEditorY(0),
     lasso(), lassoSource(this), instrument(i), midiCallback(this), 
-    keyboardState(), zones(), sampler(&(getNotesHeld())), metronome(), metronome_player(),
-    source_player(), zoneDown(false), samplerProcessor(&sampler),
+    keyboardState(), zones(), metronome(), metronome_player(),
+    source_player(), zoneDown(false), samplerProcessor(/*MainContentComponent::_static_sampler->getSamplerProcessor()*/ nullptr),
     keyboard(keyboardState, MidiKeyboardComponent::horizontalKeyboard),
     luaScript(nullptr), renderEventsButton(new TextButton("Render Events")),
 	zoneCount(0), patchProgress(0.0), progressWindow(nullptr)
@@ -80,16 +79,18 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     dm->addAudioCallback(&metronome_player);
     dm->addMidiInputCallback("",&midiCallback);
 
+	MainContentComponent::_static_sampler->setNotesHeld(&(getNotesHeld()));
+
     setBounds(0, 0, getWidth(), getHeight() + getKeyboardHeight());
     notesHeld.addChangeListener(this);
     
     addKeyListener(this);
     
     groups.add(new Group());
-    
-    source_player.setSource(&sampler);
+  
+	source_player.setSource(MainContentComponent::_static_sampler);
     metronome_player.setSource(&metronome);
-    sampler.prepareToPlay(0, 44100.0);
+    MainContentComponent::_static_sampler->prepareToPlay(0, 44100.0);
     metronome.prepareToPlay(0, 44100.0);
     //MainContentComponent* m = static_cast<MainContentComponent*>((&instrument)->getParent()->getParent());
     //std::cout<<"post parent: "<<m<<std::endl;
@@ -115,6 +116,17 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     
     //addAndMakeVisible(renderEventsButton);
     //renderEventsButton->addListener(this);
+}
+
+MappingEditorGraph::~MappingEditorGraph()
+{
+	SharedResourcePointer<AudioDeviceManager> dm;
+	dm->removeAudioCallback(&source_player);
+	dm->removeAudioCallback(&metronome_player);
+	dm->removeMidiInputCallback("", &midiCallback);
+	/*for (int i = 0; i < zones.size(); i++){
+		zones[i].get()->decReferenceCount();
+	}*/
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
@@ -157,6 +169,8 @@ void MappingEditorGraph::buttonClicked(Button* source){
     }*/
 }
 
+MidiDeviceCallback& MappingEditorGraph::getMidiCallback() { return midiCallback; }
+
 void MappingEditorGraph::updateZones(){
     if (zones.size() > 0){
         for (int i=0; i<groups.size(); i++){
@@ -177,10 +191,10 @@ void MappingEditorGraph::updateZones(){
     }
 }
 
-void MappingEditorGraph::updateZone(MappingEditorGraph::Zone* i){
+void MappingEditorGraph::updateZone(Zone* i){
     int zone_index = zones.indexOf(i);
     zones.remove(zone_index);
-    sampler.getSynth()->removeSound(zone_index);
+    MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
     zones.add(i);
     
     float gridWidth = get_width() / getNumColumns();
@@ -193,7 +207,7 @@ void MappingEditorGraph::updateZone(MappingEditorGraph::Zone* i){
         }
     }
                     
-    sampler.addSample(i->getName(), 
+    MainContentComponent::_static_sampler->addSample(i->getName(), 
                       i->getNote(), 
                       round(i->getX()/gridWidth), 
                       round(i->getX()/gridWidth) + i->get_width(),
@@ -203,14 +217,14 @@ void MappingEditorGraph::updateZone(MappingEditorGraph::Zone* i){
 }
     
     
-void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
+void MidiDeviceCallback::handleIncomingMidiMessage
     (MidiInput* , const MidiMessage& message) 
 {
     if (message.getChannel() == midi_input_id || midi_input_id== -1){
         if (message.isNoteOn()) 
         {
             if (luaScript == nullptr)
-                luaScript = parent->getInstrument().getTabWindow().getScriptBin()->getLuaScript();
+                luaScript = parent->getInstrument().getTabWindow()->getScriptBin()->getLuaScript();
             
             parent->getNotesHeld().addToSelection(std::pair<int, int>(message.getNoteNumber(), message.getVelocity()));
             for (auto zone : parent->zones){
@@ -225,7 +239,7 @@ void MappingEditorGraph::MidiDeviceCallback::handleIncomingMidiMessage
                     parent->getNotesHeld().deselect(pair);
                 }
             }
-            parent->getSampler().getMidiCollector().addMessageToQueue(message);
+            MainContentComponent::_static_sampler->getMidiCollector().addMessageToQueue(message);
         }
     }
     //SharedResourcePointer<AudioDeviceManager> dm;
@@ -244,7 +258,7 @@ void MappingEditorGraph::handleNoteOn(MidiKeyboardState* /*source*/, int /*midiC
     notesHeld.addToSelection(std::pair<int, int>(midiNoteNumber, velocity*128));
     //sampler.getSynth()->noteOn(midiChannel, midiNoteNumber, velocity/**128*/);
     if (luaScript == nullptr)
-        luaScript = instrument.getTabWindow().getScriptBin()->getLuaScript();
+        luaScript = instrument.getTabWindow()->getScriptBin()->getLuaScript();
         
     MidiMessage* m = new MidiMessage(MidiMessage::noteOn(1, midiNoteNumber, velocity));
     m->setTimeStamp(10);
@@ -253,19 +267,19 @@ void MappingEditorGraph::handleNoteOn(MidiKeyboardState* /*source*/, int /*midiC
     n->setTriggerNote(-1);
     n->setNoteNumber(midiNoteNumber);
     n->setVelocity(velocity*128);
-    n->setId(sampler.getIdCount());
+    n->setId(MainContentComponent::_static_sampler->getIdCount());
     
     for (int i=0; i<groups.size(); i++){
         n->getGroups().add(i);
     }
     
-    sampler.incIdCount();
-    for (int i=0; i<sampler.getSynth()->getNumSounds(); i++){
-        if (sampler.getSynth()->getSound(i)->appliesToNote(midiNoteNumber)){
-            sampler.getIncomingEvents().add(n);
+    MainContentComponent::_static_sampler->incIdCount();
+    for (int i=0; i<MainContentComponent::_static_sampler->getSynth()->getNumSounds(); i++){
+        if (MainContentComponent::_static_sampler->getSynth()->getSound(i)->appliesToNote(midiNoteNumber)){
+			MainContentComponent::_static_sampler->getIncomingEvents().add(n);
         }
     }
-    sampler.getMidiCollector().addMessageToQueue(*m);
+    MainContentComponent::_static_sampler->getMidiCollector().addMessageToQueue(*m);
 }
 
 void MappingEditorGraph::handleNoteOff(MidiKeyboardState* /*source*/, int /*midiChannel*/, int midiNoteNumber){
@@ -311,7 +325,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
    group_editor->removeGroups();    
    groups.clear();
    zones.clear();
-   getSampler().getSynth()->clearSounds();
+   MainContentComponent::_static_sampler->getSynth()->clearSounds();
             
    int j=0;
    
@@ -344,7 +358,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
             patchProgress = ((double)(count))/((double)(zoneCount-1));
             //patchProgress = 0.5;
             if (zone->hasTagName("ZONE")){
-                Zone::Ptr new_zone;
+                ReferenceCountedObjectPtr<Zone>  new_zone;
                 new_zone = new Zone(this, zone->getStringAttribute("file"), instrument);
                 zones.add(new_zone);
                 new_group->getZones()->add(new_zone);
@@ -387,14 +401,14 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                                        
                 new_zones.add(new_zone);
                                        
-                instrument.getTabWindow().getWaveBin()->updateZone(new_zone);
+                instrument.getTabWindow()->getWaveBin()->updateZone(new_zone);
             }
             count++;
         }
      }
    } 
    float gridWidth = get_width() / getNumColumns();
-   progressWindow = new ProgressWindow(new_zones, &getSampler(), gridWidth);
+   progressWindow = new ProgressWindow(new_zones, MainContentComponent::_static_sampler, gridWidth);
    progressWindow->launchThread();
    
    group_editor->getListBox()->selectRow(0);
@@ -422,7 +436,7 @@ void MappingEditorGraph::itemDropped(const SourceDetails& details){
 void MappingEditorGraph::filesDropped(const StringArray& files, int x, int /*y*/){
     float gridOutline = 1.0f;
     float gridWidth = width / numColumns;
-    Zone::Ptr newZone;
+    ReferenceCountedObjectPtr<Zone>  newZone;
     for (int i=0; i<files.size(); i++){
         if (File(files[i]).isDirectory()){continue;}
         newZone = new Zone(this, files[i], instrument);
@@ -459,7 +473,7 @@ void MappingEditorGraph::filesDropped(const StringArray& files, int x, int /*y*/
         
         lassoSource.getZones().add(newZone);
         
-		if (!sampler.addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote() + 1, groups_for_zone,
+		if (!MainContentComponent::_static_sampler->addSample(newZone->getName(), newZone->getNote(), newZone->getNote(), newZone->getNote() + 1, groups_for_zone,
 			newZone->getPlaySettings(), newZone->getVelocity()))
 		{
 			newZone->removeListener(this);
@@ -490,7 +504,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
         if (modifier_keys.isCtrlDown() && key.getKeyCode() == KEY_C){
             copied_zones.clear();
             for (auto zone : lassoSource.getLassoSelection()){
-                Zone::Ptr new_zone = new Zone(this, zone->getName(), instrument);
+                ReferenceCountedObjectPtr<Zone>  new_zone = new Zone(this, zone->getName(), instrument);
                 new_zone->removeListener(this);
                 new_zone->addListener(this);
                 new_zone->removeMouseListener(new_zone);
@@ -521,7 +535,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
                     groups_for_zone.add(s[i]);
                 }
                 
-                sampler.addSample(zone->getName(), 
+                MainContentComponent::_static_sampler->addSample(zone->getName(), 
                                   zone->getNote(), 
                                   round(zone->getX()/gridWidth), 
                                   round(zone->getX()/gridWidth) + zone->get_width(),
@@ -545,7 +559,7 @@ bool MappingEditorGraph::keyPressed(const KeyPress& key, Component* c){
             for (auto zone : lassoSource.getLassoSelection()){
                 int zone_index = zones.indexOf(zone);
                 zones.removeFirstMatchingValue(zone);
-                sampler.getSynth()->removeSound(zone_index);
+                MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                 lassoSource.getZones().removeFirstMatchingValue(zone);
                 SparseSet<int> s = getGroupEditor()->getListBox()->getSelectedRows();
                 for (int i=0; i<s.size(); i++){
@@ -638,7 +652,7 @@ void MappingEditorGraph::setBoundsForComponent(Zone& c, MouseCursor cursor,
     }
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e){
+void MappingEditorGraph::mouseDrag(const MouseEvent& e){
     if (!lassoSource.Dragging()){lassoSource.setDragging(true);}
     if (draggedZone != nullptr){
         float gridOutline = 1.0f;
@@ -661,7 +675,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseDrag(const MouseEvent& e)
     }
 }
 
-void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
+void MappingEditorGraph::mouseUp(const MouseEvent& ){
     //getZoneInfoSet().changed();
     auto set = lassoSource.getLassoSelection();
     //int x = getMouseXYRelative().getX();
@@ -694,7 +708,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                     }
                     int zone_index = zones.indexOf(i);
                     zones.remove(zone_index);
-                    sampler.getSynth()->removeSound(zone_index);
+                    MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                     zones.add(i);
                     
                     Array<int> groups_for_zone;
@@ -714,7 +728,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                     
                     i->setVelocity(velocity);
                     
-                    sampler.addSample(i->getName(), 
+                    MainContentComponent::_static_sampler->addSample(i->getName(), 
                                       i->getNote(), 
                                       round(i->getX()/gridWidth), 
                                       round(i->getX()/gridWidth) + i->get_width(),
@@ -739,7 +753,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                 draggedZone->setY(newY);
                 int zone_index = zones.indexOf(draggedZone);
                 zones.remove(zone_index);
-                sampler.getSynth()->removeSound(zone_index);
+                MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                 zones.add(draggedZone);
                 
                 Array<int> groups_for_zone;
@@ -758,7 +772,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                 velocity.second = velocity_high;
                 draggedZone->setVelocity(velocity);
                 
-                sampler.addSample(draggedZone->getName(), 
+                MainContentComponent::_static_sampler->addSample(draggedZone->getName(), 
                                   draggedZone->getNote(), 
                                   round(draggedZone->getX()/gridWidth), 
                                   round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
@@ -783,7 +797,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                     
                     int zone_index = zones.indexOf(i);
                     zones.remove(zone_index);
-                    sampler.getSynth()->removeSound(zone_index);
+                    MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                     zones.add(i);
                     
                     Array<int> groups_for_zone;
@@ -802,7 +816,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                     velocity.second = velocity_high;
                     i->setVelocity(velocity);
                     
-                    sampler.addSample(i->getName(), 
+                    MainContentComponent::_static_sampler->addSample(i->getName(), 
                                       i->getNote(), 
                                       round(i->getX()/gridWidth), 
                                       round(i->getX()/gridWidth) + i->get_width(),
@@ -826,7 +840,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                 
                 int zone_index = zones.indexOf(draggedZone);
                 zones.remove(zone_index);
-                sampler.getSynth()->removeSound(zone_index);
+                MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                 zones.add(draggedZone);
                 
                 Array<int> groups_for_zone;
@@ -845,7 +859,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                 velocity.second = velocity_high;
                 draggedZone->setVelocity(velocity);
                 
-                sampler.addSample(draggedZone->getName(), 
+                MainContentComponent::_static_sampler->addSample(draggedZone->getName(), 
                                   draggedZone->getNote(), 
                                   round(draggedZone->getX()/gridWidth), 
                                   round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
@@ -867,7 +881,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                     
                     int zone_index = zones.indexOf(i);
                     zones.remove(zone_index);
-                    sampler.getSynth()->removeSound(zone_index);
+                    MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                     zones.add(i);
                     
                     Array<int> groups_for_zone;
@@ -886,7 +900,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                     velocity.second = velocity_high;
                     i->setVelocity(velocity);
                     
-                    sampler.addSample(i->getName(), 
+                    MainContentComponent::_static_sampler->addSample(i->getName(), 
                                       i->getNote(), 
                                       round(i->getX()/gridWidth), 
                                       round(i->getX()/gridWidth) + i->get_width(),
@@ -905,7 +919,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                 
                 int zone_index = zones.indexOf(draggedZone);
                 zones.remove(zone_index);
-                sampler.getSynth()->removeSound(zone_index);
+                MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                 zones.add(draggedZone);
                 
                 Array<int> groups_for_zone;
@@ -924,7 +938,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                 velocity.second = velocity_high;
                 draggedZone->setVelocity(velocity);
                 
-                sampler.addSample(draggedZone->getName(), 
+                MainContentComponent::_static_sampler->addSample(draggedZone->getName(), 
                                   draggedZone->getNote(), 
                                   round(draggedZone->getX()/gridWidth), 
                                   round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
@@ -942,7 +956,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                         i->set_width(newWidth);
                         int zone_index = zones.indexOf(i);
                         zones.remove(zone_index);
-                        sampler.getSynth()->removeSound(zone_index);
+                        MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                         zones.add(i);
                         
                         Array<int> groups_for_zone;
@@ -960,7 +974,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                         velocity.second = velocity_high;
                         i->setVelocity(velocity);
                         
-                        sampler.addSample(i->getName(), 
+                        MainContentComponent::_static_sampler->addSample(i->getName(), 
                                           i->getNote(), 
                                           round(i->getX()/gridWidth), 
                                           round(i->getX()/gridWidth) + i->get_width(),
@@ -975,7 +989,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                     draggedZone->set_width(newWidth);
                     int zone_index = zones.indexOf(draggedZone);
                     zones.remove(zone_index);
-                    sampler.getSynth()->removeSound(zone_index);
+                    MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                     zones.add(draggedZone);
                     
                     Array<int> groups_for_zone;
@@ -994,7 +1008,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                     velocity.second = velocity_high;
                     draggedZone->setVelocity(velocity);
                     
-                    sampler.addSample(draggedZone->getName(), 
+                    MainContentComponent::_static_sampler->addSample(draggedZone->getName(), 
                                       draggedZone->getNote(), 
                                       round(draggedZone->getX()/gridWidth), 
                                       round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
@@ -1016,7 +1030,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                             i->setNote(round(i->getX()/gridWidth));
                             int zone_index = zones.indexOf(i);
                             zones.remove(zone_index);
-                            sampler.getSynth()->removeSound(zone_index);
+                            MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                             zones.add(i);
                             
                             Array<int> groups_for_zone;
@@ -1035,7 +1049,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                             velocity.second = velocity_high;
                             i->setVelocity(velocity);
                             
-                            sampler.addSample(i->getName(), 
+                            MainContentComponent::_static_sampler->addSample(i->getName(), 
                                               i->getNote(), 
                                               round(i->getX()/gridWidth), 
                                               round(i->getX()/gridWidth) + i->get_width(),
@@ -1055,7 +1069,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                     }
                     int zone_index = zones.indexOf(draggedZone);
                     zones.remove(zone_index);
-                    sampler.getSynth()->removeSound(zone_index);
+                    MainContentComponent::_static_sampler->getSynth()->removeSound(zone_index);
                     zones.add(draggedZone);
                     
                     Array<int> groups_for_zone;
@@ -1074,7 +1088,7 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
                     velocity.second = velocity_high;
                     draggedZone->setVelocity(velocity);
                     
-                    sampler.addSample(draggedZone->getName(), 
+                    MainContentComponent::_static_sampler->addSample(draggedZone->getName(), 
                                       draggedZone->getNote(), 
                                       round(draggedZone->getX()/gridWidth), 
                                       round(draggedZone->getX()/gridWidth) + draggedZone->get_width(),
@@ -1109,8 +1123,6 @@ void InstrumentMappingEditor::MappingEditorGraph::mouseUp(const MouseEvent& ){
     }
 }
 
-
-typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
 
 Zone::Zone(MappingEditorGraph* p, const String& sampleName, InstrumentComponent& i) 
     : TextButton{""}, parent{p}, instrument(i), playSettings(),

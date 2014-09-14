@@ -11,6 +11,7 @@
 #include "LevelMeter.h"
 #include "Sampler.h"
 #include <math.h>  
+#include "MainComponent.h"
 
 void LevelMeterHandle::paint(Graphics& g){
     g.fillAll(Colours::black);
@@ -24,10 +25,10 @@ void LevelMeter::paint(Graphics& g){
     g.fillAll(Colours::white);
     
     float decibels;
-    if (sampler == nullptr){
+    if (MainContentComponent::_static_sampler == nullptr){
         decibels = decibelRangeLow;
     }else{
-        decibels = 20*(log10(sampler->getPeak()));
+		decibels = 20 * (log10(MainContentComponent::_static_sampler->getPeak()));
     }
     //std::cout<<decibels<<std::endl;
     float px_per_decibel = (decibelRangeHigh - decibelRangeLow) / getHeight();
@@ -99,7 +100,7 @@ void LevelMeter::mouseDrag(const MouseEvent& m){
     handleValue = px_per_decibel * (getHeight() - handle->getPosition().getY()) + 0.0;
     handleValue = handleValue <= 1.5 ? handleValue : 1.5;
     handleValue = handleValue > 0 ? handleValue : 0.0;
-    sampler->setInstrumentVolume(handleValue);
+	MainContentComponent::_static_sampler->setInstrumentVolume(handleValue);
 }
 
 void LevelMeter::mouseDown(const MouseEvent& m){
@@ -110,7 +111,7 @@ void LevelMeter::mouseDown(const MouseEvent& m){
     handleValue = px_per_decibel * (getHeight() - handle->getPosition().getY()) + 0.0;
     handleValue = handleValue <= 1.5 ? handleValue : 1.5;
     handleValue = handleValue > 0 ? handleValue : 0.0;
-    sampler->setInstrumentVolume(handleValue);
+	MainContentComponent::_static_sampler->setInstrumentVolume(handleValue);
 }
 
 void LevelMeter::resized(){

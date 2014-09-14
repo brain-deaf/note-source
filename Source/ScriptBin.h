@@ -13,6 +13,9 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "LuaScript.h"
+#include "MappingEditorBin.h"
+
+class MappingEditorBin;
 
 class ScriptBin : public Component, Button::Listener{
 public:

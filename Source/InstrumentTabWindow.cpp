@@ -12,9 +12,9 @@
 
 InstrumentTabWindow::InstrumentTabWindow(InstrumentComponent& i,
         TabbedButtonBar::Orientation orientation)
-    : TabbedComponent{orientation},mainPage{new MainPage(i)},
-    mappingEditor{new MappingEditorBin(i)}, 
-    fxbin{new FxBin(mappingEditor)},
+    : TabbedComponent{orientation},mainPage(new MainPage(i)),
+    mappingEditor(new MappingEditorBin(i)), 
+    fxbin(new FxBin(mappingEditor)),
     transformBin(new TransformBin(mappingEditor)),
     waveBin(new WaveBin(mappingEditor)),
     scriptBin(new ScriptBin(mappingEditor))
@@ -32,4 +32,5 @@ void InstrumentTabWindow::currentTabChanged(int new_index, const String& /*tab_n
         mappingEditor->getMappingEditor()->refreshGroupEditor();
     }
 }
+
 

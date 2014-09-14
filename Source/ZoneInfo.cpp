@@ -10,7 +10,8 @@
 
 #include "ZoneInfo.h"
 #include "WaveformView.h"
-
+#include "InstrumentMappingEditor.h"
+#include "MainComponent.h"
 
 
 ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
@@ -146,7 +147,7 @@ void ZoneInfo::buttonClicked(Button* source){
         int note = zone->getSelectedItem(0)->getNote();
         float y_per_velocity = mappingEditor->graph->getHeight() / 128;
         
-        Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
+        Array<Zone*> zones;
         for (int i=0; i<total_selected; i++){
             zones.add(zone->getSelectedItem(i));
         }
@@ -174,8 +175,8 @@ void ZoneInfo::buttonClicked(Button* source){
     if (source == hLayout){
         int total_selected = zone->getNumSelected();
         
-        Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
-        Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones2;
+        Array<Zone*> zones;
+        Array<Zone*> zones2;
         for (int i=0; i<total_selected; i++){
             zones.add(zone->getSelectedItem(i));
             zones2.add(zone->getSelectedItem(i));
@@ -284,4 +285,26 @@ void ZoneInfo::labelTextChanged(Label* source){
             }
         }
     }
+}
+
+int ZoneSorterByNote::compareElements(Zone* z1,
+	Zone* z2)
+{
+	if (z1->getNote() < z2->getNote())
+		return -1;
+	else if (z1->getNote() > z2->getNote())
+		return 1;
+	else
+		return 0;
+}
+
+int ZoneSorterByVelocity::compareElements(Zone* z1,
+	Zone* z2)
+{
+	if (z1->getVelocity().first < z2->getVelocity().first)
+		return -1;
+	else if (z1->getVelocity().first > z2->getVelocity().first)
+		return 1;
+	else
+		return 0;
 }

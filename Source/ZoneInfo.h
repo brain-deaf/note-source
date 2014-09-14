@@ -15,11 +15,13 @@
 #include "InstrumentMappingEditor.h"
 #include "Adsr.h"
 
+
 class WaveformView;
+class Zone;
 
 class ZoneInfo : public Component, public ChangeListener, public Label::Listener, public Button::Listener {
     std::shared_ptr<InstrumentMappingEditor> mappingEditor;
-    SelectedItemSet<InstrumentMappingEditor::MappingEditorGraph::Zone::Ptr>* zone;
+	SelectedItemSet<ReferenceCountedObjectPtr<Zone> >* zone;
     ScopedPointer<Label> fileName;
     ScopedPointer<Label> fileNameLabel;
     ScopedPointer<Label> noteNumber;
@@ -51,31 +53,13 @@ public:
 class ZoneSorterByNote
 {
 public:
-    static int compareElements(InstrumentMappingEditor::MappingEditorGraph::Zone* z1,
-                               InstrumentMappingEditor::MappingEditorGraph::Zone* z2)
-    {
-        if (z1->getNote() < z2->getNote())
-            return -1;
-        else if (z1->getNote() > z2->getNote())
-            return 1;
-        else
-            return 0;
-    }
+	static int compareElements(Zone* z1, Zone* z2);
 };
 
 class ZoneSorterByVelocity
 {
 public:
-    static int compareElements(InstrumentMappingEditor::MappingEditorGraph::Zone* z1,
-                               InstrumentMappingEditor::MappingEditorGraph::Zone* z2)
-    {
-        if (z1->getVelocity().first < z2->getVelocity().first)
-            return -1;
-        else if (z1->getVelocity().first > z2->getVelocity().first)
-            return 1;
-        else
-            return 0;
-    }
+	static int compareElements(Zone* z1, Zone* z2);
 };
 
 #endif  // ZONEINFO_H_INCLUDED

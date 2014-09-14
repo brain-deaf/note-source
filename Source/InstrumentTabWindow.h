@@ -20,6 +20,9 @@
 #include "WaveBin.h"
 #include "ScriptBin.h"
 
+class ScriptBin;
+class WaveBin;
+
 class InstrumentTabWindow : public TabbedComponent
 {
 public:
@@ -32,12 +35,12 @@ public:
 		transformBin = nullptr;
 		scriptBin = nullptr;
 	}
-    MappingEditorBin* getMappingEditorBin(){return mappingEditor;}
-    WaveBin* getWaveBin(){return waveBin;}
-    FxBin* getFxBin(){return fxbin;}
-    TransformBin* getTransformBin(){return transformBin;}
-    MainPage* getMainPage(){return mainPage;}
-    ScriptBin* getScriptBin(){return scriptBin;}
+    MappingEditorBin* getMappingEditorBin(){return mappingEditor.get();}
+    WaveBin* getWaveBin(){return waveBin.get();}
+    FxBin* getFxBin(){return fxbin.get();}
+    TransformBin* getTransformBin(){return transformBin.get();}
+    MainPage* getMainPage(){return mainPage.get();}
+    ScriptBin* getScriptBin(){return scriptBin.get();}
     void currentTabChanged(int, const String&);
 private:
     ScopedPointer<MainPage> mainPage;

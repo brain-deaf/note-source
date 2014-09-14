@@ -626,12 +626,12 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), metro
 }
 
 void LuaScript::loadScript(String f){
-    if (staticSampler == nullptr)
-        staticSampler = mapping_editor->getMappingEditor()->graph->getSamplerP();
+    /*if (staticSampler == nullptr)
+		staticSampler = MainContentComponent::_static_sampler;
         
     if (staticMainPage == nullptr)
         staticMainPage = mapping_editor->getMappingEditor()->graph->
-                         getInstrument().getTabWindow().getMainPage();
+                         getInstrument().getTabWindow()->getMainPage();
                          
     staticMainPage->resetComponents();
     
@@ -646,7 +646,7 @@ void LuaScript::loadScript(String f){
     
     lua_getglobal(L, "Initialize");
     if (lua_pcall(L, 0, 0, 0) != 0)
-        std::cout<<"error running function `Initialize' : "<<lua_tostring(L, -1)<<std::endl;
+        std::cout<<"error running function `Initialize' : "<<lua_tostring(L, -1)<<std::endl;*/
 }
 
 int LuaScript::getfield(const char* key){

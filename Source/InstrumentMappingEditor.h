@@ -20,6 +20,10 @@
 class Sampler;
 class InstrumentComponent;
 class ProgressWindow;
+class Zone;
+class MappingEditorGraph;
+class MidiDeviceCallback;
+class Group;
 
 class PlaySettings
 {
@@ -47,254 +51,58 @@ private:
     double tuning;
 };
 
+class Zone : public TextButton,
+	public ReferenceCountedObject
+{
+public:
+	Zone(MappingEditorGraph * p, const String& s,
+		InstrumentComponent& i);
+	const String& getName(){ return name; }
+	void setNote(int n){ _note = n; }
+	void setX(int x){ _x = x; /*setNote((int)(x / (parent->getWidth() / parent->getNumColumns())))*/; }
+	void setY(int y){ _y = y; }
+	int getX(){ return _x; }
+	int getY(){ return _y; }
+	std::pair<int, int>& getVelocity(){ return velocity; }
+	void setVelocity(std::pair<float, float> v){ velocity = v; }
+	int getNote(){ return _note; }
+	void setHeight(int h){ _height = h; }
+	int getHeight(){ return _height; }
+	int getRangeLow(){ return range_low; }
+	int getRangeHigh(){ return range_high; }
+	int get_width(){ return width; }
+	void set_width(int w){ width = w; }
+	void setRangeLow(int n){ range_low = n; }
+	void setRangeHigh(int n){ range_high = n; }
+	void mouseDown(const MouseEvent&);
+	void mouseMove(const MouseEvent& event);
+	void mouseDoubleClick(const MouseEvent& event);
+	void setGroup(int i){ group = i; }
+	int getGroup(){ return group; }
+	
+	PlaySettings* getPlaySettings(){ return &playSettings; }
+private:
+	MappingEditorGraph * parent;
+	InstrumentComponent& instrument;
+	int _x;
+	int _y;
+	int _height;
+	int _note;
+	int range_low;
+	int range_high;
+	int width;
+	int group;
+	PlaySettings playSettings;
+
+	const String name;
+	std::pair<int, int> velocity;
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Zone)
+};
+
 class InstrumentMappingEditor : public Component
 {
 public:
-    class MappingEditorGraph : public Component,
-                               public FileDragAndDropTarget,
-                               public DragAndDropTarget,
-                               public ButtonListener,
-                               public MidiKeyboardStateListener,
-                               public ChangeListener,
-                               public KeyListener
-    {
-    public:
-        class MidiDeviceCallback : public MidiInputCallback
-        {
-            MappingEditorGraph* parent;
-            int midi_input_id;
-        public:
-            MidiDeviceCallback(MappingEditorGraph * p): luaScript(nullptr), 
-                                                        parent{p},
-                                                        midi_input_id(-1){}
-                                                        
-            void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message);
-            JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiDeviceCallback)
-            void setMidiChannel(int i){midi_input_id = i;}
-            LuaScript* luaScript;
-        };
-
-        class Zone : public TextButton,
-                     public ReferenceCountedObject
-        {
-        public:
-            Zone(MappingEditorGraph * p, const String& s,
-                    InstrumentComponent& i);
-            const String& getName(){return name;}
-            void setNote(int n){_note = n;}
-            void setX(int x){_x = x; /*setNote((int)(x / (parent->getWidth() / parent->getNumColumns())))*/;}
-            void setY(int y){_y = y;}
-            int getX(){return _x;}
-            int getY(){return _y;}
-            std::pair<int, int>& getVelocity(){return velocity;}
-            void setVelocity(std::pair<float, float> v){velocity=v;}
-            int getNote(){return _note;}
-            void setHeight(int h){_height = h;}
-            int getHeight(){return _height;}
-            int getRangeLow(){return range_low;}
-            int getRangeHigh(){return range_high;}
-            int get_width(){return width;}
-            void set_width(int w){width = w;}
-            void setRangeLow(int n){range_low = n;}
-            void setRangeHigh(int n){range_high = n;}
-            void mouseDown(const MouseEvent&);
-            void mouseMove(const MouseEvent& event);
-            void mouseDoubleClick(const MouseEvent& event);
-            void setGroup(int i){group=i;}
-            int getGroup(){return group;}
-            typedef ReferenceCountedObjectPtr<Zone> Ptr;
-            PlaySettings* getPlaySettings(){return &playSettings;}
-        private:
-            MappingEditorGraph * parent;
-            InstrumentComponent& instrument;
-            int _x;
-            int _y;
-            int _height;
-            int _note;
-            int range_low;
-            int range_high;
-            int width;
-            int group;
-            PlaySettings playSettings;
-
-            const String name;
-            std::pair<int, int> velocity;
-            JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Zone)
-        };
-        
-        class Group
-        {
-            public:
-                Group(){
-                    name = "New Group"; 
-                    zones = new Array<Zone::Ptr>();
-                }
-                Array<Zone::Ptr>* getZones(){return zones;}
-                //void setZones(Array<Zone::Ptr>* _zones){zones = _zones;}
-                String getName(){return name;}
-                void setName(String s){name = s;}
-            private:
-                Array<Zone::Ptr>* zones;
-                String name;
-        };
-        
-        //class GroupViewItem : public TreeViewItem
-
-        template <class SelectableItemType>
-        class MappingLasso: public LassoSource<SelectableItemType>, public ChangeListener
-        {
-            Array<Zone::Ptr> zones;
-            MappingEditorGraph* parent;
-            SelectedItemSet<SelectableItemType> set;
-            bool _dragging;
-            JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MappingLasso<SelectableItemType>)
-        public:
-            MappingLasso(MappingEditorGraph * p) : parent{p}, _dragging{false} {}
-            bool Dragging(){return _dragging;}
-            void setDragging(bool d){_dragging = d;}
-            Array<Zone::Ptr>& getZones(){return zones;}
-            void findLassoItemsInArea (Array <SelectableItemType>& itemsFound,
-                const Rectangle<int>& area)
-            {
-                _dragging = true;
-
-                for (auto i : zones){
-                    Rectangle<int> r{i->getBounds()};
-                    if (area.intersects(r)){
-                        itemsFound.add(i);
-                        i->setToggleState(true, sendNotification);
-                    } else {
-                        itemsFound.removeFirstMatchingValue(i);
-                        i->setToggleState(false, sendNotification);
-                    }
-                }
-            };
-
-            SelectedItemSet<SelectableItemType>& getLassoSelection()
-            {
-                return set;
-            };
-
-            void changeListenerCallback(ChangeBroadcaster* source)
-            {
-                if (source == &set)
-                {
-                    for (auto z : getZones())
-                    {
-                        if (set.isSelected(z))
-                        {
-                            z->setToggleState(true, sendNotification);
-                        }
-                        else
-                        {
-                            z->setToggleState(false, sendNotification);
-                        }
-                    }
-                }
-            }
-        };
-
-        MappingEditorGraph(float,float,float,int,InstrumentComponent&, GroupEditor*);
-		~MappingEditorGraph()
-		{
-			SharedResourcePointer<AudioDeviceManager> dm;
-			dm->removeAudioCallback(&source_player);
-			dm->removeAudioCallback(&metronome_player);
-			dm->removeMidiInputCallback("", &midiCallback);
-			for (int i = 0; i < zones.size(); i++){
-				zones[i].get()->decReferenceCount();
-			}
-			progressWindow = nullptr;
-		}
-        void changeListenerCallback(ChangeBroadcaster* ){repaint();};
-        void setBoundsForComponent(Zone& z, MouseCursor cursor,
-            float grid_outline, float gridWidth, int gridXOffset);
-        void paint(Graphics& g);
-        void resized();
-        virtual void buttonClicked(Button* button) override;
-        void handleNoteOn(MidiKeyboardState* source, int midiChannel,
-            int midiNoteNumber, float velocity);
-        void handleNoteOff(MidiKeyboardState* source, int midiChannel,
-            int midiNoteNumber);
-        void mouseDrag(const MouseEvent& event);
-        void mouseUp(const MouseEvent& event);
-        void mouseDown(const MouseEvent& event);
-        void filesDropped(const StringArray& files, int x, int y);
-        bool isInterestedInDragSource(const SourceDetails&){return true;}
-        void itemDropped(const SourceDetails&);
-        void updateZones();
-        void updateZone(Zone*);
-        bool isInterestedInFileDrag(const StringArray& ){return true;}
-        void loadPatch(XmlElement* i);
-        bool keyPressed(const KeyPress&, Component*);
-        Array<Zone::Ptr> getZones(){return zones;}
-        Array<Zone::Ptr> getCopiedZones(){return copied_zones;}
-        Array<Group*> getGroups(){return groups;}
-
-        SelectedItemSet<Zone::Ptr>& getZoneInfoSet()
-            { return zoneInfoSet;}
-        void setWidth(float w){width=w;}
-        float getWidth(){ return width;}
-        void setHeight(float h){height=h;}
-        float getHeight() { return height;}
-        void setKeyboardHeight(float kh){keyboardHeight=kh;}
-        float getKeyboardHeight(){return keyboardHeight;}
-        void setNumColumns(int nc){numColumns=nc;}
-        int getNumColumns(){return numColumns;}
-        int get_width(){return (int)width;}
-        bool isDragging(){return dragging;}
-        InstrumentComponent& getInstrument(){return instrument;}
-        Sampler& getSampler(){return sampler;}
-        Sampler* getSamplerP(){return &sampler;}
-        SelectedItemSet<std::pair<int, int> >& getNotesHeld() { return notesHeld;}
-        MidiDeviceCallback& getMidiCallback() { return midiCallback;}
-        GroupEditor*& getGroupEditor(){return group_editor;}
-        Metronome& getMetronome(){return metronome;}
-        void setZoneDown(bool b){zoneDown=b;}
-        double* getPatchProgress(){return &patchProgress;}
-
-    private:
-        float width;
-        float height;
-        float keyboardHeight;
-        int numColumns;
-        bool dragging;
-        int startDragY;
-        int startDragX;
-        int groupEditorY;
-        bool zoneDown;
-        Array<Zone*> new_zones;
-		ScopedPointer<ProgressWindow> progressWindow;
-        
-        InstrumentComponent& instrument;
-        MidiDeviceCallback midiCallback;
-        MidiKeyboardState keyboardState;
-        MidiKeyboardComponent keyboard;
-        
-        int zoneCount;
-        double patchProgress;
-        
-        SelectedItemSet<std::pair<int, int> > notesHeld;
-        Array<Zone::Ptr> zones;
-        Array<Zone::Ptr> copied_zones;
-        Array<Group*> groups;
-        LassoComponent<Zone::Ptr> lasso;
-        MappingLasso<Zone::Ptr> lassoSource;
-        Zone::Ptr draggedZone;
-        SelectedItemSet<Zone::Ptr> zoneInfoSet;
-        GroupEditor* group_editor;
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingEditorGraph)
-        Sampler sampler;
-        
-        SamplerEventProcessor samplerProcessor;
-        ScopedPointer<TextButton> renderEventsButton;
-        
-        Metronome metronome;
-        AudioSourcePlayer source_player;
-        AudioSourcePlayer metronome_player;
-        LuaScript* luaScript;
-        
-    };
+    
     InstrumentMappingEditor(const String& componentName,
         InstrumentComponent& i);
     ~InstrumentMappingEditor();
@@ -310,10 +118,206 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMappingEditor)
 };
 
+class MidiDeviceCallback : public MidiInputCallback
+{
+	MappingEditorGraph* parent;
+	int midi_input_id;
+public:
+	MidiDeviceCallback(MappingEditorGraph * p) : luaScript(nullptr),
+		parent{ p },
+		midi_input_id(-1){}
+
+	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiDeviceCallback)
+		void setMidiChannel(int i){ midi_input_id = i; }
+	LuaScript* luaScript;
+};
+
+
+template <class SelectableItemType>
+class MappingLasso : public LassoSource<SelectableItemType>, public ChangeListener
+{
+	Array<ReferenceCountedObjectPtr<Zone> > zones;
+	MappingEditorGraph* parent;
+	SelectedItemSet<SelectableItemType> set;
+	bool _dragging;
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MappingLasso<SelectableItemType>)
+public:
+	MappingLasso(MappingEditorGraph * p) : parent{ p }, _dragging{ false } {}
+	bool Dragging(){ return _dragging; }
+	void setDragging(bool d){ _dragging = d; }
+	Array<ReferenceCountedObjectPtr<Zone> >& getZones(){ return zones; }
+	void findLassoItemsInArea(Array <SelectableItemType>& itemsFound,
+		const Rectangle<int>& area)
+	{
+		_dragging = true;
+
+		for (auto i : zones){
+			Rectangle<int> r{ i->getBounds() };
+			if (area.intersects(r)){
+				itemsFound.add(i);
+				i->setToggleState(true, sendNotification);
+			}
+			else {
+				itemsFound.removeFirstMatchingValue(i);
+				i->setToggleState(false, sendNotification);
+			}
+		}
+	};
+
+	SelectedItemSet<SelectableItemType>& getLassoSelection()
+	{
+		return set;
+	};
+
+	void changeListenerCallback(ChangeBroadcaster* source)
+	{
+		if (source == &set)
+		{
+			for (auto z : getZones())
+			{
+				if (set.isSelected(z))
+				{
+					z->setToggleState(true, sendNotification);
+				}
+				else
+				{
+					z->setToggleState(false, sendNotification);
+				}
+			}
+		}
+	}
+};
+
+
+class MappingEditorGraph : public Component,
+	public FileDragAndDropTarget,
+	public DragAndDropTarget,
+	public ButtonListener,
+	public MidiKeyboardStateListener,
+	public ChangeListener,
+	public KeyListener
+{
+public:
+	//class GroupViewItem : public TreeViewItem
+	MappingEditorGraph(float, float, float, int, InstrumentComponent&, GroupEditor*);
+	~MappingEditorGraph();
+	void changeListenerCallback(ChangeBroadcaster*){ repaint(); };
+	void setBoundsForComponent(Zone& z, MouseCursor cursor,
+		float grid_outline, float gridWidth, int gridXOffset);
+	void paint(Graphics& g);
+	void resized();
+	virtual void buttonClicked(Button* button) override;
+	void handleNoteOn(MidiKeyboardState* source, int midiChannel,
+		int midiNoteNumber, float velocity);
+	void handleNoteOff(MidiKeyboardState* source, int midiChannel,
+		int midiNoteNumber);
+	void mouseDrag(const MouseEvent& event);
+	void mouseUp(const MouseEvent& event);
+	void mouseDown(const MouseEvent& event);
+	void filesDropped(const StringArray& files, int x, int y);
+	bool isInterestedInDragSource(const SourceDetails&){ return true; }
+	void itemDropped(const SourceDetails&);
+	void updateZones();
+	void updateZone(Zone*);
+	bool isInterestedInFileDrag(const StringArray&){ return true; }
+	void loadPatch(XmlElement* i);
+	bool keyPressed(const KeyPress&, Component*);
+	Array<ReferenceCountedObjectPtr<Zone> > getZones(){ return zones; }
+	Array<ReferenceCountedObjectPtr<Zone> > getCopiedZones(){ return copied_zones; }
+	Array<Group*> getGroups(){ return groups; }
+
+	SelectedItemSet<ReferenceCountedObjectPtr<Zone> >& getZoneInfoSet()
+	{
+		return zoneInfoSet;
+	}
+	void setWidth(float w){ width = w; }
+	float getWidth(){ return width; }
+	void setHeight(float h){ height = h; }
+	float getHeight() { return height; }
+	void setKeyboardHeight(float kh){ keyboardHeight = kh; }
+	float getKeyboardHeight(){ return keyboardHeight; }
+	void setNumColumns(int nc){ numColumns = nc; }
+	int getNumColumns(){ return numColumns; }
+	int get_width(){ return (int)width; }
+	bool isDragging(){ return dragging; }
+	InstrumentComponent& getInstrument(){ return instrument; }
+	SelectedItemSet<std::pair<int, int> >& getNotesHeld() { return notesHeld; }
+	MidiDeviceCallback& getMidiCallback();
+	GroupEditor*& getGroupEditor(){ return group_editor; }
+	Metronome& getMetronome(){ return metronome; }
+	void setZoneDown(bool b){ zoneDown = b; }
+	double* getPatchProgress(){ return &patchProgress; }
+	Array<ReferenceCountedObjectPtr<Zone> > zones;
+	ReferenceCountedObjectPtr<Zone> draggedZone;
+private:
+	float width;
+	float height;
+	float keyboardHeight;
+	int numColumns;
+	bool dragging;
+	int startDragY;
+	int startDragX;
+	int groupEditorY;
+	bool zoneDown;
+	Array<Zone*> new_zones;
+	ScopedPointer<ProgressWindow> progressWindow;
+
+	InstrumentComponent& instrument;
+	MidiDeviceCallback midiCallback;
+	MidiKeyboardState keyboardState;
+	MidiKeyboardComponent keyboard;
+
+	int zoneCount;
+	double patchProgress;
+
+	SelectedItemSet<std::pair<int, int> > notesHeld;
+	
+	Array<ReferenceCountedObjectPtr<Zone> > copied_zones;
+	Array<Group*> groups;
+	LassoComponent<ReferenceCountedObjectPtr<Zone> > lasso;
+	MappingLasso<ReferenceCountedObjectPtr<Zone> > lassoSource;
+	
+	SelectedItemSet<ReferenceCountedObjectPtr<Zone> > zoneInfoSet;
+	GroupEditor* group_editor;
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MappingEditorGraph)
+
+	SamplerEventProcessor* samplerProcessor;
+	ScopedPointer<TextButton> renderEventsButton;
+
+	Metronome metronome;
+	AudioSourcePlayer source_player;
+	AudioSourcePlayer metronome_player;
+	LuaScript* luaScript;
+};
+
+
+
+class Group
+{
+public:
+	Group(){
+		name = "New Group";
+		zones = new Array<ReferenceCountedObjectPtr<Zone> >();
+	}
+	Array<ReferenceCountedObjectPtr<Zone> >* getZones(){ return zones; }
+	//void setZones(Array<ReferenceCountedObjectPtr<Zone> >* _zones){zones = _zones;}
+	String getName(){ return name; }
+	void setName(String s){ name = s; }
+private:
+	Array<ReferenceCountedObjectPtr<Zone> >* zones;
+	String name;
+};
+
+
+
+
+
+
 class ProgressWindow  : public ThreadWithProgressWindow
 {
 public:
-    ProgressWindow(Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> a, Sampler* s, float f)    
+    ProgressWindow(Array<Zone*> a, Sampler* s, float f)    
         : ThreadWithProgressWindow ("loading...", true, false), zones(a), sampler(s), gridWidth(f)
     {
     }
@@ -323,7 +327,7 @@ public:
         for (int i=0; i<zones.size(); i++){
             if (threadShouldExit())
                 break;
-            InstrumentMappingEditor::MappingEditorGraph::Zone* z = zones[i];
+            Zone* z = zones[i];
                 
             Array<int> groups_for_zone;
             groups_for_zone.add(z->getGroup());
@@ -340,7 +344,7 @@ public:
         std::cout<<"thread complete!"<<std::endl;
     }
 private:
-    Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
+    Array<Zone*> zones;
     Sampler* sampler;
     float gridWidth;
 };

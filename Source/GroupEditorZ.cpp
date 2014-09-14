@@ -12,7 +12,7 @@
 #include "WaveformView.h"
 #include "WaveBin.h"
 
-GroupViewItem::GroupViewItem(String s, bool b, InstrumentMappingEditor::MappingEditorGraph::Zone* zone, GroupView* p) : 
+GroupViewItem::GroupViewItem(String s, bool b, Zone* zone, GroupView* p) : 
     TreeViewItem(), name(s), canBeOpened(b), z(zone), parent(p){}
 
 void GroupViewItem::itemOpennessChanged(bool ){}
@@ -64,7 +64,7 @@ void GroupView::refreshRows(){
         
         if (groups[group_count] != nullptr){
             for (int i=0; i<groups[group_count]->getZones()->size(); i++){ 
-                InstrumentMappingEditor::MappingEditorGraph::Zone* z = (*(groups[group_count]->getZones()))[i];
+                Zone* z = (*(groups[group_count]->getZones()))[i];
                 GroupViewItem* zone = new GroupViewItem(z->getName(), false, z, this);
                 group->addSubItem(zone);
             }

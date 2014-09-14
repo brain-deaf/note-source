@@ -78,7 +78,7 @@ void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
     switch (menuItemID) {
         case ID_Quit: {
             for (auto instrument : parent->getInstruments()){
-                scriptBin = instrument->getTabWindow().getScriptBin();
+                scriptBin = instrument->getTabWindow()->getScriptBin();
                 lua_close(scriptBin->getLuaScript()->getLuaState());
                 tf_bin->quit();
             }
@@ -95,16 +95,16 @@ void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
         
         case ID_Open: {
             mapping_editor = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getMappingEditorBin()->getMappingEditor();
+            ->getTabWindow()->getMappingEditorBin()->getMappingEditor();
             
             fx_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getFxBin();
+            ->getTabWindow()->getFxBin();
             
             tf_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getTransformBin();
+            ->getTabWindow()->getTransformBin();
             
             scriptBin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getScriptBin();
+            ->getTabWindow()->getScriptBin();
             
             
                 //parent->getParent()->addAndMakeVisible(p);
@@ -138,16 +138,16 @@ void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
         
         case ID_Save: {
             mapping_editor = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getMappingEditorBin()->getMappingEditor();
+            ->getTabWindow()->getMappingEditorBin()->getMappingEditor();
             
             fx_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getFxBin();
+            ->getTabWindow()->getFxBin();
             
             tf_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getTransformBin();
+            ->getTabWindow()->getTransformBin();
             
             scriptBin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getScriptBin();
+            ->getTabWindow()->getScriptBin();
             
             Array<FxGroup*> fx_group_list = fx_bin->getFxSelector()->getGroups();
             Array<TransformGroup*> tf_group_list = tf_bin->getTransformSelector()->getGroups();

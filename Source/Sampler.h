@@ -14,7 +14,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FxSelector.h"
 #include "TransformSelector.h"
-#include "TransformSelector.h"
 #include "IIR_Filter.h"
 #include <memory>
 //#include <fftw3.h>
@@ -68,7 +67,7 @@ private:
 class Sampler : public AudioSource
 {
 public:
-    Sampler(SelectedItemSet<std::pair<int, int> >*);
+    Sampler();
     ~Sampler(){
 		synth.clearSounds();
 		synth.clearVoices();
@@ -106,6 +105,7 @@ public:
     void setInstrumentVolume(double d){instrumentVolume=d;}
     double getInstrumentVolume(){return instrumentVolume;}
     OwnedArray<SampleGroup>& getGroups(){return groups;}
+	void setNotesHeld(SelectedItemSet<std::pair<int, int> >* s){ notesHeld = s; }
 private:
     MidiMessageCollector midiCollector;
     Synthesiser synth;

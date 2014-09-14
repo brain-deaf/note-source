@@ -24,8 +24,8 @@ static bool isNoteHeld(SelectedItemSet<std::pair<int, int> > s, int n){
     return false;
 }
 
-Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s) 
-    : AudioSource(), synth(), idCount(0), notesHeld(s), formatManager(), 
+Sampler::Sampler() 
+    : AudioSource(), synth(), idCount(0), formatManager(), 
       events(), incomingEvents(), wavFormat(nullptr), wavWriter(nullptr),/*wavOutput(new FileOutputStream(File(File::getCurrentWorkingDirectory()).getFullPathName() + "/temp.wav")),*/
       filter1(), filter2(), fx_selector(nullptr), transform_selector(nullptr),
       wavSampleCount(0.0), wavOutput(nullptr), samplerProcessor(nullptr),

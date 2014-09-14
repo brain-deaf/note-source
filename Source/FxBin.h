@@ -17,6 +17,8 @@
 #include "GroupEditor.h"
 #include "MappingEditorBin.h"
 
+class MappingEditorBin;
+
 class FxBin : public Component {
 public:
     FxBin(MappingEditorBin*);

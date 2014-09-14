@@ -13,18 +13,20 @@
 InstrumentComponent::InstrumentComponent(InstrumentBin* p)
 : Component(), deviceManager(), mixer(), button(new TextButton("asdfasdf")),
     sourcePlayer(), parent(p), 
-    tabs(*this,TabbedButtonBar::TabsAtBottom),
+    tabs(new InstrumentTabWindow(*this,TabbedButtonBar::TabsAtBottom)),
     master(p, this){
-    addAndMakeVisible(tabs);
+    addAndMakeVisible(tabs.get());
     addAndMakeVisible(master);
     addChildComponent(button);
 }
 
 void InstrumentComponent::resized(){
-    tabs.setBounds(0, 80, getWidth(), getHeight() - 80);
+    tabs->setBounds(0, 80, getWidth(), getHeight() - 80);
     master.setBounds(0, 0, getWidth(), 80);
 }
 void InstrumentComponent::addFilePlayer(FilePlayer* p) {
     sources.add(p);
     sampleNames.add(p->getSampleName());
 }
+
+InstrumentTabWindow* InstrumentComponent::getTabWindow() {return tabs.get(); }

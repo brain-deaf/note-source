@@ -16,6 +16,7 @@
 #include "MappingEditorBin.h"
 #include "WaveformView.h"
 #include "FilePlayer.h"
+#include "InstrumentMappingEditor.h"
 
 class WaveBin : public Component, public Slider::Listener, public Button::Listener, public ChangeListener, public Timer {
 public:

@@ -14,7 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentMappingEditor.h"
 class WaveBin;
-typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
+class Zone;
 
 class WaveformView : public Component, public ChangeListener
 {
