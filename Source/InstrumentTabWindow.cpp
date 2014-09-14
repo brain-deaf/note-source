@@ -16,14 +16,15 @@ InstrumentTabWindow::InstrumentTabWindow(InstrumentComponent& i,
     mappingEditor(new MappingEditorBin(i)), 
     fxbin(new FxBin(mappingEditor)),
     transformBin(new TransformBin(mappingEditor)),
-    waveBin(new WaveBin(mappingEditor)),
-    scriptBin(new ScriptBin(mappingEditor))
+    waveBin(new WaveBin(mappingEditor))
 {
     addTab("Main", Colour(100, 100, 100), mainPage, false);
     addTab("FX", Colour(100, 110, 100), fxbin, false);
     addTab("Mapping", Colour(120, 100, 100), mappingEditor , false);
     addTab("Wave", Colour(100, 130, 100), waveBin, false);
     addTab("Mod", Colour(100, 100, 100), transformBin, false);
+
+	scriptBin = new ScriptBin(mappingEditor, this);
     addTab("Script", Colour(100, 100, 100), scriptBin, false);
 }
 

@@ -18,6 +18,7 @@
 #include "InstrumentComponent.h"
 #include "InstrumentBin.h"
 #include "MainComponent.h"
+#include "ScriptBin.h"
 
 
 static LuaScript* luaScript = nullptr;
@@ -550,8 +551,8 @@ static int l_sleep(lua_State* L){
     return 0;
 }
 
-LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), metronome(nullptr),
-                                            guiId(1), lastPlayedNote(0), beatListening(false){
+LuaScript::LuaScript(MappingEditorBin* m, ScriptBin* s) : L(nullptr), mapping_editor(m), metronome(nullptr),
+                                            guiId(1), lastPlayedNote(0), beatListening(false), scriptBin(s){
     L = luaL_newstate();
     luaL_openlibs(L);
     
@@ -626,16 +627,15 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), metro
 }
 
 void LuaScript::loadScript(String f){
-    /*if (staticSampler == nullptr)
+    if (staticSampler == nullptr)
 		staticSampler = MainContentComponent::_static_sampler;
         
     if (staticMainPage == nullptr)
-        staticMainPage = mapping_editor->getMappingEditor()->graph->
-                         getInstrument().getTabWindow()->getMainPage();
+        staticMainPage = scriptBin->getTabWindow()->getMainPage();
                          
     staticMainPage->resetComponents();
     
-    if (staticSampler != nullptr){
+    if (staticSampler != nullptr && staticSampler->getSamplerProcessor() != nullptr){
         staticSampler->getSamplerProcessor()->clearAllSamplerEvents();
     }
         
@@ -646,7 +646,7 @@ void LuaScript::loadScript(String f){
     
     lua_getglobal(L, "Initialize");
     if (lua_pcall(L, 0, 0, 0) != 0)
-        std::cout<<"error running function `Initialize' : "<<lua_tostring(L, -1)<<std::endl;*/
+        std::cout<<"error running function `Initialize' : "<<lua_tostring(L, -1)<<std::endl;
 }
 
 int LuaScript::getfield(const char* key){

@@ -43,8 +43,8 @@ public:
     ScriptBin* getScriptBin(){return scriptBin.get();}
     void currentTabChanged(int, const String&);
 private:
+	ScopedPointer<MappingEditorBin> mappingEditor;
     ScopedPointer<MainPage> mainPage;
-    ScopedPointer<MappingEditorBin> mappingEditor;
     ScopedPointer<WaveBin> waveBin;
     ScopedPointer<FxBin> fxbin;
     ScopedPointer<TransformBin> transformBin;

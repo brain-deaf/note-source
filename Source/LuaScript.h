@@ -23,6 +23,7 @@ extern "C" {
 
 
 class MappingEditorBin;
+class ScriptBin;
 
 class LuaScript : public Slider::Listener, public Button::Listener,
                   public ComboBox::Listener
@@ -38,7 +39,7 @@ public:
         KNOB    = 6
     };
 
-    LuaScript(MappingEditorBin*);
+    LuaScript(MappingEditorBin*, ScriptBin*);
     lua_State* getLuaState(){return L;}
     void loadScript(String);
     void onNote(int, double, double);
@@ -52,6 +53,7 @@ public:
     int& getGuiId(){return guiId;}
     int getfield(const char*);
 private:
+	ScriptBin* scriptBin;
     lua_State* L;
     MappingEditorBin* mapping_editor;
     Metronome* metronome;

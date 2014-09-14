@@ -10,15 +10,18 @@
 
 #include "ScriptBin.h"
 
-ScriptBin::ScriptBin(MappingEditorBin* m) : codeDocument(new CodeDocument()), 
+ScriptBin::ScriptBin(MappingEditorBin* m, InstrumentTabWindow* t) : codeDocument(new CodeDocument()), 
+					tabs(t),
 					tokeniser(new LuaTokeniser()),
                     codeEditor(new CodeEditorComponent(*codeDocument, tokeniser)),
                     compileButton(new TextButton("compile")),
                     saveAsButton(new TextButton("save as...")),
-                    luaScript(new LuaScript(m)),
+                    luaScript(nullptr),
                     mapping_editor(m),
                     scriptPath(File::getCurrentWorkingDirectory().getFullPathName() + "/script.lua")
 {
+	luaScript = new LuaScript(m, this);
+
     addAndMakeVisible(codeEditor);
     addAndMakeVisible(compileButton);
     compileButton->addListener(this);

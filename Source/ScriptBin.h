@@ -16,10 +16,11 @@
 #include "MappingEditorBin.h"
 
 class MappingEditorBin;
+class InstrumentTabWindow;
 
 class ScriptBin : public Component, Button::Listener{
 public:
-    ScriptBin(MappingEditorBin*);
+    ScriptBin(MappingEditorBin*, InstrumentTabWindow*);
     ~ScriptBin();
     void paint(Graphics&);
     void resized();
@@ -27,7 +28,9 @@ public:
     void buttonClicked(Button*);
     void loadPatch(XmlElement*);
     String getScriptPath(){return scriptPath;}
+	InstrumentTabWindow* getTabWindow(){ return tabs; }
 private:
+	InstrumentTabWindow* tabs;
 	ScopedPointer<LuaTokeniser> tokeniser;
     ScopedPointer<CodeDocument> codeDocument;
     ScopedPointer<CodeEditorComponent> codeEditor;
