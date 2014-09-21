@@ -17,6 +17,7 @@ class Sampler;
 #include "MasterComponents.h"
 #include "SampleBrowserBin.h"
 #include "InstrumentMappingEditor.h"
+#include "PluginProcessor.h"
 
 
 
@@ -31,20 +32,21 @@ class Sampler;
 class MainContentComponent : public Component, public Button::Listener, public DragAndDropContainer
 {
 public:
-    MainContentComponent();
+    MainContentComponent(SamplerProcessor*);
     ~MainContentComponent()
 	{
 		instrumentBin = nullptr; 
 		menuBar = nullptr; 
 		metronome = nullptr;
 		toggleBrowser = nullptr;
-		delete _static_sampler;
+		browser = nullptr;
+		_static_sampler = nullptr;
 	}
     MetronomeComponent* getMetronome(){return metronome.get();}
     TransportComponent* getTransport(){return &transport;}
     void resized();
     void buttonClicked(Button*);
-	static Sampler* _static_sampler;
+	static SamplerProcessor* _static_sampler;
 private:
     SharedResourcePointer<AudioDeviceManager> deviceManager;
     ScopedPointer<MenuBar> menuBar;

@@ -79,8 +79,9 @@ void InstrumentMasterComponent::comboBoxChanged(ComboBox* source){
     if (source == midi_input_menu){
         instrument_parent->getTabWindow()->getMappingEditorBin()->
             getMappingEditor()->graph->getMidiCallback().setMidiChannel(midi_input_menu->getSelectedId());
-        
-		MainContentComponent::_static_sampler->setMidiChannel(midi_input_menu->getSelectedId());
+		static SamplerProcessor* s(MainContentComponent::_static_sampler);
+		if (s!= nullptr)
+			s->setMidiChannel(midi_input_menu->getSelectedId());
     }
 }
 

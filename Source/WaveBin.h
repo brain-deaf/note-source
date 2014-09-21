@@ -34,6 +34,7 @@ public:
         sample_start->setRange(0, d, 1);
         loopEnd->setRange(0, d, 1);
         loopStart->setRange(0, d, 1);
+		xfadeLength->setRange(0, d / 2);
     }
     void updateZone(Zone*_zone);
     void buttonClicked(Button*);
@@ -65,6 +66,7 @@ private:
     ScopedPointer<Slider> loopStart;
     ScopedPointer<Slider> loopEnd;
     ScopedPointer<Slider> xfadeLength;
+	ScopedPointer<Slider> xfadeCurve;
     ScopedPointer<Slider> tuneSlider;
     ScopedPointer<TextButton> toggleLoop;
     Zone* z;

@@ -61,7 +61,7 @@ public:
     void renderSamplerEvent(SamplerEvent, Data&);
     void startSamplerEvent(SamplerEvent);
     void addSamplerEvent(SamplerEvent s){events.add(s);}
-    void clearAllSamplerEvents(){events.clear();}
+    void clearAllSamplerEvents(){events.clearQuick();}
     void renderAllEvents();
     long long getDataSize(){return data[0].size();}
     int getNumEvents(){return events.size();}

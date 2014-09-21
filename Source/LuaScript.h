@@ -42,6 +42,7 @@ public:
     LuaScript(MappingEditorBin*, ScriptBin*);
     lua_State* getLuaState(){return L;}
     void loadScript(String);
+	void clearScript();
     void onNote(int, double, double);
     void onBeat();
     int getLastPlayedNote(){return lastPlayedNote;}

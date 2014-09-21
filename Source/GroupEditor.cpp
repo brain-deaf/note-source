@@ -89,12 +89,14 @@ GroupEditor::~GroupEditor(){
 
 void GroupEditor::setFxBin(FxBin* f){
     fx_bin = f;
-	MainContentComponent::_static_sampler->setFxSelector(fx_bin->getFxSelector());
+	static SamplerProcessor* s(MainContentComponent::_static_sampler);
+	s->setFxSelector(fx_bin->getFxSelector());
 }
 
 void GroupEditor::setTransformBin(TransformBin* f){
     transform_bin = f;
-	MainContentComponent::_static_sampler->setTransformSelector(transform_bin->getTransformSelector());
+	static SamplerProcessor* s(MainContentComponent::_static_sampler);
+	s->setTransformSelector(transform_bin->getTransformSelector());
 }
 
 void GroupEditor::paint(Graphics& g){

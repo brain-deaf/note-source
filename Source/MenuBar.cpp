@@ -183,6 +183,7 @@ void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
                     zone->setAttribute("loop_start", z->getPlaySettings()->getLoopStart());
                     zone->setAttribute("loop_end", z->getPlaySettings()->getLoopEnd());
                     zone->setAttribute("xfade_length", z->getPlaySettings()->getXfadeLength());
+					zone->setAttribute("xfade_curve", z->getPlaySettings()->getXfadeCurve());
                     group->addChildElement(zone);
                 }
                 for (int j=0; j<fx_group_list[i]->group_fx.size(); j++){

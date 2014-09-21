@@ -75,12 +75,20 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     keyboardState.addListener(this);
     addAndMakeVisible(&keyboard);
     SharedResourcePointer<AudioDeviceManager> dm;
-    dm->addAudioCallback(&source_player);
-    dm->addAudioCallback(&metronome_player);
+    //dm->addAudioCallback(&source_player);
+    //dm->addAudioCallback(&metronome_player);
     dm->addMidiInputCallback("",&midiCallback);
+	
+	SamplerProcessor* samplerProcessor = MainContentComponent::_static_sampler;
+	if (samplerProcessor != nullptr){
+		samplerProcessor->setMidiCallback(&midiCallback);
+		samplerProcessor->setNotesHeld(&(getNotesHeld()));
+	}
 
-	MainContentComponent::_static_sampler->setNotesHeld(&(getNotesHeld()));
-
+	//static Sampler* s(MainContentComponent::_static_sampler);
+	//s->setNotesHeld(&(getNotesHeld()));
+	//s->prepareToPlay(0, 44100.0);
+	
     setBounds(0, 0, getWidth(), getHeight() + getKeyboardHeight());
     notesHeld.addChangeListener(this);
     
@@ -88,10 +96,10 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
     
     groups.add(new Group());
   
-	source_player.setSource(MainContentComponent::_static_sampler);
-    metronome_player.setSource(&metronome);
-    MainContentComponent::_static_sampler->prepareToPlay(0, 44100.0);
-    metronome.prepareToPlay(0, 44100.0);
+	//source_player.setSource(s);
+    //metronome_player.setSource(&metronome);
+    
+    //metronome.prepareToPlay(0, 44100.0);
     //MainContentComponent* m = static_cast<MainContentComponent*>((&instrument)->getParent()->getParent());
     //std::cout<<"post parent: "<<m<<std::endl;
     //std::cout<<"asdf: "<< m->getMetronome()<<" asdd"<<std::endl;
@@ -120,13 +128,13 @@ MappingEditorGraph::MappingEditorGraph(float w, float h,
 
 MappingEditorGraph::~MappingEditorGraph()
 {
-	SharedResourcePointer<AudioDeviceManager> dm;
-	dm->removeAudioCallback(&source_player);
-	dm->removeAudioCallback(&metronome_player);
-	dm->removeMidiInputCallback("", &midiCallback);
-	/*for (int i = 0; i < zones.size(); i++){
+	//SharedResourcePointer<AudioDeviceManager> dm;
+	//dm->removeAudioCallback(&source_player);
+	//dm->removeAudioCallback(&metronome_player);
+	//dm->removeMidiInputCallback("", &midiCallback);
+	for (int i = 0; i < zones.size(); i++){
 		zones[i].get()->decReferenceCount();
-	}*/
+	}
 }
 
 void MappingEditorGraph::buttonClicked(Button* source){
@@ -244,6 +252,42 @@ void MidiDeviceCallback::handleIncomingMidiMessage
     }
     //SharedResourcePointer<AudioDeviceManager> dm;
     //std::cout<<dm->getCpuUsage()<<std::endl;
+}
+
+void MidiDeviceCallback::handleMidiBuffer(MidiBuffer& buffer)
+{
+	MidiBuffer buffer_copy = MidiBuffer(buffer);
+	buffer.clear();
+	MidiMessage message;
+	int samplePosition;
+	MidiBuffer::Iterator i(buffer_copy);
+	while (i.getNextEvent(message, samplePosition)){
+		if (message.getChannel() == midi_input_id || midi_input_id == -1){
+			int numEvents = buffer.getNumEvents();
+			if (message.isNoteOn())
+			{
+				if (luaScript == nullptr)
+					luaScript = parent->getInstrument().getTabWindow()->getScriptBin()->getLuaScript();
+
+				parent->getNotesHeld().addToSelection(std::pair<int, int>(message.getNoteNumber(), message.getVelocity()));
+				for (auto zone : parent->zones){
+					if (zone->getNote() == message.getNoteNumber()){}
+				}
+				luaScript->onNote(message.getNoteNumber(), message.getVelocity(), message.getTimeStamp());
+			}
+			if (message.isNoteOff())
+			{
+				for (auto pair : parent->getNotesHeld()){
+					if (pair.first == message.getNoteNumber()){
+						parent->getNotesHeld().deselect(pair);
+					}
+				}
+				//MainContentComponent::_static_sampler->getMidiCollector().addMessageToQueue(message);
+			}
+		}
+	}
+	//SharedResourcePointer<AudioDeviceManager> dm;
+	//std::cout<<dm->getCpuUsage()<<std::endl;
 }
 
 void MappingEditorGraph::resized()
@@ -388,6 +432,7 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 new_zone->getPlaySettings()->setLoopStart(zone->getDoubleAttribute("loop_start"));
                 new_zone->getPlaySettings()->setLoopEnd(zone->getDoubleAttribute("loop_end"));
                 new_zone->getPlaySettings()->setXfadeLength(zone->getDoubleAttribute("xfade_length"));
+				new_zone->getPlaySettings()->setXfadeCurve(zone->getDoubleAttribute("xfade_curve"));
 
                 float gridWidth = get_width() / getNumColumns();
                 new_zone->setBounds(new_zone->getX(), new_zone->getY(), 

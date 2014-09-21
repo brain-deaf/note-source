@@ -24,75 +24,6 @@ static bool isNoteHeld(SelectedItemSet<std::pair<int, int> > s, int n){
     return false;
 }
 
-Sampler::Sampler() 
-    : AudioSource(), synth(), idCount(0), formatManager(), 
-      events(), incomingEvents(), wavFormat(nullptr), wavWriter(nullptr),/*wavOutput(new FileOutputStream(File(File::getCurrentWorkingDirectory()).getFullPathName() + "/temp.wav")),*/
-      filter1(), filter2(), fx_selector(nullptr), transform_selector(nullptr),
-      wavSampleCount(0.0), wavOutput(nullptr), samplerProcessor(nullptr),
-      instrumentVolume(1.0), groups()
-{   
-    for (int i=0; i<256; i++){
-        synth.addVoice(new SampleVoice());
-    }
-    formatManager.registerBasicFormats();
-    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 6000.0));
-    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 10000.0));
-    
-    groups.add(new SampleGroup());
-}
-
-void Sampler::setupRendering(){
-    File f = File(File::getCurrentWorkingDirectory().getFullPathName() + "/temp.wav");
-    if (f.exists())
-        f.deleteFile();                                 
-}
-                                          
-bool Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& group, PlaySettings* p, std::pair<int, int> v){
-    ScopedPointer<AudioFormatReader> audioReader(formatManager.createReaderFor(File(path)));
-	if (audioReader == nullptr){
-		return false;
-	}
-    BigInteger allNotes;
-    for (int i=note_low; i<note_high; i++){
-        allNotes.setBit(i);
-    }
-    SampleSound* ss;
-    synth.addSound(ss = new SampleSound("demo sound", *audioReader,
-                                    allNotes, root_note,
-                                    0.0, 0.0, 10.0, group, fx_selector, tf_selector, this, v));
-    ss->setSampleStart(p->getSampleStart());
-    ss->setLoopMode(p->getLoopMode());
-    ss->setLoopStart(p->getLoopStart());
-    ss->setLoopEnd(p->getLoopEnd());
-    ss->setXfadeLength(p->getXfadeLength());
-    
-    groups[group[0]]->add(ss);
-	audioReader = nullptr;
-	return true;
-}
-    
-void Sampler::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate) {
-    midiCollector.reset(sampleRate);
-    synth.setCurrentPlaybackSampleRate(sampleRate);
-}
-    
-void Sampler::releaseResources() {}
-    
-void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
-    bufferToFill.clearActiveBufferRegion();
-    MidiBuffer incomingMidi;
-    midiCollector.removeNextBlockOfMessages(incomingMidi, bufferToFill.numSamples);
-
-    synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, 0, bufferToFill.numSamples);
-
-    peak = 0.0;
-    for (int i=0; i<bufferToFill.numSamples; i++){
-        if (bufferToFill.buffer->getWritePointer(0)[i] > peak){
-            peak = bufferToFill.buffer->getWritePointer(0)[i];
-        }
-    }
-}
-
 SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
                              attackTime(10.0f), attackCurve(0.05f), releaseTime(50.0f), 
                              sampleStart(0.0), releaseCurve(0.01f), volume(1.0), ringMod(false),
@@ -174,7 +105,8 @@ void SampleVoice::startNote(const int midiNoteNumber,
             }
         }
         bb = false;
-        noteEvent->setVelocity(noteEvent->getVelocity()*tf_vel_multiplier);
+		if (noteEvent != nullptr)
+			noteEvent->setVelocity(noteEvent->getVelocity()*tf_vel_multiplier);
     }
 }
 
@@ -189,11 +121,15 @@ static double getReleaseMultiplier(float releaseTime, float releaseCurve, float 
     return 1.0 - answer;
 }
 
+static double plotAdsr(int x1, int time, int y1, int max_volume, double curve_width, int x){
+	return(max_volume - y1) / (pow(M_E, curve_width*time) - pow(M_E, curve_width*x1)) * (pow(M_E, curve_width*x) - pow(M_E, curve_width*x1)) + y1;
+}
+
 void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, int numSamples){
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
 
-    if (s != nullptr){
-        Sampler* sampler = s->getSampler();
+    if (s != nullptr && noteEvent != nullptr){
+        SamplerProcessor* sampler = s->getSampler();
         
         double xfadeLength = s->getXfadeLength();
         bool looping = false;
@@ -277,8 +213,6 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
         double vol = noteEvent->getVolume();
         double vol_difference = vol - volume;
         double difference_per_sample = vol_difference/numSamples;
-        //example of how to not process a sound for a particular Group
-        //if (groups_for_note[0] == 0){return;}
         
         double sample_length = s->getAudioData()->getNumSamples();
         int num_channels = s->getAudioData()->getNumChannels();
@@ -288,53 +222,20 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             float* outL = buffer.getWritePointer(0, startSample);
             float* outR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1, startSample) : nullptr;
             
+			//sometimes noteEvent->getTriggerNote() returns the wrong note...
+
             if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote())
                 && noteEvent->getTriggerNote() != -1
-                && releaseStart == 0.0f){
+                && releaseStart == 0.0f)
+			{
+				bool b = !isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote());
+				int zz = noteEvent->getTriggerNote();
                 releaseStart = samplePosition;
             }
             double release_sample_length = releaseTime/1000*s->getSampleRate();
             float release_x = 0.0f;
             
-            int start = samplePosition;
-    
-            /*double* inFL  = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
-            double* inFR  = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
-            fftw_complex* outFFTW = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*((int)(pitchRatio*numSamples)));
-            fftw_complex* outFFTWR = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*((int)(pitchRatio*numSamples)));
-            double* outFL = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
-            double* outFR = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
-            
-            fftw_plan pFFTW;
-            fftw_plan pFFTWR;
-            fftw_plan p2FFTW;
-            fftw_plan p2FFTWR;
-    
-            pFFTW  = fftw_plan_dft_r2c_1d((int)(pitchRatio*numSamples), inFL, outFFTW, FFTW_ESTIMATE);
-            pFFTWR = fftw_plan_dft_r2c_1d((int)(pitchRatio*numSamples), inFR, outFFTWR, FFTW_ESTIMATE);
-            p2FFTW = fftw_plan_dft_c2r_1d((int)(pitchRatio*numSamples), outFFTW, outFL, FFTW_ESTIMATE);
-            p2FFTWR= fftw_plan_dft_c2r_1d((int)(pitchRatio*numSamples), outFFTWR, outFR, FFTW_ESTIMATE);
-            
-            //std::cout<<numSamples*pitchRatio<<std::endl;
-            for (int i=start; i<start+((int)(pitchRatio*numSamples)); i++){
-                inFL[i-start] = inL[i];
-                if (inR != nullptr){
-                    inFR[i-start] = inR[i];
-                }
-            }
-            
-            fftw_execute(pFFTW);
-            fftw_execute(pFFTWR);
-            fftw_execute(p2FFTW);
-            fftw_execute(p2FFTWR);*/
-            
-            //std::cout<<std::endl<<outFL[50]/((int)(pitchRatio*numSamples))<<std::endl;
-            //std::cout<<inL[start+50]<<std::endl;
-            
-            //int pxn = (int)(pitchRatio*numSamples);
-            
-            //std::cout<<"start"<<std::endl;
-            
+            int start = samplePosition;           
             
             for (int i= start; i<numSamples+start; i++){
                 double x = (samplePosition - sampleStart)/s->getSampleRate()*1000;
@@ -370,12 +271,32 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     const double invAlpha2 = 1.0f - alpha2;
                     float l2 = ((inL[pos2]) * invAlpha2 +  (inL[pos2+1]) * alpha2);
                     float r2 = inR != nullptr ? (inR[pos2]) * invAlpha2 + (inR[pos2+1] * alpha2) : l2;
+
+					double resolution = 1000.0;
+
+					double x1 = (s->getLoopEnd() - s->getXfadeLength()) / 1000.0;
+					double x2 = s->getLoopEnd() / 1000.0;
+					double y1 = resolution;
+					double y2 = 0.0;
+					double curve = s->getXfadeCurve();
+					double _x = (s->getLoopEnd() - s->getXfadeLength() + xfade_counter) / 1000.0;
+
+					double _y1 = plotAdsr(x1, x2, y1, y2, curve, _x) / resolution;
+
+					x1 = s->getLoopStart() / 1000.0;
+					x2 = (s->getLoopStart() + s->getXfadeLength()) / 1000.0;
+					y1 = 0.0;
+					y2 = resolution;
+					curve = s->getXfadeCurve();
+					_x = (s->getLoopStart() + xfade_counter) / 1000.0;
+
+					double _y2 = plotAdsr(x1, x2, y1, y2, curve, _x) / resolution;
                     
-                    l *= (xfadeLength - xfade_counter) / xfadeLength;
-                    r *= (xfadeLength - xfade_counter) / xfadeLength;
+                    l *= _y1;
+                    r *= _y1;
                     
-                    l += xfade_counter / xfadeLength * l2;
-                    r += xfade_counter / xfadeLength * r2;
+                    l += _y2 * l2;
+                    r += _y2 * r2;
                 }
                 
                 double ringMult = ringMod ? sin(currentAngle) : 1.0;
@@ -423,22 +344,6 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             
             volume = vol;
             tf_volume = tf_vol_multiplier;
-            /*fftw_destroy_plan(pFFTW);
-            fftw_destroy_plan(pFFTWR);
-            fftw_destroy_plan(p2FFTW);
-            fftw_destroy_plan(p2FFTWR);
-            fftw_free(outFL);
-            fftw_free(outFR);
-            fftw_free(outFFTW);
-            fftw_free(outFFTWR);
-            fftw_free(inFL);
-            fftw_free(inFR);*/
-            /*if (groups_for_note[0] == 0){
-                filter1.processSamples(outL, buffer.getNumSamples());
-                std::cout<<"process left"<<std::endl;
-                if (outR != nullptr){filter2.processSamples(outR, buffer.getNumSamples());}
-                std::cout<<"process right"<<std::endl;
-            }*/
         }
     }
 }

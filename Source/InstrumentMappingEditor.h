@@ -13,9 +13,10 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GroupEditor.h"
-#include "Sampler.h"
+//#include "Sampler.h"
 #include "LuaScript.h"
 #include "Metronome.h"
+#include "PluginProcessor.h"
 
 class Sampler;
 class InstrumentComponent;
@@ -28,18 +29,21 @@ class Group;
 class PlaySettings
 {
 public:
-    PlaySettings() : sampleStart(0.0),loopStart(0.0),loopEnd(0.0),
-                     xfadeLength(0.0),loopMode(false), tuning(0.0){}
+    PlaySettings() : sampleStart(0.0), loopStart(0.0), loopEnd(0.0),
+                     xfadeLength(150.0), xfadeCurve(0.1), 
+					 loopMode(false), tuning(0.0){}
     double getSampleStart(){return sampleStart;}
     void setSampleStart(double d){sampleStart=d;}
     void setLoopStart(double d){loopStart=d;}
     void setLoopEnd(double d){loopEnd=d;}
     void setLoopMode(bool b){loopMode=b;}
     void setXfadeLength(double d){xfadeLength = d;}
+	void setXfadeCurve(double d){ xfadeCurve = d; }
     bool getLoopMode(){return loopMode;}
     double getLoopStart(){return loopStart;}
     double getLoopEnd(){return loopEnd;}
     double getXfadeLength(){return xfadeLength;}
+	double getXfadeCurve(){ return xfadeCurve; }
     double getTuning(){return tuning;}
     void setTuning(double d){tuning=d;}
 private:
@@ -48,6 +52,7 @@ private:
     double loopEnd;
     bool loopMode;
     double xfadeLength;
+	double xfadeCurve;
     double tuning;
 };
 
@@ -128,6 +133,7 @@ public:
 		midi_input_id(-1){}
 
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& message);
+	void handleMidiBuffer(MidiBuffer&);
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiDeviceCallback)
 		void setMidiChannel(int i){ midi_input_id = i; }
 	LuaScript* luaScript;
@@ -291,8 +297,6 @@ private:
 	LuaScript* luaScript;
 };
 
-
-
 class Group
 {
 public:
@@ -309,15 +313,10 @@ private:
 	String name;
 };
 
-
-
-
-
-
 class ProgressWindow  : public ThreadWithProgressWindow
 {
 public:
-    ProgressWindow(Array<Zone*> a, Sampler* s, float f)    
+    ProgressWindow(Array<Zone*> a, SamplerProcessor* s, float f)    
         : ThreadWithProgressWindow ("loading...", true, false), zones(a), sampler(s), gridWidth(f)
     {
     }
@@ -345,7 +344,7 @@ public:
     }
 private:
     Array<Zone*> zones;
-    Sampler* sampler;
+    SamplerProcessor* sampler;
     float gridWidth;
 };
 

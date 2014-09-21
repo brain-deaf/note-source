@@ -100,7 +100,9 @@ void LevelMeter::mouseDrag(const MouseEvent& m){
     handleValue = px_per_decibel * (getHeight() - handle->getPosition().getY()) + 0.0;
     handleValue = handleValue <= 1.5 ? handleValue : 1.5;
     handleValue = handleValue > 0 ? handleValue : 0.0;
-	MainContentComponent::_static_sampler->setInstrumentVolume(handleValue);
+
+	SamplerProcessor* s(MainContentComponent::_static_sampler);
+	s->setInstrumentVolume(handleValue);
 }
 
 void LevelMeter::mouseDown(const MouseEvent& m){
@@ -111,7 +113,9 @@ void LevelMeter::mouseDown(const MouseEvent& m){
     handleValue = px_per_decibel * (getHeight() - handle->getPosition().getY()) + 0.0;
     handleValue = handleValue <= 1.5 ? handleValue : 1.5;
     handleValue = handleValue > 0 ? handleValue : 0.0;
-	MainContentComponent::_static_sampler->setInstrumentVolume(handleValue);
+
+	SamplerProcessor* s(MainContentComponent::_static_sampler);
+	s->setInstrumentVolume(handleValue);
 }
 
 void LevelMeter::resized(){

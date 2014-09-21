@@ -17,7 +17,7 @@
 #include "IIR_Filter.h"
 #include <memory>
 //#include <fftw3.h>
-
+class SamplerProcessor;
 class NoteEvent{
 public:
     NoteEvent() : noteNumber(0),
@@ -62,72 +62,6 @@ public:
     Array<SampleSound*>& getSounds(){return sounds;}
 private:
     Array<SampleSound*> sounds;
-};
-
-class Sampler : public AudioSource
-{
-public:
-    Sampler();
-    ~Sampler(){
-		synth.clearSounds();
-		synth.clearVoices();
-		//int y = synth.getNumSounds();
-		groups.clear(true);
-	}
-    bool addSample(String path, int root_note, int note_low, int note_high, 
-                   Array<int>&, PlaySettings*, std::pair<int, int>);
-    void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
-    void releaseResources() override;
-    void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override;
-    void setMidiChannel(int i){midi_input_id = i;}
-    void setFxSelector(FxSelector* f){fx_selector=f;}
-    void setTransformSelector(TransformSelector* f){tf_selector=f;}
-    void setupRendering();
-    void setSamplerProcessor(SamplerEventProcessor* s){samplerProcessor=s;}
-    SamplerEventProcessor* getSamplerProcessor(){return samplerProcessor;}
-    FxSelector* getFxSelector(){return fx_selector;}
-    TransformSelector* getTransformSelector(){return tf_selector;}
-    IIR_Filter* getFilter(){return &filter1;}
-    
-    Synthesiser* getSynth(){return &synth;}
-    MidiMessageCollector& getMidiCollector(){return midiCollector;}
-    Array<std::shared_ptr<NoteEvent> >& getEvents(){return events;}
-    Array<std::shared_ptr<NoteEvent> >& getIncomingEvents(){return incomingEvents;}
-    std::shared_ptr<NoteEvent> getLastEvent(){return events[events.size()-1];}
-    SelectedItemSet<std::pair<int, int> >* getNotesHeld(){return notesHeld;}
-    int getIdCount(){return idCount;}
-    void incIdCount(){idCount++;}
-    void incWavSampleCount(){wavSampleCount++;}
-    void setWavSampleCount(){wavSampleCount=0;}
-    long long getWavSampleCount(){return wavSampleCount;}
-    AudioFormatWriter* getWavWriter(){return wavWriter;}
-    float getPeak(){return peak;}
-    void setInstrumentVolume(double d){instrumentVolume=d;}
-    double getInstrumentVolume(){return instrumentVolume;}
-    OwnedArray<SampleGroup>& getGroups(){return groups;}
-	void setNotesHeld(SelectedItemSet<std::pair<int, int> >* s){ notesHeld = s; }
-private:
-    MidiMessageCollector midiCollector;
-    Synthesiser synth;
-    AudioFormatManager formatManager;
-    int midi_input_id;
-    IIR_Filter filter1;
-    IIR_Filter filter2;
-    FxSelector* fx_selector;
-    TransformSelector* tf_selector;
-    TransformSelector* transform_selector;
-    Array<std::shared_ptr<NoteEvent> > events;
-    Array<std::shared_ptr<NoteEvent> > incomingEvents;
-    SelectedItemSet<std::pair<int, int> >* notesHeld;
-    int idCount;
-    WavAudioFormat* wavFormat;
-    FileOutputStream* wavOutput;
-    AudioFormatWriter* wavWriter;
-    SamplerEventProcessor* samplerProcessor;
-    long long wavSampleCount;
-    float peak;
-    double instrumentVolume;
-    OwnedArray<SampleGroup> groups;
 };
 
 class SampleVoice : public SamplerVoice
@@ -175,13 +109,13 @@ public:
                 Array<int> group,
                 FxSelector* fx,
                 TransformSelector* tf,
-                Sampler* s,
+                SamplerProcessor* s,
                 std::pair<int, int> v) : 
                     SamplerSound(name, source, midiNotes, midiNoteForNormalPitch, 
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
                                  groups(group), fx_selector(fx), tf_selector(tf),
                                  sampleStart(0.0), loopStart(0.0), loopEnd(0.0), 
-                                 xfadeLength(0.0), loopMode(false), tuning(0.0),
+                                 xfadeLength(0.0), xfadeCurve(0.01), loopMode(false), tuning(0.0),
                                  sampler(s), velocity(v)
     {
         sampleRate = source.sampleRate;
@@ -201,11 +135,13 @@ public:
     void setLoopEnd(double d){loopEnd=d;}
     void setLoopMode(bool b){loopMode = b;}
     void setXfadeLength(double d){xfadeLength = d;}
+	void setXfadeCurve(double d){ xfadeCurve= d; }
     
     bool getLoopMode(){return loopMode;}
     double getLoopStart(){return loopStart;}
     double getLoopEnd(){return loopEnd;}
     double getXfadeLength(){return xfadeLength;}
+	double getXfadeCurve(){ return xfadeCurve; }
     void setTuning(double d){tuning=d;}
     double getTuning(){return tuning;}
     
@@ -214,7 +150,7 @@ public:
         groups.set(index, value);
     }
     
-    Sampler* getSampler(){return sampler;}
+    SamplerProcessor* getSampler(){return sampler;}
 private:
     std::pair<int, int> velocity;
     Array<int> groups;
@@ -227,7 +163,8 @@ private:
     double loopEnd;
     bool loopMode;
     double xfadeLength;
-    Sampler* sampler;
+	double xfadeCurve;
+    SamplerProcessor* sampler;
     double tuning;
 };
 

@@ -33,6 +33,7 @@ public:
     void setLoopStart(double d){loopStart=d;}
     void setLoopEnd(double d){loopEnd=d;}
     void setXfadeLength(double d){xfadeLength=d;}
+	void setXfadeCurve(double d){ xfadeCurve = d; }
 	AudioThumbnailCache& getCache(){ return cache; }
 	AudioThumbnail& getThumbnail(){ return thumbnail; }
 	AudioFormatManager& getFormatManager(){ return formatManager; }
@@ -47,6 +48,7 @@ private:
     double loopEnd;
     double playPosition;
     double xfadeLength;
+	double xfadeCurve;
     bool playing;
     AudioThumbnailCache cache;
     AudioThumbnail thumbnail;

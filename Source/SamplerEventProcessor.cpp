@@ -33,7 +33,7 @@ sampleStart(0.0f), releaseCurve(0.01f), volume(1.0), ringMod(false),
 tf_volume(1.0), ringAmount(1.0), angleDelta(0.0),
 currentAngle(0.0), sound(nullptr), maxSampleCount(0), data()
 {
-	MainContentComponent::_static_sampler->setSamplerProcessor(this);
+
 }
 
 void SamplerEventProcessor::renderAllEvents(){

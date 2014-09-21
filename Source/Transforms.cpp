@@ -72,8 +72,8 @@ LinearTransform::LinearTransform(TransformBin* t) : Component(),
     addAndMakeVisible(sourceBox);
     addAndMakeVisible(targetBox);
     
-    SharedResourcePointer<AudioDeviceManager> dm;
-    dm->addMidiInputCallback("", midiCallback.get());
+    //SharedResourcePointer<AudioDeviceManager> dm;
+    //dm->addMidiInputCallback("", midiCallback.get());
 
     metronome = tf_bin->getMetronome();
     
@@ -285,8 +285,8 @@ ExponentialTransform::ExponentialTransform(TransformBin* t) : Component(),
     
     metronome = tf_bin->getMetronome();
     
-    SharedResourcePointer<AudioDeviceManager> dm;
-    dm->addMidiInputCallback("", midiCallback.get());
+    //SharedResourcePointer<AudioDeviceManager> dm;
+    //dm->addMidiInputCallback("", midiCallback.get());
 }
 
 void ExponentialTransform::comboBoxChanged(ComboBox* source){
@@ -523,8 +523,8 @@ SineTransform::SineTransform(TransformBin* t) : Component(),
     addAndMakeVisible(sourceBox);
     addAndMakeVisible(targetBox);
     
-    SharedResourcePointer<AudioDeviceManager> dm;
-    dm->addMidiInputCallback("", midiCallback.get());
+    //SharedResourcePointer<AudioDeviceManager> dm;
+    //dm->addMidiInputCallback("", midiCallback.get());
 
     metronome = tf_bin->getMetronome();
     
@@ -761,6 +761,8 @@ void MidiTransformCallback::handleIncomingMidiMessage(MidiInput* /*source*/, con
         }
     }
 }
+
+
 
 
 

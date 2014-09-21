@@ -7,16 +7,16 @@
 */
 
 #include "MainComponent.h"
+#include "PluginProcessor.h"
 #include "Sampler.h"
 
-Sampler* MainContentComponent::_static_sampler = new Sampler();
+SamplerProcessor* MainContentComponent::_static_sampler;
 
 //==============================================================================
-MainContentComponent::MainContentComponent() : deviceManager{},
-    transport(), metronome(new MetronomeComponent()),
-    toggleBrowser(new BrowserButton())
+MainContentComponent::MainContentComponent(SamplerProcessor* s) : deviceManager{},
+transport(), metronome(new MetronomeComponent()), toggleBrowser(new BrowserButton())
 {
-	
+	_static_sampler = s;
     browser = new SampleBrowserBin();
     instrumentBin = new InstrumentBin(TabbedButtonBar::TabsAtTop, this);
     menuBar = new MenuBar(instrumentBin.get());
@@ -33,6 +33,8 @@ MainContentComponent::MainContentComponent() : deviceManager{},
     //addAndMakeVisible(browser);
     addAndMakeVisible(toggleBrowser);
     toggleBrowser->addListener(this);
+
+	
 }
 
 void MainContentComponent::resized()

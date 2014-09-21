@@ -59,7 +59,15 @@ WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m),
     xfadeLength->setRange(0, 96000/2, 1);
     xfadeLength->setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::yellow);
     xfadeLength->addListener(this);
+	xfadeLength->setValue(150.0);
     addAndMakeVisible(xfadeLength);
+
+	xfadeCurve = new Slider(Slider::SliderStyle::RotaryVerticalDrag, Slider::TextEntryBoxPosition::TextBoxBelow);
+	xfadeCurve->setRange(-0.5, 0.5);
+	xfadeCurve->setValue(0.1);
+	xfadeCurve->setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::orange);
+	xfadeCurve->addListener(this);
+	addAndMakeVisible(xfadeCurve);
     
     toggleLoop = new TextButton("Loop Mode");
     toggleLoop->setClickingTogglesState(true);
@@ -118,10 +126,11 @@ void WaveBin::updateZone(Zone* _zone){
     z = _zone;
     if (z != nullptr){
         sample_start->setValue(z->getPlaySettings()->getSampleStart(), sendNotification);
-        toggleLoop->setToggleState(z->getPlaySettings()->getLoopMode(), sendNotification);
+        toggleLoop->setToggleState(z->getPlaySettings()->getLoopMode(), dontSendNotification);
         loopStart->setValue(z->getPlaySettings()->getLoopStart(), sendNotification);
         loopEnd->setValue(z->getPlaySettings()->getLoopEnd(), sendNotification);
         xfadeLength->setValue(z->getPlaySettings()->getXfadeLength(), sendNotification);
+		xfadeCurve->setValue(z->getPlaySettings()->getXfadeCurve(), sendNotification);
         tuneSlider->setValue(z->getPlaySettings()->getTuning(), sendNotification);
         if (filePlayer != nullptr){
             filePlayer = nullptr;
@@ -160,6 +169,7 @@ void WaveBin::resized(){
     loopStart->setBounds(vport_width + waveform_padding+50, waveform_height + 50, 50, 50);
     loopEnd->setBounds(vport_width + waveform_padding+100, waveform_height + 50, 50, 50);
     xfadeLength->setBounds(vport_width + waveform_padding+150, waveform_height + 50, 50, 50);
+	xfadeCurve->setBounds(vport_width + waveform_padding + 150, waveform_height + 100, 50, 50);
     toggleLoop->setBounds(vport_width + waveform_padding+200, waveform_height + 50, 80, 40);
     tuneSlider->setBounds(vport_width + waveform_padding+290, waveform_height + 50, 50, 50);
 }
@@ -221,6 +231,16 @@ void WaveBin::sliderValueChanged(Slider* s){
 			static_cast<SampleSound*>(MainContentComponent::_static_sampler->getSynth()->getSound(zone_index))->setXfadeLength(xfadeLength->getValue());
         }
     }
+	if (s == xfadeCurve){
+		if (z != nullptr){
+			waveform->setXfadeCurve(xfadeCurve->getValue());
+			waveform->repaint();
+			z->getPlaySettings()->setXfadeCurve(xfadeCurve->getValue());
+			MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
+			int zone_index = m->getZones().indexOf(z);
+			static_cast<SampleSound*>(MainContentComponent::_static_sampler->getSynth()->getSound(zone_index))->setXfadeCurve(xfadeCurve->getValue());
+		}
+	}
     if (s == tuneSlider){
         if (z != nullptr){
             z->getPlaySettings()->setTuning(tuneSlider->getValue());

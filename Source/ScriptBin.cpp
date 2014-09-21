@@ -31,7 +31,8 @@ ScriptBin::ScriptBin(MappingEditorBin* m, InstrumentTabWindow* t) : codeDocument
     File f(scriptPath);
     ScopedPointer<FileInputStream> stream = new FileInputStream(f);
     codeDocument->loadFromStream(*stream);
-    buttonClicked(compileButton);
+
+	luaScript->loadScript(f.getFullPathName());
     
     stream = nullptr;
 }
@@ -58,6 +59,7 @@ void ScriptBin::buttonClicked(Button* source){
     if (source == compileButton){
         File outFile(scriptPath);
         outFile.replaceWithText(codeDocument->getAllContent());
+		luaScript->clearScript();
         luaScript->loadScript(outFile.getFullPathName());
     }
     

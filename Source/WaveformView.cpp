@@ -10,12 +10,18 @@
 
 #include "WaveformView.h"
 #include "WaveBin.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+static double plotAdsr(int x1, int time, int y1, int max_volume, double curve_width, int x){
+	return(max_volume - y1) / (pow(M_E, curve_width*time) - pow(M_E, curve_width*x1)) * (pow(M_E, curve_width*x) - pow(M_E, curve_width*x1)) + y1;
+}
 
 WaveformView::WaveformView()
 : Component(), formatManager(), parent(nullptr), cache(5), 
   vScale(0.7), sample_rate(44100.0), playPosition(0.0), playing(false),
   length_sec(0.1), thumbnail(256, getFormatManager(), getCache()), loopStart(0.0),
-  loopEnd(0.0), zone(nullptr)
+  loopEnd(0.0), zone(nullptr), xfadeCurve(0.0)
 {
     formatManager.registerBasicFormats();
     thumbnail.addChangeListener(this);
@@ -37,6 +43,7 @@ void WaveformView::updateWaveformForFilePlayer(Zone* z){
     sample_start = z->getPlaySettings()->getSampleStart();
     if (parent != nullptr){ 
         parent->setFileLength(sample_rate*thumbnail.getTotalLength());
+		parent->updateZone(z);
     }
 	afr = nullptr;
     repaint();
@@ -61,9 +68,17 @@ void WaveformView::paint(Graphics& g){
                 g.setColour(Colours::red);
                 Path xfade_path;
                 xfade_path.startNewSubPath(length_per_sample*loopStart, getHeight());
-                xfade_path.lineTo(length_per_sample*(loopStart+xfadeLength), 0);
-                xfade_path.startNewSubPath(length_per_sample*loopEnd, getHeight());
-                xfade_path.lineTo(length_per_sample*(loopEnd-xfadeLength), 0);
+				for (int i = length_per_sample*loopStart; i < length_per_sample*(loopStart + xfadeLength); i++){
+					double y = plotAdsr(length_per_sample*loopStart, length_per_sample*(loopStart + xfadeLength), 0, getHeight(), xfadeCurve, i);
+					if (!std::isnan(y))
+						xfade_path.lineTo(i, getHeight() - y);
+				}
+                xfade_path.startNewSubPath(length_per_sample*(loopEnd-xfadeLength), 0);
+				for (int i = length_per_sample*(loopEnd-xfadeLength); i < length_per_sample*(loopEnd); i++){
+					double y = plotAdsr(length_per_sample*(loopEnd-xfadeLength), length_per_sample*(loopEnd), getHeight(), 0, xfadeCurve*-1, i);
+					if (!std::isnan(y))
+						xfade_path.lineTo(i, getHeight() - y);
+				}
                 g.strokePath(xfade_path, PathStrokeType(1.0f));
                 
                 g.setColour(Colours::yellow);
