@@ -91,6 +91,11 @@ WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m),
     toggleLoop->setClickingTogglesState(true);
     toggleLoop->addListener(this);
     addAndMakeVisible(toggleLoop);
+
+	toggleRelease = new TextButton("Release Mode");
+	toggleRelease->setClickingTogglesState(true);
+	toggleRelease->addListener(this);
+	addAndMakeVisible(toggleRelease);
     
     tuneSlider= new Slider(Slider::SliderStyle::RotaryVerticalDrag, Slider::TextEntryBoxPosition::TextBoxBelow);
     tuneSlider->setRange(-3, 3);
@@ -138,13 +143,21 @@ WaveBin::~WaveBin(){
 	xfadeLength = nullptr;
 	tuneSlider = nullptr;
 	toggleLoop = nullptr;
+	releaseStart = nullptr;
+	releaseTime = nullptr;
+	releaseCurve = nullptr;
+	toggleRelease = nullptr;
 }
 
 void WaveBin::updateZone(Zone* _zone){
     z = _zone;
     if (z != nullptr){
         sample_start->setValue(z->getPlaySettings()->getSampleStart(), sendNotification);
+		releaseStart->setValue(z->getPlaySettings()->getReleaseStart(), sendNotification);
+		releaseTime->setValue(z->getPlaySettings()->getReleaseTime(), sendNotification);
+		releaseCurve->setValue(z->getPlaySettings()->getReleaseCurve(), sendNotification);
         toggleLoop->setToggleState(z->getPlaySettings()->getLoopMode(), dontSendNotification);
+		toggleRelease->setToggleState(z->getPlaySettings()->getReleaseMode(), dontSendNotification);
         loopStart->setValue(z->getPlaySettings()->getLoopStart(), sendNotification);
         loopEnd->setValue(z->getPlaySettings()->getLoopEnd(), sendNotification);
         xfadeLength->setValue(z->getPlaySettings()->getXfadeLength(), sendNotification);
@@ -193,6 +206,7 @@ void WaveBin::resized(){
 	releaseStart->setBounds(vport_width + waveform_padding, waveform_height + 150, 50, 50);
 	releaseTime->setBounds(vport_width + waveform_padding+50, waveform_height + 150, 50, 50);
 	releaseCurve->setBounds(vport_width + waveform_padding + 100, waveform_height + 150, 50, 50);
+	toggleRelease->setBounds(vport_width + waveform_padding + 200, waveform_height + 150, 80, 40);
 }
 
 void WaveBin::paint(Graphics& g){
@@ -323,9 +337,16 @@ void WaveBin::buttonClicked(Button* b){
             MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
             int zone_index = m->getZones().indexOf(z);
 			static_cast<SampleSound*>(MainContentComponent::_static_sampler->getSynth()->getSound(zone_index))->setLoopMode(toggleLoop->getToggleState());
-            std::cout<<toggleLoop->getToggleState()<<std::endl;
         }
     }
+	if (b == toggleRelease){
+		if (z != nullptr){
+			z->getPlaySettings()->setReleaseMode(toggleRelease->getToggleState());
+			MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
+			int zone_index = m->getZones().indexOf(z);
+			static_cast<SampleSound*>(MainContentComponent::_static_sampler->getSynth()->getSound(zone_index))->setReleaseMode(toggleRelease->getToggleState());
+		}
+	}
 }
 
 void WaveBin::timerCallback(){

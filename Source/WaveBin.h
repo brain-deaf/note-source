@@ -73,6 +73,7 @@ private:
 	ScopedPointer<Slider> xfadeCurve;
     ScopedPointer<Slider> tuneSlider;
     ScopedPointer<TextButton> toggleLoop;
+	ScopedPointer<TextButton> toggleRelease;
     Zone* z;
 };
 

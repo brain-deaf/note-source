@@ -32,18 +32,20 @@ public:
     PlaySettings() : sampleStart(0.0), loopStart(0.0), loopEnd(0.0),
 		xfadeLength(150.0), xfadeCurve(0.1), releaseStart(0.0), 
 		releaseTime(44100.0 / 8.0), releaseCurve(0.01),
-		loopMode(false), tuning(0.0){}
+		loopMode(false), releaseMode(false), tuning(0.0){}
     double getSampleStart(){return sampleStart;}
     void setSampleStart(double d){sampleStart=d;}
     void setLoopStart(double d){loopStart=d;}
     void setLoopEnd(double d){loopEnd=d;}
     void setLoopMode(bool b){loopMode=b;}
+	void setReleaseMode(bool b){ releaseMode = b; }
     void setXfadeLength(double d){xfadeLength = d;}
 	void setXfadeCurve(double d){ xfadeCurve = d; }
 	void setReleaseStart(double d){ releaseStart = d; }
 	void setReleaseTime(double d){ releaseTime = d; }
 	void setReleaseCurve(double d){ releaseCurve = d; }
     bool getLoopMode(){return loopMode;}
+	bool getReleaseMode(){ return releaseMode; }
     double getLoopStart(){return loopStart;}
     double getLoopEnd(){return loopEnd;}
     double getXfadeLength(){return xfadeLength;}
@@ -61,6 +63,7 @@ private:
     double loopStart;
     double loopEnd;
     bool loopMode;
+	bool releaseMode;
     double xfadeLength;
 	double xfadeCurve;
     double tuning;

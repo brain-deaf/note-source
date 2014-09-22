@@ -224,12 +224,11 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
             float* outR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1, startSample) : nullptr;
             
 			//sometimes noteEvent->getTriggerNote() returns the wrong note...
-
-            if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote())
-                && noteEvent->getTriggerNote() != -1
+			bool noteHeld(isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()));
+            if (!noteHeld && noteEvent->getTriggerNote() != -1
                 && releaseStart == 0.0f)
 			{
-				bool b = !isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote());
+				//bool b = !isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote());
 				//samplePosition = s->getReleaseStart();
                 releaseStart = samplePosition;
             }
@@ -246,13 +245,14 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 
                 if (samples_left < release_sample_length && releaseStart == 0.0){
                     releaseStart = samplePosition;
+					releaseTriggered = true;
                 }
                 if (releaseStart != 0.0){
 					release_x = releaseTriggered ? (samplePosition - s->getReleaseStart()) / s->getSampleRate() * 1000 : (samplePosition - releaseStart) / s->getSampleRate() * 1000;
                 }
                 
                 double release_multiplier = releaseStart != 0.0 || samples_left < release_sample_length ? getReleaseMultiplier(releaseTime, releaseCurve, release_x) : 1.0;
-            
+
                 const int pos = (int) samplePosition;
                 const double alpha = (double) (samplePosition - pos);
                 const double invAlpha = 1.0f - alpha;
@@ -262,12 +262,10 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 float l = ((inL[pos]) * invAlpha +  (inL[pos+1]) * alpha);
                 float r = inR != nullptr ? (inR[pos]) * invAlpha + (inR[pos+1] * alpha) : l;
 
-				if (releaseStart != 0 && samplePosition - releaseStart > s->getReleaseTime() && !releaseTriggered){
-					samplePosition = s->getReleaseStart() + s->getReleaseTime();
-					releaseTriggered = true;
-				}
+				
 
-				if (releaseStart != 0 && samplePosition - releaseStart < s->getReleaseTime()){
+				if (releaseStart != 0 && samplePosition - releaseStart < s->getReleaseTime() && !releaseTriggered && s->getReleaseMode()){
+					//double r = s->getReleaseStart();
 					double release_pos = s->getReleaseStart() + (samplePosition - releaseStart);
 					double xfade_counter = release_pos - s->getReleaseStart();
 
@@ -373,6 +371,12 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 if (looping && samplePosition >= s->getLoopEnd()+0){
                     samplePosition = s->getLoopStart() + xfadeLength;
                 }
+
+				if (releaseStart != 0 && samplePosition - releaseStart > s->getReleaseTime() && !releaseTriggered && !noteHeld && s->getReleaseMode()){
+					samplePosition = s->getReleaseStart() + s->getReleaseTime();
+					//samplePosition -= pitchRatio;
+					releaseTriggered = true;
+				}
             }
             
             

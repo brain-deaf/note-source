@@ -179,7 +179,11 @@ void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
                     zone->setAttribute("height", height);
                     zone->setAttribute("note", note);
                     zone->setAttribute("sample_start", sample_start);
+					zone->setAttribute("release_start", z->getPlaySettings()->getReleaseStart());
+					zone->setAttribute("release_time", z->getPlaySettings()->getReleaseTime());
+					zone->setAttribute("release_curve", z->getPlaySettings()->getReleaseCurve());
                     zone->setAttribute("loop_mode", z->getPlaySettings()->getLoopMode());
+					zone->setAttribute("release_mode", z->getPlaySettings()->getReleaseMode());
                     zone->setAttribute("loop_start", z->getPlaySettings()->getLoopStart());
                     zone->setAttribute("loop_end", z->getPlaySettings()->getLoopEnd());
                     zone->setAttribute("xfade_length", z->getPlaySettings()->getXfadeLength());

@@ -74,7 +74,11 @@ bool SamplerProcessor::addSample(String path, int root_note, int note_low, int n
 		allNotes, root_note,
 		0.0, 0.0, 10.0, group, fx_selector, tf_selector, this, v));
 	ss->setSampleStart(p->getSampleStart());
+	ss->setReleaseStart(p->getReleaseStart());
+	ss->setReleaseTime(p->getReleaseTime());
+	ss->setReleaseCurve(p->getReleaseCurve());
 	ss->setLoopMode(p->getLoopMode());
+	ss->setReleaseMode(p->getReleaseMode());
 	ss->setLoopStart(p->getLoopStart());
 	ss->setLoopEnd(p->getLoopEnd());
 	ss->setXfadeLength(p->getXfadeLength());

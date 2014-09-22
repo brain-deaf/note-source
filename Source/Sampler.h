@@ -115,7 +115,7 @@ public:
                     SamplerSound(name, source, midiNotes, midiNoteForNormalPitch, 
                                  attackTimeSecs, releaseTimeSecs, maxSampleLengthSeconds),
                                  groups(group), fx_selector(fx), tf_selector(tf),
-                                 sampleStart(0.0), loopStart(0.0), loopEnd(0.0), 
+								 sampleStart(0.0), loopStart(0.0), loopEnd(0.0), releaseMode(false),
                                  xfadeLength(0.0), xfadeCurve(0.01), loopMode(false), tuning(0.0),
 								 sampler(s), velocity(v), releaseStart(0.0), releaseTime(44100.0 / 8.0), releaseCurve(0.01)
     {
@@ -142,10 +142,12 @@ public:
     void setLoopStart(double d){loopStart=d;}
     void setLoopEnd(double d){loopEnd=d;}
     void setLoopMode(bool b){loopMode = b;}
+	void setReleaseMode(bool b){ releaseMode = b; }
     void setXfadeLength(double d){xfadeLength = d;}
 	void setXfadeCurve(double d){ xfadeCurve= d; }
     
     bool getLoopMode(){return loopMode;}
+	bool getReleaseMode(){ return releaseMode; }
     double getLoopStart(){return loopStart;}
     double getLoopEnd(){return loopEnd;}
     double getXfadeLength(){return xfadeLength;}
@@ -173,6 +175,7 @@ private:
     double loopStart;
     double loopEnd;
     bool loopMode;
+	bool releaseMode;
     double xfadeLength;
 	double xfadeCurve;
     SamplerProcessor* sampler;
