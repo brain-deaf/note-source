@@ -85,6 +85,7 @@ private:
     float releaseTime;
     float releaseCurve;
     float releaseStart;
+	bool releaseTriggered;
     
     std::shared_ptr<NoteEvent> noteEvent;
     double volume;
@@ -116,7 +117,7 @@ public:
                                  groups(group), fx_selector(fx), tf_selector(tf),
                                  sampleStart(0.0), loopStart(0.0), loopEnd(0.0), 
                                  xfadeLength(0.0), xfadeCurve(0.01), loopMode(false), tuning(0.0),
-                                 sampler(s), velocity(v)
+								 sampler(s), velocity(v), releaseStart(0.0), releaseTime(44100.0 / 8.0), releaseCurve(0.01)
     {
         sampleRate = source.sampleRate;
         rootNote = midiNoteForNormalPitch;
@@ -130,6 +131,13 @@ public:
     TransformSelector* getTransformSelector(){return tf_selector;}
     void setSampleStart(double d){sampleStart=d;}
     double getSampleStart(){return sampleStart;}
+	void setReleaseStart(double d){ releaseStart = d; }
+	double getReleaseStart(){ return releaseStart; }
+	void setReleaseTime(double d){ releaseTime = d; }
+	double getReleaseTime(){ return releaseTime; }
+	void setReleaseCurve(double d){ releaseCurve = d; }
+	double getReleaseCurve(){ return releaseCurve; }
+
     
     void setLoopStart(double d){loopStart=d;}
     void setLoopEnd(double d){loopEnd=d;}
@@ -159,6 +167,9 @@ private:
     FxSelector* fx_selector;
     TransformSelector* tf_selector;
     double sampleStart;
+	double releaseStart;
+	double releaseTime;
+	double releaseCurve;
     double loopStart;
     double loopEnd;
     bool loopMode;

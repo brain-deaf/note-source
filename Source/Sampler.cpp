@@ -40,6 +40,7 @@ void SampleVoice::startNote(const int midiNoteNumber,
                             const int /*pitchWheelPosition*/)
 {   
     if (SampleSound* sound = (SampleSound*)s){
+		releaseTriggered = false;
         const double a = pow(2.0, 1.0/12.0);
         double old_frequency = 440.0 * pow(a, (double)sound->getRootNote() - 69.0);
         double new_frequency = old_frequency * pow(a, ((float)midiNoteNumber + sound->getTuning()) - sound->getRootNote());
@@ -121,7 +122,7 @@ static double getReleaseMultiplier(float releaseTime, float releaseCurve, float 
     return 1.0 - answer;
 }
 
-static double plotAdsr(int x1, int time, int y1, int max_volume, double curve_width, int x){
+static double plotAdsr(double x1, double time, double y1, double max_volume, double curve_width, double x){
 	return(max_volume - y1) / (pow(M_E, curve_width*time) - pow(M_E, curve_width*x1)) * (pow(M_E, curve_width*x) - pow(M_E, curve_width*x1)) + y1;
 }
 
@@ -229,7 +230,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 && releaseStart == 0.0f)
 			{
 				bool b = !isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote());
-				int zz = noteEvent->getTriggerNote();
+				//samplePosition = s->getReleaseStart();
                 releaseStart = samplePosition;
             }
             double release_sample_length = releaseTime/1000*s->getSampleRate();
@@ -247,7 +248,7 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     releaseStart = samplePosition;
                 }
                 if (releaseStart != 0.0){
-                    release_x = (samplePosition - releaseStart)/s->getSampleRate()*1000;
+					release_x = releaseTriggered ? (samplePosition - s->getReleaseStart()) / s->getSampleRate() * 1000 : (samplePosition - releaseStart) / s->getSampleRate() * 1000;
                 }
                 
                 double release_multiplier = releaseStart != 0.0 || samples_left < release_sample_length ? getReleaseMultiplier(releaseTime, releaseCurve, release_x) : 1.0;
@@ -260,6 +261,39 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 // just using a very simple linear interpolation here..
                 float l = ((inL[pos]) * invAlpha +  (inL[pos+1]) * alpha);
                 float r = inR != nullptr ? (inR[pos]) * invAlpha + (inR[pos+1] * alpha) : l;
+
+				if (releaseStart != 0 && samplePosition - releaseStart > s->getReleaseTime() && !releaseTriggered){
+					samplePosition = s->getReleaseStart() + s->getReleaseTime();
+					releaseTriggered = true;
+				}
+
+				if (releaseStart != 0 && samplePosition - releaseStart < s->getReleaseTime()){
+					double release_pos = s->getReleaseStart() + (samplePosition - releaseStart);
+					double xfade_counter = release_pos - s->getReleaseStart();
+
+					const int pos2 = (int)release_pos;
+					const double alpha2 = (double)(release_pos - pos2);
+					const double invAlpha2 = 1.0f - alpha2;
+					float l2 = ((inL[pos2]) * invAlpha2 + (inL[pos2 + 1]) * alpha2);
+					float r2 = inR != nullptr ? (inR[pos2]) * invAlpha2 + (inR[pos2 + 1] * alpha2) : l2;
+
+					double resolution = 1000.0;
+
+					double x1 = (s->getReleaseStart()) / resolution;
+					double x2 = (s->getReleaseStart() + s->getReleaseTime()) / resolution;
+					double y1 = resolution;
+					double y2 = 0.0;
+					double curve = s->getReleaseCurve();
+					double _x = release_pos / resolution;
+
+					double _y1 = plotAdsr(x1, x2, y1, y2, curve, _x) / resolution;
+
+					l *= _y1;
+					r *= _y1;
+
+					l += (1.0 -_y1) * l2;
+					r += (1.0 -_y1) * r2;
+				}
                 
                 double start_pos;
                 if (looping && s->getLoopEnd() - samplePosition <= xfadeLength){
@@ -274,21 +308,21 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
 
 					double resolution = 1000.0;
 
-					double x1 = (s->getLoopEnd() - s->getXfadeLength()) / 1000.0;
+					double x1 = (s->getLoopEnd() - s->getXfadeLength()) / resolution;
 					double x2 = s->getLoopEnd() / 1000.0;
 					double y1 = resolution;
 					double y2 = 0.0;
 					double curve = s->getXfadeCurve();
-					double _x = (s->getLoopEnd() - s->getXfadeLength() + xfade_counter) / 1000.0;
+					double _x = (s->getLoopEnd() - s->getXfadeLength() + xfade_counter) / resolution;
 
 					double _y1 = plotAdsr(x1, x2, y1, y2, curve, _x) / resolution;
 
-					x1 = s->getLoopStart() / 1000.0;
-					x2 = (s->getLoopStart() + s->getXfadeLength()) / 1000.0;
+					x1 = s->getLoopStart() / resolution;
+					x2 = (s->getLoopStart() + s->getXfadeLength()) / resolution;
 					y1 = 0.0;
 					y2 = resolution;
 					curve = s->getXfadeCurve();
-					_x = (s->getLoopStart() + xfade_counter) / 1000.0;
+					_x = (s->getLoopStart() + xfade_counter) / resolution;
 
 					double _y2 = plotAdsr(x1, x2, y1, y2, curve, _x) / resolution;
                     

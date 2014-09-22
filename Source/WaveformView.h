@@ -34,6 +34,10 @@ public:
     void setLoopEnd(double d){loopEnd=d;}
     void setXfadeLength(double d){xfadeLength=d;}
 	void setXfadeCurve(double d){ xfadeCurve = d; }
+	void setReleaseStart(double d){ releaseStart = d; }
+	void setReleaseTime(double d){ releaseTime = d; }
+	void setReleaseCurve(double d){ releaseCurve = d; }
+	
 	AudioThumbnailCache& getCache(){ return cache; }
 	AudioThumbnail& getThumbnail(){ return thumbnail; }
 	AudioFormatManager& getFormatManager(){ return formatManager; }
@@ -44,6 +48,9 @@ private:
     double length_sec;
     double sample_rate;
     double sample_start;
+	double releaseStart;
+	double releaseTime;
+	double releaseCurve;
     double loopStart;
     double loopEnd;
     double playPosition;

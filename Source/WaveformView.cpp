@@ -41,6 +41,7 @@ void WaveformView::updateWaveformForFilePlayer(Zone* z){
     sample_rate = afr->sampleRate;
     thumbnail.setSource(new FileInputSource(File(z->getName())));
     sample_start = z->getPlaySettings()->getSampleStart();
+	releaseStart = z->getPlaySettings()->getReleaseStart();
     if (parent != nullptr){ 
         parent->setFileLength(sample_rate*thumbnail.getTotalLength());
 		parent->updateZone(z);
@@ -56,13 +57,25 @@ void WaveformView::paint(Graphics& g){
     if (zone != nullptr){
         thumbnail.drawChannels(g, getLocalBounds(), 0.0, thumbnail.getTotalLength(), vScale);
     
-        g.setColour(Colours::green);
-        Path myPath;
         if (sample_rate > 1 && parent != nullptr){
+			g.setColour(Colours::green);
+			Path myPath;
             double length_per_sample = getWidth() / (thumbnail.getTotalLength()*sample_rate);
             myPath.startNewSubPath(length_per_sample*sample_start, 0);
             myPath.lineTo(length_per_sample*sample_start, getHeight());
             g.strokePath (myPath, PathStrokeType (3.0f));
+
+			Path releasePath;
+			g.setColour(Colours::red);
+			releasePath.startNewSubPath(length_per_sample*releaseStart, 0);
+			releasePath.lineTo(length_per_sample*releaseStart, getHeight());
+			
+			for (int i = length_per_sample*releaseStart; i < length_per_sample*(releaseStart + releaseTime); i++){
+				double y = plotAdsr(length_per_sample*releaseStart, length_per_sample*(releaseStart + releaseTime), 0, getHeight(), releaseCurve, i);
+				if (!std::isnan(y))
+					releasePath.lineTo(i, getHeight() - y);
+			}
+			g.strokePath(releasePath, PathStrokeType(1.0f));
             
             if (loopEnd > loopStart){
                 g.setColour(Colours::red);

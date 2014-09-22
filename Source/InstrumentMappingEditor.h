@@ -30,8 +30,9 @@ class PlaySettings
 {
 public:
     PlaySettings() : sampleStart(0.0), loopStart(0.0), loopEnd(0.0),
-                     xfadeLength(150.0), xfadeCurve(0.1), 
-					 loopMode(false), tuning(0.0){}
+		xfadeLength(150.0), xfadeCurve(0.1), releaseStart(0.0), 
+		releaseTime(44100.0 / 8.0), releaseCurve(0.01),
+		loopMode(false), tuning(0.0){}
     double getSampleStart(){return sampleStart;}
     void setSampleStart(double d){sampleStart=d;}
     void setLoopStart(double d){loopStart=d;}
@@ -39,15 +40,24 @@ public:
     void setLoopMode(bool b){loopMode=b;}
     void setXfadeLength(double d){xfadeLength = d;}
 	void setXfadeCurve(double d){ xfadeCurve = d; }
+	void setReleaseStart(double d){ releaseStart = d; }
+	void setReleaseTime(double d){ releaseTime = d; }
+	void setReleaseCurve(double d){ releaseCurve = d; }
     bool getLoopMode(){return loopMode;}
     double getLoopStart(){return loopStart;}
     double getLoopEnd(){return loopEnd;}
     double getXfadeLength(){return xfadeLength;}
 	double getXfadeCurve(){ return xfadeCurve; }
     double getTuning(){return tuning;}
+	double getReleaseStart(){ return releaseStart; }
+	double getReleaseTime(){ return releaseTime; }
+	double getReleaseCurve(){ return releaseCurve; }
     void setTuning(double d){tuning=d;}
 private:
     double sampleStart;
+	double releaseStart;
+	double releaseTime;
+	double releaseCurve;
     double loopStart;
     double loopEnd;
     bool loopMode;

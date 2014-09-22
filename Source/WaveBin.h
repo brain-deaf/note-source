@@ -32,6 +32,7 @@ public:
     void setFileLength(double d){
         fileLength=d;
         sample_start->setRange(0, d, 1);
+		releaseStart->setRange(0, d, 1);
         loopEnd->setRange(0, d, 1);
         loopStart->setRange(0, d, 1);
 		xfadeLength->setRange(0, d / 2);
@@ -59,6 +60,9 @@ private:
     ScopedPointer<Viewport> WaveVport;
     ScopedPointer<WaveformView> waveform;
     ScopedPointer<Slider> sample_start;
+	ScopedPointer<Slider> releaseStart;
+	ScopedPointer<Slider> releaseTime;
+	ScopedPointer<Slider> releaseCurve;
     ScopedPointer<Slider> vScaling;
     ScopedPointer<Slider> hScaling;
     ScopedPointer<TextButton> playButton;

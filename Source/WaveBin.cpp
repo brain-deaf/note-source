@@ -42,6 +42,24 @@ WaveBin::WaveBin(MappingEditorBin* m): mapping_editor(m),
     sample_start->setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::green);
     sample_start->addListener(this);
     addAndMakeVisible(sample_start);
+
+	releaseStart = new Slider(Slider::SliderStyle::RotaryVerticalDrag, Slider::TextEntryBoxPosition::TextBoxBelow);
+	releaseStart->setRange(0, 96000, 1);
+	releaseStart->setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::red);
+	releaseStart->addListener(this);
+	addAndMakeVisible(releaseStart);
+
+	releaseTime = new Slider(Slider::SliderStyle::RotaryVerticalDrag, Slider::TextEntryBoxPosition::TextBoxBelow);
+	releaseTime->setRange(0, 48000, 1);
+	releaseTime->setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::red);
+	releaseTime->addListener(this);
+	addAndMakeVisible(releaseTime);
+
+	releaseCurve = new Slider(Slider::SliderStyle::RotaryVerticalDrag, Slider::TextEntryBoxPosition::TextBoxBelow);
+	releaseCurve->setRange(-0.5, 0.5);
+	releaseCurve->setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::red);
+	releaseCurve->addListener(this);
+	addAndMakeVisible(releaseCurve);
     
     loopStart = new Slider(Slider::SliderStyle::RotaryVerticalDrag, Slider::TextEntryBoxPosition::TextBoxBelow);
     loopStart->setRange(0, 96000, 1);
@@ -172,6 +190,9 @@ void WaveBin::resized(){
 	xfadeCurve->setBounds(vport_width + waveform_padding + 150, waveform_height + 100, 50, 50);
     toggleLoop->setBounds(vport_width + waveform_padding+200, waveform_height + 50, 80, 40);
     tuneSlider->setBounds(vport_width + waveform_padding+290, waveform_height + 50, 50, 50);
+	releaseStart->setBounds(vport_width + waveform_padding, waveform_height + 150, 50, 50);
+	releaseTime->setBounds(vport_width + waveform_padding+50, waveform_height + 150, 50, 50);
+	releaseCurve->setBounds(vport_width + waveform_padding + 100, waveform_height + 150, 50, 50);
 }
 
 void WaveBin::paint(Graphics& g){
@@ -197,6 +218,36 @@ void WaveBin::sliderValueChanged(Slider* s){
             static_cast<SampleSound*>(MainContentComponent::_static_sampler->getSynth()->getSound(zone_index))->setSampleStart(sample_start->getValue());
         }
     }
+	if (s == releaseStart){
+		if (z != nullptr){
+			waveform->setReleaseStart(releaseStart->getValue());
+			z->getPlaySettings()->setReleaseStart(releaseStart->getValue());
+			waveform->repaint();
+			MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
+			int zone_index = m->getZones().indexOf(z);
+			static_cast<SampleSound*>(MainContentComponent::_static_sampler->getSynth()->getSound(zone_index))->setReleaseStart(releaseStart->getValue());
+		}
+	}
+	if (s == releaseTime){
+		if (z != nullptr){
+			waveform->setReleaseTime(releaseTime->getValue());
+			waveform->repaint();
+			z->getPlaySettings()->setReleaseTime(releaseTime->getValue());
+			MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
+			int zone_index = m->getZones().indexOf(z);
+			static_cast<SampleSound*>(MainContentComponent::_static_sampler->getSynth()->getSound(zone_index))->setReleaseTime(releaseTime->getValue());
+		}
+	}
+	if (s == releaseCurve){
+		if (z != nullptr){
+			waveform->setReleaseCurve(releaseCurve->getValue());
+			waveform->repaint();
+			z->getPlaySettings()->setReleaseCurve(releaseCurve->getValue());
+			MappingEditorGraph* m = mapping_editor->getMappingEditor()->graph;
+			int zone_index = m->getZones().indexOf(z);
+			static_cast<SampleSound*>(MainContentComponent::_static_sampler->getSynth()->getSound(zone_index))->setReleaseCurve(releaseCurve->getValue());
+		}
+	}
     if (s == loopStart){
         if (z != nullptr){
             waveform->setLoopStart(loopStart->getValue());
