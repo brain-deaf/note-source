@@ -12,6 +12,7 @@ public:
 	void resized();
 	void buttonClicked(Button*);
 	int getSelectedRR(){ return selectedRR; }
+	void updateRoundRobinComponentForGroup();
 private:
 	ScopedPointer<Label> header;
 	OwnedArray<TextButton> buttons;
@@ -26,10 +27,13 @@ public:
 	~RoundRobinDropTarget();
 	bool isInterestedInDragSource(const SourceDetails&){ return true; }
 	void itemDropped(const SourceDetails&) override;
+	void itemDragEnter(const SourceDetails&) override;
+	void itemDragExit(const SourceDetails&) override;
 	void paint(Graphics&);
 	void setRRComponent(RoundRobinComponent* r){ rrComponent = r; }
 private:
 	RoundRobinComponent* rrComponent;
+	bool hovered;
 };
 
 class RoundRobin
@@ -40,10 +44,13 @@ public:
 	void setData(const String& filename);
 	AudioSampleBuffer* getData(){ return data.get(); }
 	const String& getFileName(){ return fileName; }
+	void setState(bool b){ state = b; }
+	bool getState(){ return state; }
 private:
 	ScopedPointer<AudioSampleBuffer> data;
 	String fileName;
 	int sampleIndex;
+	bool state;
 };
 
 class RoundRobinGroup;
@@ -75,6 +82,7 @@ public:
 	RoundRobin* getRoundRobin(int index){ return roundRobins[index]; }
 	RoundRobinPlayback* getProcessor(){ return & processor; }
 	int getNumRoundRobins();
+	int getActiveRoundRobin(int);
 private:
 	OwnedArray<RoundRobin> roundRobins;
 	RoundRobinPlayback processor;

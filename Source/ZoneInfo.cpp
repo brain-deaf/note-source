@@ -131,7 +131,7 @@ void ZoneInfo::changeListenerCallback(ChangeBroadcaster* /*source*/){
         velocityLabel->setText("Velocity: ", dontSendNotification);
         velocityMin->setText(String(zone->getSelectedItem(0)->getVelocity().first), dontSendNotification);
         velocityMax->setText(String(zone->getSelectedItem(0)->getVelocity().second), dontSendNotification);
-        
+		rrComponent->updateRoundRobinComponentForGroup();
     }
 }
 
@@ -148,7 +148,7 @@ void ZoneInfo::resized(){
     velocityLabel->setBounds(5, 50, 70, 20);
     vLayout->setBounds(5, getHeight() - 33, 60, 30);
     hLayout->setBounds(70, getHeight() - 33, 60, 30);
-	rrComponent->setBounds(getWidth() - 150, 30, 150, getHeight() - 30);
+	rrComponent->setBounds(getWidth() - 323, 30, 100, getHeight() - 50);
 }
 
 void ZoneInfo::paint(Graphics& g){

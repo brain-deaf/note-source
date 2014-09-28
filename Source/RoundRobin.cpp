@@ -9,10 +9,10 @@ RoundRobinComponent::RoundRobinComponent(int n, RoundRobinDropTarget* target) : 
 		buttons.add(new TextButton(""));
 	}
 	for (auto button : buttons){
+		button->setClickingTogglesState(true);
 		button->addListener(this);
 		addAndMakeVisible(button);
 	}
-	buttons[0]->setToggleState(true, false);
 	target->setRRComponent(this);
 
 	header = new Label("");
@@ -28,16 +28,29 @@ RoundRobinComponent::~RoundRobinComponent(){
 	header = nullptr;
 }
 
-void RoundRobinComponent::buttonClicked(Button* source){
-	for (auto button : buttons){
-		button->setToggleState(false, false);
-	}
-	source->setToggleState(true, false);
-
-	selectedRR = buttons.indexOf((TextButton*)source);
-
+void RoundRobinComponent::updateRoundRobinComponentForGroup(){
 	ZoneInfo* parent = static_cast<ZoneInfo*>(getParentComponent());
-	String file_name = parent->getZone()->getRRGroup()->getRoundRobin(selectedRR)->getFileName();
+	if (parent->getZone() != nullptr){
+		RoundRobinGroup* r = parent->getZone()->getRRGroup();
+		for (int i = 0; i < buttons.size(); i++){
+			buttons[i]->setToggleState(r->getRoundRobin(i)->getState(), dontSendNotification);
+		}
+	}
+}
+
+void RoundRobinComponent::buttonClicked(Button* source){
+	selectedRR = buttons.indexOf((TextButton*)source);
+	ZoneInfo* parent = static_cast<ZoneInfo*>(getParentComponent());
+
+	String file_name;
+	if (parent->getZone() != nullptr){
+		RoundRobinGroup* r = parent->getZone()->getRRGroup();
+		r->getRoundRobin(selectedRR)->setState(source->getToggleState());
+		file_name = parent->getZone()->getRRGroup()->getRoundRobin(selectedRR)->getFileName();
+	}
+	else{
+		file_name = "";
+	}
 	parent->getFileNameLabel()->setText(file_name, dontSendNotification);
 	parent->getAudioThumbnail()->updateWaveformForFilePlayer(parent->getZone(), selectedRR);
 }
@@ -51,7 +64,7 @@ void RoundRobinComponent::resized(){
 	}
 }
 
-RoundRobinDropTarget::RoundRobinDropTarget() : Component(), rrComponent(nullptr)
+RoundRobinDropTarget::RoundRobinDropTarget() : Component(), rrComponent(nullptr), hovered(false)
 {
 
 }
@@ -59,6 +72,7 @@ RoundRobinDropTarget::RoundRobinDropTarget() : Component(), rrComponent(nullptr)
 RoundRobinDropTarget::~RoundRobinDropTarget(){}
 
 void RoundRobinDropTarget::itemDropped(const SourceDetails& details){
+	hovered = false;
 	if (details.description.toString() == "file name"){
 		StringArray s;
 		DragButton* d = static_cast<DragButton*>(details.sourceComponent.get());
@@ -74,12 +88,38 @@ void RoundRobinDropTarget::itemDropped(const SourceDetails& details){
 			}
 		}
 	}
+	repaint();
+}
 
+void RoundRobinDropTarget::itemDragEnter(const SourceDetails& details){
+	hovered = true;
+	repaint();
+}
+
+void RoundRobinDropTarget::itemDragExit(const SourceDetails& details){
+	hovered = false;
+	repaint();
 }
 
 void RoundRobinDropTarget::paint(Graphics& g){
 	g.setColour(Colours::black);
 
+	ZoneInfo* parent = static_cast<ZoneInfo*>(getParentComponent());
+	if (parent->getZone() != nullptr){
+		RoundRobinGroup* r = parent->getZone()->getRRGroup();
+		if (parent->getAudioThumbnail()->getThumbnail().getTotalLength() == 0){
+			g.drawText("Drop file to add round robin", Rectangle<float>(0, 0, getWidth(), getHeight()), Justification::horizontallyCentred, true);
+		}
+	}
+
+	if (hovered){
+		g.setColour(Colours::orange);
+		g.setOpacity(0.2);
+		g.fillAll();
+
+		g.setOpacity(1.0);
+		g.setColour(Colours::black);
+	}
 	Path borderPath;
 	borderPath.startNewSubPath(0.0f, 0.0f);
 	borderPath.lineTo(0.0f, getHeight());
@@ -90,7 +130,7 @@ void RoundRobinDropTarget::paint(Graphics& g){
 	g.strokePath(borderPath, PathStrokeType(2.0f));
 }
 
-RoundRobin::RoundRobin() : data(nullptr), fileName(""), sampleIndex(-1){}
+RoundRobin::RoundRobin() : data(nullptr), fileName(""), sampleIndex(-1), state(false){}
 
 void RoundRobin::setData(const String& filename){
 	if (File(filename).exists()){
@@ -135,15 +175,26 @@ RoundRobinGroup::~RoundRobinGroup(){
 
 int RoundRobinGroup::getNumRoundRobins(){
 	int rr_count(0);
-	for (auto rr : roundRobins){
-		if (rr->getData() == nullptr){
-			return rr_count;
-		}
-		else{
+	for (int i = 0; i < roundRobins.size(); i++){
+		if (roundRobins[i]->getData() != nullptr){
 			rr_count++;
 		}
 	}
 	return rr_count;
+}
+
+int RoundRobinGroup::getActiveRoundRobin(int index){
+	int rr_count(0);
+	int rr_index_count(0);
+	for (int i = 0; i < roundRobins.size(); i++){
+		rr_index_count++;
+		if (roundRobins[i]->getData() != nullptr){
+			rr_count++;
+			if (rr_count > index){
+				return --rr_index_count;
+			}
+		}
+	}
 }
 
 int RoundRobinPlayback::getNextRoundRobin(){
@@ -152,8 +203,16 @@ int RoundRobinPlayback::getNextRoundRobin(){
 	switch (mode){
 	case RANDOM:
 		currentRR = rand() % (num_round_robins + 1) - 1;
+		break;
 	case CYCLE:
 		currentRR = ++currentRR % (num_round_robins + 1) - 1;
+		break;
 	}
-	return currentRR;
+	if (currentRR == -1){
+		return currentRR;
+	}
+	else{
+		currentRR = group->getActiveRoundRobin(currentRR);
+		return currentRR;
+	}
 }
