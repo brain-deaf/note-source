@@ -11,6 +11,7 @@
 #include "SamplerEventProcessor.h"
 #include "Adsr.h"
 #include "InstrumentMappingEditor.h"
+#include "MainComponent.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -23,6 +24,16 @@ static double getAttackMultiplier(float attackTime, float attackCurve, float x){
 static double getReleaseMultiplier(float releaseTime, float releaseCurve, float x){
     float answer = (1.0f - 0.0f) / (pow(M_E, releaseCurve*releaseTime) - pow(M_E, releaseCurve*0.0f)) * (pow(M_E, releaseCurve*x) - pow(M_E, releaseCurve*0.0f)) + 0.0f;
     return 1.0 - answer;
+}
+
+
+SamplerEventProcessor::SamplerEventProcessor() : sampleCount(0), events(), samplePosition(0.0f),
+attackTime(10.0f), attackCurve(0.05f), releaseTime(50.0f),
+sampleStart(0.0f), releaseCurve(0.01f), volume(1.0), ringMod(false),
+tf_volume(1.0), ringAmount(1.0), angleDelta(0.0),
+currentAngle(0.0), sound(nullptr), maxSampleCount(0), data()
+{
+
 }
 
 void SamplerEventProcessor::renderAllEvents(){
@@ -64,10 +75,9 @@ void SamplerEventProcessor::renderAllEvents(){
 
 void SamplerEventProcessor::startSamplerEvent(SamplerEvent s)
 {   
-    
-    for (int j=0; j<sampler->getSynth()->getNumSounds(); j++){
-        std::cout<<"starting event"<<std::endl;
-        sound = static_cast<SampleSound*>(sampler->getSynth()->getSound(j));
+   
+	for (int j = 0; j<MainContentComponent::_static_sampler->getSynth()->getNumSounds(); j++){
+		sound = static_cast<SampleSound*>(MainContentComponent::_static_sampler->getSynth()->getSound(j));
         if (sound == nullptr)
             continue;
         Array<int> groups_for_note = sound->getGroups();
@@ -133,7 +143,7 @@ void SamplerEventProcessor::renderSamplerEvent(SamplerEvent noteEvent, Data& out
         long long numSamples = (static_cast<SamplerSound*>(sound))->getAudioData()->getNumSamples();
         //std::cout<<"num samples: "<<numSamples<<std::endl;
         
-        long long sampleCount = sampler->getWavSampleCount();
+		long long sampleCount = MainContentComponent::_static_sampler->getWavSampleCount();
 
         double xfadeLength = sound->getXfadeLength();
         bool looping = false;

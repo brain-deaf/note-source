@@ -13,6 +13,7 @@
 #include "FxBin.h"
 #include "TransformBin.h"
 #include "GroupEditorZ.h"
+#include "MainComponent.h"
 
 GroupEditor::GroupEditor(int w, int h, InstrumentMappingEditor* m) : Component(), width(w), height(h), row_height(30),
     mapping_editor(m),
@@ -88,12 +89,14 @@ GroupEditor::~GroupEditor(){
 
 void GroupEditor::setFxBin(FxBin* f){
     fx_bin = f;
-    mapping_editor->graph->getSampler().setFxSelector(fx_bin->getFxSelector());
+	static SamplerProcessor* s(MainContentComponent::_static_sampler);
+	s->setFxSelector(fx_bin->getFxSelector());
 }
 
 void GroupEditor::setTransformBin(TransformBin* f){
     transform_bin = f;
-    mapping_editor->graph->getSampler().setTransformSelector(transform_bin->getTransformSelector());
+	static SamplerProcessor* s(MainContentComponent::_static_sampler);
+	s->setTransformSelector(transform_bin->getTransformSelector());
 }
 
 void GroupEditor::paint(Graphics& g){
@@ -131,22 +134,20 @@ void GroupEditor::updateLabels(String name, int index){
 
 void GroupEditor::buttonClicked(Button* source){
     if (source == create_group_button){
-        Sampler* sampler = &(mapping_editor->graph->getSampler());
         model->incNumRows();
         list_box->updateContent();
         list_box->repaintRow(model->getNumRows());
         model->addGroupName("New Group");
-        sampler->getGroups().add(new SampleGroup());
+		MainContentComponent::_static_sampler->getGroups().add(new SampleGroup());
     }
     else if (source == delete_group_button){
         SparseSet<int> s = list_box->getSelectedRows();
-        Sampler* sampler = &(mapping_editor->graph->getSampler());
         for (int i=0; i<s.size(); i++){
             model->getGroupNames().set(s[i], temp);
         }
         for (int i=s.size()-1; i>=0; i--){
             model->getGroupNames().remove(s[i]);
-            sampler->getGroups().remove(s[i]);
+			MainContentComponent::_static_sampler->getGroups().remove(s[i]);
             model->decNumRows();
         }
         list_box->updateContent();
@@ -156,12 +157,11 @@ void GroupEditor::buttonClicked(Button* source){
     }
     else if (source == groupDownButton){
         SparseSet<int> s = list_box->getSelectedRows();
-        Sampler* sampler = &(mapping_editor->graph->getSampler());
         int new_selected_row;
         for (int i=s.size()-1; i>=0; i--){
             new_selected_row = s[i] + 1 < model->getGroupNames().size() ? s[i] + 1 : model->getGroupNames().size()-1;
             model->getGroupNames().move(s[i], new_selected_row);
-            sampler->getGroups().move(s[i], new_selected_row);
+			MainContentComponent::_static_sampler->getGroups().move(s[i], new_selected_row);
         }
         list_box->deselectAllRows();
         
@@ -176,12 +176,11 @@ void GroupEditor::buttonClicked(Button* source){
     }
     else if (source == groupUpButton){
         SparseSet<int> s = list_box->getSelectedRows();
-        Sampler* sampler = &(mapping_editor->graph->getSampler());
         int new_selected_row;
         for (int i=0; i<s.size(); i++){
             new_selected_row = s[i] - 1 >= 0 ? s[i] - 1 : 0;
             model->getGroupNames().move(s[i], new_selected_row);
-            sampler->getGroups().move(s[i], new_selected_row);
+			MainContentComponent::_static_sampler->getGroups().move(s[i], new_selected_row);
         }
         list_box->deselectAllRows();
         for (int i=0; i<s.size(); i++){

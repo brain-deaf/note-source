@@ -49,8 +49,7 @@ public:
                                 yellowRangeHigh(-5.0),
                                 orangeRangeHigh(0.0),
                                 handleYPosition(0),
-                                handleValue(1.0),
-                                sampler(nullptr)
+                                handleValue(1.0)
     {
         levelMeterTimer = new LevelMeterTimer(this);
         handle = new LevelMeterHandle(this);
@@ -60,18 +59,15 @@ public:
     void setDecibelRange(float low, float high){decibelRangeLow=low, decibelRangeHigh=high;}
     void paint(Graphics&);
     void drawAmplitude(){repaint();}
-    void setSampler(Sampler* s){sampler=s;}
     void mouseDrag(const MouseEvent&);
     void mouseDown(const MouseEvent&);
     void resized();
-    Sampler* getSampler(){return sampler;}
 private:
     float decibelRangeLow;
     float decibelRangeHigh;
     float greenRangeHigh;
     float yellowRangeHigh;
     float orangeRangeHigh;
-    Sampler* sampler;
     ScopedPointer<LevelMeterHandle> handle;
     ScopedPointer<LevelMeterTimer> levelMeterTimer;
     int handleYPosition;

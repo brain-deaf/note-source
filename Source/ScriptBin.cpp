@@ -10,15 +10,18 @@
 
 #include "ScriptBin.h"
 
-ScriptBin::ScriptBin(MappingEditorBin* m) : codeDocument(new CodeDocument()), 
+ScriptBin::ScriptBin(MappingEditorBin* m, InstrumentTabWindow* t) : codeDocument(new CodeDocument()), 
+					tabs(t),
 					tokeniser(new LuaTokeniser()),
                     codeEditor(new CodeEditorComponent(*codeDocument, tokeniser)),
                     compileButton(new TextButton("compile")),
                     saveAsButton(new TextButton("save as...")),
-                    luaScript(new LuaScript(m)),
+                    luaScript(nullptr),
                     mapping_editor(m),
                     scriptPath(File::getCurrentWorkingDirectory().getFullPathName() + "/script.lua")
 {
+	luaScript = new LuaScript(m, this);
+
     addAndMakeVisible(codeEditor);
     addAndMakeVisible(compileButton);
     compileButton->addListener(this);
@@ -28,7 +31,8 @@ ScriptBin::ScriptBin(MappingEditorBin* m) : codeDocument(new CodeDocument()),
     File f(scriptPath);
     ScopedPointer<FileInputStream> stream = new FileInputStream(f);
     codeDocument->loadFromStream(*stream);
-    buttonClicked(compileButton);
+
+	luaScript->loadScript(f.getFullPathName());
     
     stream = nullptr;
 }
@@ -55,6 +59,7 @@ void ScriptBin::buttonClicked(Button* source){
     if (source == compileButton){
         File outFile(scriptPath);
         outFile.replaceWithText(codeDocument->getAllContent());
+		luaScript->clearScript();
         luaScript->loadScript(outFile.getFullPathName());
     }
     

@@ -17,6 +17,7 @@
 #include "TransformBin.h"
 
 class InstrumentMappingEditor;
+class InstrumentBin;
 
 class MenuBar : public MenuBarModel, public Component
 {

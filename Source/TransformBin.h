@@ -18,6 +18,8 @@
 #include "MappingEditorBin.h"
 #include "Metronome.h"
 
+class MappingEditorBin;
+
 class TransformBin : public Component {
 public:
     TransformBin(MappingEditorBin*);

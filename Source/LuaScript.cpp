@@ -18,21 +18,28 @@
 #include "InstrumentComponent.h"
 #include "InstrumentBin.h"
 #include "MainComponent.h"
+#include "ScriptBin.h"
 
 
 static LuaScript* luaScript = nullptr;
-static Sampler* staticSampler = nullptr;
+static SamplerProcessor* staticSampler = nullptr;
 static MainPage* staticMainPage = nullptr;
 
 static int l_playNote(lua_State* L){
+	if (staticSampler == nullptr)
+		staticSampler = MainContentComponent::_static_sampler;
+
+	if (staticSampler == nullptr)
+		return 0;
+
     double note = lua_tonumber(L, 1);
     double velocity = lua_tonumber(L, 2);
     double timestamp = lua_tonumber(L, 3);
     double triggered_note = lua_tonumber(L, 4);
     lua_pop(L, 4);
     
-    MidiMessage* m = new MidiMessage(MidiMessage::noteOn(1, (int)note, (float)velocity));
-    m->setTimeStamp(timestamp);
+    MidiMessage m = MidiMessage(MidiMessage::noteOn(1, (int)note, (float)velocity));
+    m.setTimeStamp(timestamp);
     
     auto n = std::make_shared<NoteEvent>();
     n->setTriggerNote(triggered_note);
@@ -49,7 +56,8 @@ static int l_playNote(lua_State* L){
             staticSampler->getIncomingEvents().add(n);
         }
     }
-    staticSampler->getMidiCollector().addMessageToQueue(*m);
+    //staticSampler->getMidiCollector().addMessageToQueue(*m);
+	staticSampler->getMidiBuffer().addEvent(m, (int)m.getTimeStamp());
     
     return 1;
 }
@@ -550,8 +558,8 @@ static int l_sleep(lua_State* L){
     return 0;
 }
 
-LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), metronome(nullptr),
-                                            guiId(1), lastPlayedNote(0), beatListening(false){
+LuaScript::LuaScript(MappingEditorBin* m, ScriptBin* s) : L(nullptr), mapping_editor(m), metronome(nullptr),
+                                            guiId(1), lastPlayedNote(0), beatListening(false), scriptBin(s){
     L = luaL_newstate();
     luaL_openlibs(L);
     
@@ -625,20 +633,24 @@ LuaScript::LuaScript(MappingEditorBin* m) : L(nullptr), mapping_editor(m), metro
     luaScript = this;
 }
 
+void LuaScript::clearScript(){
+	if (staticSampler == nullptr)
+		staticSampler = MainContentComponent::_static_sampler;
+
+	if (staticMainPage == nullptr)
+		staticMainPage = scriptBin->getTabWindow()->getMainPage();
+
+	if (staticMainPage != nullptr)
+		staticMainPage->resetComponents();
+
+	static SamplerProcessor* s(MainContentComponent::_static_sampler);
+	if (s != nullptr && s->getSamplerProcessor() != nullptr){
+		if (s->getSamplerProcessor()->getNumEvents() > 0)
+			s->getSamplerProcessor()->clearAllSamplerEvents();
+	}
+}
+
 void LuaScript::loadScript(String f){
-    if (staticSampler == nullptr)
-        staticSampler = mapping_editor->getMappingEditor()->graph->getSamplerP();
-        
-    if (staticMainPage == nullptr)
-        staticMainPage = mapping_editor->getMappingEditor()->graph->
-                         getInstrument().getTabWindow().getMainPage();
-                         
-    staticMainPage->resetComponents();
-    
-    if (staticSampler != nullptr){
-        staticSampler->getSamplerProcessor()->clearAllSamplerEvents();
-    }
-        
     if (luaL_loadfile(L, f.toRawUTF8()) || lua_pcall(L, 0, 0, 0)){
         std::cout<<"error: "<<lua_tostring(L, -1)<<std::endl;
         return;

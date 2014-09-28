@@ -16,6 +16,7 @@
 #include "InstrumentMasterComponent.h"
 #include "FilePlayer.h"
 class InstrumentBin;
+class InstrumentTabWindow;
 
 class InstrumentComponent : public Component
 {
@@ -24,7 +25,7 @@ public:
     void resized();
     void addFilePlayer(FilePlayer*);
     StringArray& getSampleNames() {return sampleNames;}
-    InstrumentTabWindow& getTabWindow(){return tabs;}
+	InstrumentTabWindow* getTabWindow();
     InstrumentBin* getParent(){return parent;}
     TextButton* getButton(){return button.get();}
 private:
@@ -34,7 +35,7 @@ private:
     Array<FilePlayer*> sources;
     StringArray sampleNames;
     InstrumentBin* parent;
-    InstrumentTabWindow tabs;
+    ScopedPointer<InstrumentTabWindow> tabs;
     InstrumentMasterComponent master;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentComponent)
     ScopedPointer<TextButton> button;

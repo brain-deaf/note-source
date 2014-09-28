@@ -19,6 +19,21 @@ class TransformBox;
 class TransformChooser;
 class TransformBin;
 class TransformGroup;
+class TransformSelector;
+
+class TransformTimer : public Timer
+{
+public:
+	TransformTimer(TransformSelector* t) : Timer(), tf_selector(t)
+	{
+		startTimer(10);
+	}
+	~TransformTimer(){ stopTimer(); }
+	void timerCallback();
+private:
+	TransformSelector* tf_selector;
+	MidiBuffer messages;
+};
 
 class TransformSelector : public Component, public DragAndDropContainer, public ButtonListener{
 public:
@@ -37,6 +52,8 @@ public:
     void buttonClicked(Button*);
     void registerGroupEditor();
     void loadPatch(XmlElement*);
+	MidiBuffer& getMidiBuffer(){ return midiBuffer; }
+	void setMidiBuffer(MidiBuffer b){ midiBuffer = b; }
     GroupEditor* getGroupEditor(){return group_editor;}
     
     TransformButton* fxButtonChoice;
@@ -48,6 +65,8 @@ private:
     TransformChooser* chooser;
     Array<TransformGroup*> groups;
     GroupEditor* group_editor;
+	MidiBuffer midiBuffer;
+	TransformTimer tf_timer;
 };
 
 class Transform {
@@ -134,6 +153,8 @@ private:
     int numColumns;
     TransformSelector* parent;
 };
+
+
 
 
 

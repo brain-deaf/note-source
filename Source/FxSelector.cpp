@@ -392,8 +392,7 @@ void FxChooser::callButtonClick(FxChoiceButton* b){
         selector->fxButtonChoice->setFx(FILTER);
         FilterComponent* f = new FilterComponent();
         
-        Sampler& sampler = bin->getMappingEditor()->getMappingEditor()->graph->getSampler();
-        f->setIIRFilter(sampler.getFilter());
+		f->setIIRFilter(MainContentComponent::_static_sampler->getFilter());
         
         int fx_index = selector->getBoxes().indexOf((FxBox*)(selector->fxButtonChoice->getParentComponent()));
         for (int i=s.size()-1; i>=0; i--){

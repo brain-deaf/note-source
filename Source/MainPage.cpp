@@ -4,9 +4,9 @@
 MainPage::MainPage(InstrumentComponent& i) : Component(), idCount(0), instrument(i){}
 
 MainPage::~MainPage() {
-    for (auto c : components){
-        delete c.second;
-    }
+	for (int i = 0; i < idCount; i++){
+		delete components[i];
+	}
 }
 
 void MainPage::resized(){}
@@ -20,8 +20,8 @@ void MainPage::addNewComponent(int i){
 }
 
 void MainPage::resetComponents(){
-    for (auto c : components){
-        delete c.second;
-    }
-    components.clear();
+	for (int i = 0; i < idCount; i++){
+		delete components[i];
+	}
+	idCount = 0;
 }

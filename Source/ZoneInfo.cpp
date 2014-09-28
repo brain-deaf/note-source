@@ -10,10 +10,12 @@
 
 #include "ZoneInfo.h"
 #include "WaveformView.h"
+#include "InstrumentMappingEditor.h"
+#include "MainComponent.h"
+#include "RoundRobin.h"
 
 
-
-ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
+ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{}, rrTarget(new RoundRobinDropTarget()),
     mappingEditor{m}, zone{&m->graph->getZoneInfoSet()}, /*adsr(),*/
     audio_thumbnail(new WaveformView()){
     zone->addChangeListener(this);
@@ -81,6 +83,11 @@ ZoneInfo::ZoneInfo(std::shared_ptr<InstrumentMappingEditor> m) : Component{},
     noteLetters.add("A");
     noteLetters.add("Bb");
     noteLetters.add("B");
+
+	addAndMakeVisible(rrTarget);
+
+	rrComponent = new RoundRobinComponent(10, rrTarget.get());
+	addAndMakeVisible(rrComponent);
     
     for (int i=0; i<128; i++){
         noteNames.add(noteLetters[i % 12] + String((int)(i / 12) - 2));
@@ -105,12 +112,17 @@ ZoneInfo::~ZoneInfo()
 	velocityMax = nullptr;
 	vLayout = nullptr;
 	hLayout = nullptr;
+	rrComponent = nullptr;
+	rrTarget = nullptr;
 }
 
 void ZoneInfo::changeListenerCallback(ChangeBroadcaster* /*source*/){
     if (zone->getSelectedItem(0) != nullptr){
-        audio_thumbnail->setBounds(getWidth() - 410, 50, 400, 100);
-        audio_thumbnail->updateWaveformForFilePlayer(zone->getSelectedItem(0));
+		audio_thumbnail->setSize(350, 100);
+		audio_thumbnail->setCentrePosition(getWidth() / 2, 100);
+        audio_thumbnail->updateWaveformForFilePlayer(zone->getSelectedItem(0), -1);
+		rrTarget->setSize(350, 100);
+		rrTarget->setCentrePosition(getWidth() / 2, 100);
         fileName->setText((zone->getSelectedItem(0))->getName(), dontSendNotification);
         fileNameLabel->setText("Sample: ", dontSendNotification);
         noteNumber->setText(String((zone->getSelectedItem(0))->getNote()), dontSendNotification);
@@ -123,16 +135,20 @@ void ZoneInfo::changeListenerCallback(ChangeBroadcaster* /*source*/){
     }
 }
 
-void ZoneInfo::resize(){
+void ZoneInfo::resized(){
     fileName->setBounds(80, 10, 600, 20);
     fileNameLabel->setBounds(5, 10, 70, 20);
     noteNumber->setBounds(80, 30, 30, 20);
     noteNumberLabel->setBounds(5, 30, 70, 20);
     noteName->setBounds(110, 30, 40, 20);
-    audio_thumbnail->setBounds(getWidth() - 410, 50, 400, 100);
+	rrTarget->setSize(350, 100);
+	rrTarget->setCentrePosition(getWidth() / 2, 100);
+	audio_thumbnail->setSize(350, 100);
+    audio_thumbnail->setCentrePosition(getWidth()/2, 100);
     velocityLabel->setBounds(5, 50, 70, 20);
-    vLayout->setBounds(5, 168, 60, 30);
-    hLayout->setBounds(70, 168, 60, 30);
+    vLayout->setBounds(5, getHeight() - 33, 60, 30);
+    hLayout->setBounds(70, getHeight() - 33, 60, 30);
+	rrComponent->setBounds(getWidth() - 150, 30, 150, getHeight() - 30);
 }
 
 void ZoneInfo::paint(Graphics& g){
@@ -146,7 +162,7 @@ void ZoneInfo::buttonClicked(Button* source){
         int note = zone->getSelectedItem(0)->getNote();
         float y_per_velocity = mappingEditor->graph->getHeight() / 128;
         
-        Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
+        Array<Zone*> zones;
         for (int i=0; i<total_selected; i++){
             zones.add(zone->getSelectedItem(i));
         }
@@ -174,8 +190,8 @@ void ZoneInfo::buttonClicked(Button* source){
     if (source == hLayout){
         int total_selected = zone->getNumSelected();
         
-        Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones;
-        Array<InstrumentMappingEditor::MappingEditorGraph::Zone*> zones2;
+        Array<Zone*> zones;
+        Array<Zone*> zones2;
         for (int i=0; i<total_selected; i++){
             zones.add(zone->getSelectedItem(i));
             zones2.add(zone->getSelectedItem(i));
@@ -284,4 +300,26 @@ void ZoneInfo::labelTextChanged(Label* source){
             }
         }
     }
+}
+
+int ZoneSorterByNote::compareElements(Zone* z1,
+	Zone* z2)
+{
+	if (z1->getNote() < z2->getNote())
+		return -1;
+	else if (z1->getNote() > z2->getNote())
+		return 1;
+	else
+		return 0;
+}
+
+int ZoneSorterByVelocity::compareElements(Zone* z1,
+	Zone* z2)
+{
+	if (z1->getVelocity().first < z2->getVelocity().first)
+		return -1;
+	else if (z1->getVelocity().first > z2->getVelocity().first)
+		return 1;
+	else
+		return 0;
 }

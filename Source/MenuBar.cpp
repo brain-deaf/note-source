@@ -78,7 +78,7 @@ void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
     switch (menuItemID) {
         case ID_Quit: {
             for (auto instrument : parent->getInstruments()){
-                scriptBin = instrument->getTabWindow().getScriptBin();
+                scriptBin = instrument->getTabWindow()->getScriptBin();
                 lua_close(scriptBin->getLuaScript()->getLuaState());
                 tf_bin->quit();
             }
@@ -95,16 +95,16 @@ void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
         
         case ID_Open: {
             mapping_editor = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getMappingEditorBin()->getMappingEditor();
+            ->getTabWindow()->getMappingEditorBin()->getMappingEditor();
             
             fx_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getFxBin();
+            ->getTabWindow()->getFxBin();
             
             tf_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getTransformBin();
+            ->getTabWindow()->getTransformBin();
             
             scriptBin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getScriptBin();
+            ->getTabWindow()->getScriptBin();
             
             
                 //parent->getParent()->addAndMakeVisible(p);
@@ -138,16 +138,16 @@ void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
         
         case ID_Save: {
             mapping_editor = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getMappingEditorBin()->getMappingEditor();
+            ->getTabWindow()->getMappingEditorBin()->getMappingEditor();
             
             fx_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getFxBin();
+            ->getTabWindow()->getFxBin();
             
             tf_bin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getTransformBin();
+            ->getTabWindow()->getTransformBin();
             
             scriptBin = parent->getInstruments()[parent->getCurrentTabIndex()]
-            ->getTabWindow().getScriptBin();
+            ->getTabWindow()->getScriptBin();
             
             Array<FxGroup*> fx_group_list = fx_bin->getFxSelector()->getGroups();
             Array<TransformGroup*> tf_group_list = tf_bin->getTransformSelector()->getGroups();
@@ -179,10 +179,15 @@ void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
                     zone->setAttribute("height", height);
                     zone->setAttribute("note", note);
                     zone->setAttribute("sample_start", sample_start);
+					zone->setAttribute("release_start", z->getPlaySettings()->getReleaseStart());
+					zone->setAttribute("release_time", z->getPlaySettings()->getReleaseTime());
+					zone->setAttribute("release_curve", z->getPlaySettings()->getReleaseCurve());
                     zone->setAttribute("loop_mode", z->getPlaySettings()->getLoopMode());
+					zone->setAttribute("release_mode", z->getPlaySettings()->getReleaseMode());
                     zone->setAttribute("loop_start", z->getPlaySettings()->getLoopStart());
                     zone->setAttribute("loop_end", z->getPlaySettings()->getLoopEnd());
                     zone->setAttribute("xfade_length", z->getPlaySettings()->getXfadeLength());
+					zone->setAttribute("xfade_curve", z->getPlaySettings()->getXfadeCurve());
                     group->addChildElement(zone);
                 }
                 for (int j=0; j<fx_group_list[i]->group_fx.size(); j++){

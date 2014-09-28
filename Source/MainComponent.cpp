@@ -7,18 +7,23 @@
 */
 
 #include "MainComponent.h"
-#include "MenuBar.h"
+#include "PluginProcessor.h"
+#include "Sampler.h"
+
+SamplerProcessor* MainContentComponent::_static_sampler;
 
 //==============================================================================
-MainContentComponent::MainContentComponent() : deviceManager{},
-    transport(), metronome(new MetronomeComponent()),
-    toggleBrowser(new BrowserButton())
+MainContentComponent::MainContentComponent(SamplerProcessor* s) : deviceManager{},
+transport(), metronome(new MetronomeComponent()), toggleBrowser(new BrowserButton())
 {
+	_static_sampler = s;
     browser = new SampleBrowserBin();
     instrumentBin = new InstrumentBin(TabbedButtonBar::TabsAtTop, this);
     menuBar = new MenuBar(instrumentBin.get());
     XmlDocument xml_file(File::getCurrentWorkingDirectory().getChildFile("audio_settings.xml"));
     deviceManager->initialise (0,2,xml_file.getDocumentElement(),true);
+
+	
     
     setSize (1000, 829);
     addAndMakeVisible (instrumentBin);
@@ -28,6 +33,8 @@ MainContentComponent::MainContentComponent() : deviceManager{},
     //addAndMakeVisible(browser);
     addAndMakeVisible(toggleBrowser);
     toggleBrowser->addListener(this);
+
+	
 }
 
 void MainContentComponent::resized()
@@ -62,3 +69,5 @@ void MainContentComponent::buttonClicked(Button* source){
         }
     }
 }
+
+

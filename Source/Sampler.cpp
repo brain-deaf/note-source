@@ -10,6 +10,7 @@
 
 #include "Sampler.h"
 #include "Adsr.h"
+#include "RoundRobin.h"
 #include "InstrumentMappingEditor.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -24,80 +25,11 @@ static bool isNoteHeld(SelectedItemSet<std::pair<int, int> > s, int n){
     return false;
 }
 
-Sampler::Sampler(SelectedItemSet<std::pair<int, int> >* s) 
-    : AudioSource(), synth(), idCount(0), notesHeld(s), formatManager(), 
-      events(), incomingEvents(), wavFormat(nullptr), wavWriter(nullptr),/*wavOutput(new FileOutputStream(File(File::getCurrentWorkingDirectory()).getFullPathName() + "/temp.wav")),*/
-      filter1(), filter2(), fx_selector(nullptr), transform_selector(nullptr),
-      wavSampleCount(0.0), wavOutput(nullptr), samplerProcessor(nullptr),
-      instrumentVolume(1.0), groups()
-{   
-    for (int i=0; i<256; i++){
-        synth.addVoice(new SampleVoice());
-    }
-    formatManager.registerBasicFormats();
-    filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 6000.0));
-    filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 10000.0));
-    
-    groups.add(new SampleGroup());
-}
-
-void Sampler::setupRendering(){
-    File f = File(File::getCurrentWorkingDirectory().getFullPathName() + "/temp.wav");
-    if (f.exists())
-        f.deleteFile();                                 
-}
-                                          
-bool Sampler::addSample(String path, int root_note, int note_low, int note_high, Array<int>& group, PlaySettings* p, std::pair<int, int> v){
-    ScopedPointer<AudioFormatReader> audioReader(formatManager.createReaderFor(File(path)));
-	if (audioReader == nullptr){
-		return false;
-	}
-    BigInteger allNotes;
-    for (int i=note_low; i<note_high; i++){
-        allNotes.setBit(i);
-    }
-    SampleSound* ss;
-    synth.addSound(ss = new SampleSound("demo sound", *audioReader,
-                                    allNotes, root_note,
-                                    0.0, 0.0, 10.0, group, fx_selector, tf_selector, this, v));
-    ss->setSampleStart(p->getSampleStart());
-    ss->setLoopMode(p->getLoopMode());
-    ss->setLoopStart(p->getLoopStart());
-    ss->setLoopEnd(p->getLoopEnd());
-    ss->setXfadeLength(p->getXfadeLength());
-    
-    groups[group[0]]->add(ss);
-	audioReader = nullptr;
-	return true;
-}
-    
-void Sampler::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate) {
-    midiCollector.reset(sampleRate);
-    synth.setCurrentPlaybackSampleRate(sampleRate);
-}
-    
-void Sampler::releaseResources() {}
-    
-void Sampler::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
-    bufferToFill.clearActiveBufferRegion();
-    MidiBuffer incomingMidi;
-    midiCollector.removeNextBlockOfMessages(incomingMidi, bufferToFill.numSamples);
-
-    synth.renderNextBlock(*bufferToFill.buffer, incomingMidi, 0, bufferToFill.numSamples);
-
-    peak = 0.0;
-    for (int i=0; i<bufferToFill.numSamples; i++){
-        if (bufferToFill.buffer->getWritePointer(0)[i] > peak){
-            peak = bufferToFill.buffer->getWritePointer(0)[i];
-        }
-    }
-}
-
 SampleVoice::SampleVoice() : SamplerVoice(), /*filter1(), filter2(),*/ samplePosition(0.0f),
                              attackTime(10.0f), attackCurve(0.05f), releaseTime(50.0f), 
                              sampleStart(0.0), releaseCurve(0.01f), volume(1.0), ringMod(false),
                              noteEvent(nullptr), tf_volume(1.0), ringAmount(1.0), angleDelta(0.0),
-                             currentAngle(0.0)
+							 currentAngle(0.0), rr(-1)
 {
     //filter1.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
     //filter2.setCoefficients(IIRCoefficients::makeLowPass(44100.0, 300.0));
@@ -109,6 +41,7 @@ void SampleVoice::startNote(const int midiNoteNumber,
                             const int /*pitchWheelPosition*/)
 {   
     if (SampleSound* sound = (SampleSound*)s){
+		releaseTriggered = false;
         const double a = pow(2.0, 1.0/12.0);
         double old_frequency = 440.0 * pow(a, (double)sound->getRootNote() - 69.0);
         double new_frequency = old_frequency * pow(a, ((float)midiNoteNumber + sound->getTuning()) - sound->getRootNote());
@@ -125,6 +58,12 @@ void SampleVoice::startNote(const int midiNoteNumber,
                 break;
             }
         }
+
+		if (sound->getRoundRobin() == -1){
+			if (sound->getRoundRobinProcessor() != nullptr){
+				rr = sound->getRoundRobinProcessor()->getNextRoundRobin();
+			}
+		}
 
         Array<int> groups_for_note = sound->getGroups();
         for (auto i : groups_for_note){
@@ -174,7 +113,10 @@ void SampleVoice::startNote(const int midiNoteNumber,
             }
         }
         bb = false;
-        noteEvent->setVelocity(noteEvent->getVelocity()*tf_vel_multiplier);
+		if (noteEvent != nullptr)
+			noteEvent->setVelocity(noteEvent->getVelocity()*tf_vel_multiplier);
+
+		rr = sound->getRoundRobinProcessor()->getCurrentRoundRobin();
     }
 }
 
@@ -189,11 +131,15 @@ static double getReleaseMultiplier(float releaseTime, float releaseCurve, float 
     return 1.0 - answer;
 }
 
+static double plotAdsr(double x1, double time, double y1, double max_volume, double curve_width, double x){
+	return(max_volume - y1) / (pow(M_E, curve_width*time) - pow(M_E, curve_width*x1)) * (pow(M_E, curve_width*x) - pow(M_E, curve_width*x1)) + y1;
+}
+
 void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, int numSamples){
     SampleSound::Ptr s = (SampleSound::Ptr)getCurrentlyPlayingSound();
 
-    if (s != nullptr){
-        Sampler* sampler = s->getSampler();
+    if (s != nullptr && noteEvent != nullptr){
+        SamplerProcessor* sampler = s->getSampler();
         
         double xfadeLength = s->getXfadeLength();
         bool looping = false;
@@ -211,7 +157,8 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 return_flag = false;
             }
         }
-        
+
+		
         
         for (auto i : groups_for_note){
             FxGroup* fx_group = s->getFxSelector()->getGroups()[i];
@@ -277,64 +224,33 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
         double vol = noteEvent->getVolume();
         double vol_difference = vol - volume;
         double difference_per_sample = vol_difference/numSamples;
-        //example of how to not process a sound for a particular Group
-        //if (groups_for_note[0] == 0){return;}
+
+		AudioSampleBuffer* data = rr == -1 ? s->getAudioData() : s->getRoundRobinProcessor()->getGroup()->getRoundRobin(rr)->getData();
+
         
-        double sample_length = s->getAudioData()->getNumSamples();
-        int num_channels = s->getAudioData()->getNumChannels();
+        double sample_length = data->getNumSamples();
+        int num_channels = data->getNumChannels();
         if (getCurrentlyPlayingSound().get()){
-            const float* const inL = s->getAudioData()->getReadPointer(0);
-            const float* const inR = num_channels>1 ? s->getAudioData()->getReadPointer(1) : nullptr;
+
+            const float* const inL = data->getReadPointer(0);
+            const float* const inR = num_channels>1 ? data->getReadPointer(1) : nullptr;
+
             float* outL = buffer.getWritePointer(0, startSample);
             float* outR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1, startSample) : nullptr;
             
-            if (!isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote())
-                && noteEvent->getTriggerNote() != -1
-                && releaseStart == 0.0f){
+			//sometimes noteEvent->getTriggerNote() returns the wrong note...
+			bool noteHeld(isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote()));
+            if (!noteHeld && noteEvent->getTriggerNote() != -1
+                && releaseStart == 0.0f)
+			{
+				//bool b = !isNoteHeld(*(s->getSampler()->getNotesHeld()), noteEvent->getTriggerNote());
+				//samplePosition = s->getReleaseStart();
                 releaseStart = samplePosition;
             }
             double release_sample_length = releaseTime/1000*s->getSampleRate();
             float release_x = 0.0f;
             
-            int start = samplePosition;
-    
-            /*double* inFL  = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
-            double* inFR  = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
-            fftw_complex* outFFTW = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*((int)(pitchRatio*numSamples)));
-            fftw_complex* outFFTWR = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*((int)(pitchRatio*numSamples)));
-            double* outFL = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
-            double* outFR = (double*) fftw_malloc(sizeof(double)*((int)(pitchRatio*numSamples)));
-            
-            fftw_plan pFFTW;
-            fftw_plan pFFTWR;
-            fftw_plan p2FFTW;
-            fftw_plan p2FFTWR;
-    
-            pFFTW  = fftw_plan_dft_r2c_1d((int)(pitchRatio*numSamples), inFL, outFFTW, FFTW_ESTIMATE);
-            pFFTWR = fftw_plan_dft_r2c_1d((int)(pitchRatio*numSamples), inFR, outFFTWR, FFTW_ESTIMATE);
-            p2FFTW = fftw_plan_dft_c2r_1d((int)(pitchRatio*numSamples), outFFTW, outFL, FFTW_ESTIMATE);
-            p2FFTWR= fftw_plan_dft_c2r_1d((int)(pitchRatio*numSamples), outFFTWR, outFR, FFTW_ESTIMATE);
-            
-            //std::cout<<numSamples*pitchRatio<<std::endl;
-            for (int i=start; i<start+((int)(pitchRatio*numSamples)); i++){
-                inFL[i-start] = inL[i];
-                if (inR != nullptr){
-                    inFR[i-start] = inR[i];
-                }
-            }
-            
-            fftw_execute(pFFTW);
-            fftw_execute(pFFTWR);
-            fftw_execute(p2FFTW);
-            fftw_execute(p2FFTWR);*/
-            
-            //std::cout<<std::endl<<outFL[50]/((int)(pitchRatio*numSamples))<<std::endl;
-            //std::cout<<inL[start+50]<<std::endl;
-            
-            //int pxn = (int)(pitchRatio*numSamples);
-            
-            //std::cout<<"start"<<std::endl;
-            
+            int start = samplePosition;           
             
             for (int i= start; i<numSamples+start; i++){
                 double x = (samplePosition - sampleStart)/s->getSampleRate()*1000;
@@ -344,13 +260,14 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 
                 if (samples_left < release_sample_length && releaseStart == 0.0){
                     releaseStart = samplePosition;
+					releaseTriggered = true;
                 }
                 if (releaseStart != 0.0){
-                    release_x = (samplePosition - releaseStart)/s->getSampleRate()*1000;
+					release_x = releaseTriggered ? (samplePosition - s->getReleaseStart()) / s->getSampleRate() * 1000 : (samplePosition - releaseStart) / s->getSampleRate() * 1000;
                 }
                 
                 double release_multiplier = releaseStart != 0.0 || samples_left < release_sample_length ? getReleaseMultiplier(releaseTime, releaseCurve, release_x) : 1.0;
-            
+
                 const int pos = (int) samplePosition;
                 const double alpha = (double) (samplePosition - pos);
                 const double invAlpha = 1.0f - alpha;
@@ -359,6 +276,37 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 // just using a very simple linear interpolation here..
                 float l = ((inL[pos]) * invAlpha +  (inL[pos+1]) * alpha);
                 float r = inR != nullptr ? (inR[pos]) * invAlpha + (inR[pos+1] * alpha) : l;
+
+				
+
+				if (releaseStart != 0 && samplePosition - releaseStart < s->getReleaseTime() && !releaseTriggered && s->getReleaseMode()){
+					//double r = s->getReleaseStart();
+					double release_pos = s->getReleaseStart() + (samplePosition - releaseStart);
+					double xfade_counter = release_pos - s->getReleaseStart();
+
+					const int pos2 = (int)release_pos;
+					const double alpha2 = (double)(release_pos - pos2);
+					const double invAlpha2 = 1.0f - alpha2;
+					float l2 = ((inL[pos2]) * invAlpha2 + (inL[pos2 + 1]) * alpha2);
+					float r2 = inR != nullptr ? (inR[pos2]) * invAlpha2 + (inR[pos2 + 1] * alpha2) : l2;
+
+					double resolution = 1000.0;
+
+					double x1 = (s->getReleaseStart()) / resolution;
+					double x2 = (s->getReleaseStart() + s->getReleaseTime()) / resolution;
+					double y1 = resolution;
+					double y2 = 0.0;
+					double curve = s->getReleaseCurve();
+					double _x = release_pos / resolution;
+
+					double _y1 = plotAdsr(x1, x2, y1, y2, curve, _x) / resolution;
+
+					l *= _y1;
+					r *= _y1;
+
+					l += (1.0 -_y1) * l2;
+					r += (1.0 -_y1) * r2;
+				}
                 
                 double start_pos;
                 if (looping && s->getLoopEnd() - samplePosition <= xfadeLength){
@@ -370,12 +318,32 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                     const double invAlpha2 = 1.0f - alpha2;
                     float l2 = ((inL[pos2]) * invAlpha2 +  (inL[pos2+1]) * alpha2);
                     float r2 = inR != nullptr ? (inR[pos2]) * invAlpha2 + (inR[pos2+1] * alpha2) : l2;
+
+					double resolution = 1000.0;
+
+					double x1 = (s->getLoopEnd() - s->getXfadeLength()) / resolution;
+					double x2 = s->getLoopEnd() / 1000.0;
+					double y1 = resolution;
+					double y2 = 0.0;
+					double curve = s->getXfadeCurve();
+					double _x = (s->getLoopEnd() - s->getXfadeLength() + xfade_counter) / resolution;
+
+					double _y1 = plotAdsr(x1, x2, y1, y2, curve, _x) / resolution;
+
+					x1 = s->getLoopStart() / resolution;
+					x2 = (s->getLoopStart() + s->getXfadeLength()) / resolution;
+					y1 = 0.0;
+					y2 = resolution;
+					curve = s->getXfadeCurve();
+					_x = (s->getLoopStart() + xfade_counter) / resolution;
+
+					double _y2 = plotAdsr(x1, x2, y1, y2, curve, _x) / resolution;
                     
-                    l *= (xfadeLength - xfade_counter) / xfadeLength;
-                    r *= (xfadeLength - xfade_counter) / xfadeLength;
+                    l *= _y1;
+                    r *= _y1;
                     
-                    l += xfade_counter / xfadeLength * l2;
-                    r += xfade_counter / xfadeLength * r2;
+                    l += _y2 * l2;
+                    r += _y2 * r2;
                 }
                 
                 double ringMult = ringMod ? sin(currentAngle) : 1.0;
@@ -418,27 +386,17 @@ void SampleVoice::renderNextBlock(AudioSampleBuffer& buffer, int startSample, in
                 if (looping && samplePosition >= s->getLoopEnd()+0){
                     samplePosition = s->getLoopStart() + xfadeLength;
                 }
+
+				if (releaseStart != 0 && samplePosition - releaseStart > s->getReleaseTime() && !releaseTriggered && !noteHeld && s->getReleaseMode()){
+					samplePosition = s->getReleaseStart() + s->getReleaseTime();
+					//samplePosition -= pitchRatio;
+					releaseTriggered = true;
+				}
             }
             
             
             volume = vol;
             tf_volume = tf_vol_multiplier;
-            /*fftw_destroy_plan(pFFTW);
-            fftw_destroy_plan(pFFTWR);
-            fftw_destroy_plan(p2FFTW);
-            fftw_destroy_plan(p2FFTWR);
-            fftw_free(outFL);
-            fftw_free(outFR);
-            fftw_free(outFFTW);
-            fftw_free(outFFTWR);
-            fftw_free(inFL);
-            fftw_free(inFR);*/
-            /*if (groups_for_note[0] == 0){
-                filter1.processSamples(outL, buffer.getNumSamples());
-                std::cout<<"process left"<<std::endl;
-                if (outR != nullptr){filter2.processSamples(outR, buffer.getNumSamples());}
-                std::cout<<"process right"<<std::endl;
-            }*/
         }
     }
 }

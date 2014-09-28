@@ -14,6 +14,7 @@
 #include "ZoneInfo.h"
 #include "InstrumentMappingEditor.h"
 
+class ZoneInfo;
 class MappingEditorBin : public Component
 {
 public:
@@ -25,7 +26,7 @@ public:
     InstrumentComponent* getInstrument(){return instrument;}
 private:
     std::shared_ptr<InstrumentMappingEditor> mapping_editor;
-    ZoneInfo zone_info;
+    ScopedPointer<ZoneInfo> zone_info;
     int mapping_editor_height;
     InstrumentComponent* instrument;
 };

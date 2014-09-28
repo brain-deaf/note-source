@@ -84,6 +84,8 @@ private:
 };   
 
 
+
+
 class LinearGraph : public Component, public Slider::Listener
 {
 public:

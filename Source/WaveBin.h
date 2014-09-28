@@ -16,6 +16,7 @@
 #include "MappingEditorBin.h"
 #include "WaveformView.h"
 #include "FilePlayer.h"
+#include "InstrumentMappingEditor.h"
 
 class WaveBin : public Component, public Slider::Listener, public Button::Listener, public ChangeListener, public Timer {
 public:
@@ -31,8 +32,10 @@ public:
     void setFileLength(double d){
         fileLength=d;
         sample_start->setRange(0, d, 1);
+		releaseStart->setRange(0, d, 1);
         loopEnd->setRange(0, d, 1);
         loopStart->setRange(0, d, 1);
+		xfadeLength->setRange(0, d / 2);
     }
     void updateZone(Zone*_zone);
     void buttonClicked(Button*);
@@ -57,6 +60,9 @@ private:
     ScopedPointer<Viewport> WaveVport;
     ScopedPointer<WaveformView> waveform;
     ScopedPointer<Slider> sample_start;
+	ScopedPointer<Slider> releaseStart;
+	ScopedPointer<Slider> releaseTime;
+	ScopedPointer<Slider> releaseCurve;
     ScopedPointer<Slider> vScaling;
     ScopedPointer<Slider> hScaling;
     ScopedPointer<TextButton> playButton;
@@ -64,8 +70,10 @@ private:
     ScopedPointer<Slider> loopStart;
     ScopedPointer<Slider> loopEnd;
     ScopedPointer<Slider> xfadeLength;
+	ScopedPointer<Slider> xfadeCurve;
     ScopedPointer<Slider> tuneSlider;
     ScopedPointer<TextButton> toggleLoop;
+	ScopedPointer<TextButton> toggleRelease;
     Zone* z;
 };
 

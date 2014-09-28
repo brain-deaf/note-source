@@ -13,7 +13,11 @@
 #include "Sampler.h"
 
 TransformSelector::TransformSelector(int rows, int columns) : Component(),
-    num_rows(rows), num_columns(columns), groups(), group_editor(nullptr)
+															  num_rows(rows), 
+															  num_columns(columns), 
+															  groups(), group_editor(nullptr), 
+															  tf_timer(this), 
+															  midiBuffer()
 {
     groups.add(new TransformGroup());
     for (int i=0; i<num_columns*rows; i++){
@@ -473,3 +477,94 @@ void TransformChooser::unfocusButton(TransformChoiceButton* button){
         }
     }
 }
+
+void TransformTimer::timerCallback(){
+	for (auto group : tf_selector->getGroups()){
+		for (auto transform : group->group_fx){
+			MidiBuffer messages = tf_selector->getMidiBuffer();
+			MidiMessage message;
+			int samplePosition;
+			int transformType = transform->getFxType();
+			Component* c= transform->getContent();
+			
+			MidiBuffer::Iterator i(messages);
+
+			while (i.getNextEvent(message, samplePosition)){
+				switch (transformType){
+				case TransformType::LINEAR:{
+					LinearTransform* t = static_cast<LinearTransform*>(c);
+					Transformation* parent = static_cast<Transformation*>(t);
+
+					if (message.isController() && message.getControllerNumber()
+						== t->getSourceBox()->getSelectedId())
+					{
+						parent->setTValue(message.getControllerValue());
+						t->setGValue(message.getControllerValue());
+						const MessageManagerLock lock; //make component calls thread safe
+						t->getGraph()->repaint();
+						t->getGraph()->calculateTValue();
+					}
+					if (message.isNoteOn() && t->getSourceBox()->getSelectedId() == TransformID::VELOCITY)
+					{
+						parent->setTValue(message.getVelocity());
+						t->setGValue(message.getVelocity());
+						const MessageManagerLock lock; //make component calls thread safe
+						t->getGraph()->repaint();
+						t->getGraph()->calculateTValue();
+					}
+					break; }
+
+				case TransformType::EXPONENTIAL:{
+					ExponentialTransform* t = static_cast<ExponentialTransform*>(c);
+					Transformation* parent = static_cast<Transformation*>(t);
+					if (message.isController() && message.getControllerNumber()
+						== t->getSourceBox()->getSelectedId())
+					{
+						int controller_value = message.getControllerValue();
+						if (controller_value < 1) controller_value = 1;
+						parent->setTValue(controller_value);
+						t->setGValue(controller_value);
+						const MessageManagerLock lock; //make component calls thread safe
+						t->getGraph()->repaint();
+						t->getGraph()->calculateTValue();
+					}
+					if (message.isNoteOn() && t->getSourceBox()->getSelectedId() == TransformID::VELOCITY)
+					{
+						parent->setTValue(message.getVelocity());
+						t->setGValue(message.getVelocity());
+						const MessageManagerLock lock; //make component calls thread safe
+						t->getGraph()->repaint();
+						t->getGraph()->calculateTValue();
+					}
+					break; }
+
+				case TransformType::SINE:{
+					SineTransform* t = static_cast<SineTransform*>(c);
+					Transformation* parent = static_cast<Transformation*>(t);
+					if (message.isController() && message.getControllerNumber()
+						== t->getSourceBox()->getSelectedId())
+					{
+						int controller_value = message.getControllerValue();
+						if (controller_value < 1) controller_value = 1;
+						parent->setTValue(controller_value);
+						t->setGValue(controller_value);
+						const MessageManagerLock lock; //make component calls thread safe
+						t->getGraph()->repaint();
+						t->getGraph()->calculateTValue();
+					}
+					if (message.isNoteOn() && t->getSourceBox()->getSelectedId() == TransformID::VELOCITY)
+					{
+						parent->setTValue(message.getVelocity());
+						t->setGValue(message.getVelocity());
+						const MessageManagerLock lock; //make component calls thread safe
+						t->getGraph()->repaint();
+						t->getGraph()->calculateTValue();
+					}
+					break; }
+				}
+			}
+		}
+	}
+}
+
+

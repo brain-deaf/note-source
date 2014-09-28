@@ -11,6 +11,7 @@
 #include "InstrumentMasterComponent.h"
 #include "InstrumentComponent.h"
 #include "InstrumentBin.h"
+#include "MainComponent.h"
 
 InstrumentMasterComponent::InstrumentMasterComponent(InstrumentBin* p, InstrumentComponent* i)
 : Component{}, parent{p}, midi_input_menu(new ComboBox()),
@@ -47,7 +48,7 @@ InstrumentMasterComponent::InstrumentMasterComponent(InstrumentBin* p, Instrumen
     midi_input_lbl->setText("MIDI Input Channel", dontSendNotification);
     midi_input_menu->setSelectedId(omni);
     
-    instrument_parent->getTabWindow().getMappingEditorBin()->
+    instrument_parent->getTabWindow()->getMappingEditorBin()->
     getMappingEditor()->graph->getMidiCallback().setMidiChannel(-1);
     
     addAndMakeVisible(levelMeter.get());
@@ -61,10 +62,6 @@ void InstrumentMasterComponent::paint (Graphics& g){
 }
 
 void InstrumentMasterComponent::resized(){
-    if (levelMeter->getSampler() == nullptr)
-        levelMeter->setSampler(&(parent->getInstrumentComponent()->getTabWindow().
-            getMappingEditorBin()->getMappingEditor()->graph->getSampler()));
-    
     instrumentLabel.setBounds(0, 0, getWidth(), getHeight());
     xButton.setBounds(getWidth() - 16, 4, 12, 12);
     midi_input_menu->setBounds(28, 52, 70, 20);
@@ -80,11 +77,11 @@ void InstrumentMasterComponent::buttonClicked(Button* button){
 
 void InstrumentMasterComponent::comboBoxChanged(ComboBox* source){
     if (source == midi_input_menu){
-        instrument_parent->getTabWindow().getMappingEditorBin()->
+        instrument_parent->getTabWindow()->getMappingEditorBin()->
             getMappingEditor()->graph->getMidiCallback().setMidiChannel(midi_input_menu->getSelectedId());
-        
-        instrument_parent->getTabWindow().getMappingEditorBin()->
-            getMappingEditor()->graph->getSampler().setMidiChannel(midi_input_menu->getSelectedId());
+		static SamplerProcessor* s(MainContentComponent::_static_sampler);
+		if (s!= nullptr)
+			s->setMidiChannel(midi_input_menu->getSelectedId());
     }
 }
 

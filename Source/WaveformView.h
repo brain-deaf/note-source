@@ -14,7 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentMappingEditor.h"
 class WaveBin;
-typedef InstrumentMappingEditor::MappingEditorGraph::Zone Zone;
+class Zone;
 
 class WaveformView : public Component, public ChangeListener
 {
@@ -22,7 +22,7 @@ public:
     WaveformView();
     WaveformView(WaveBin*);
     ~WaveformView(){}
-    void updateWaveformForFilePlayer(Zone*z);
+    void updateWaveformForFilePlayer(Zone*z, int rr);
     void paint(Graphics& g);
     void changeListenerCallback(ChangeBroadcaster* source);
     void setVScale(double d){vScale=d;}
@@ -33,6 +33,11 @@ public:
     void setLoopStart(double d){loopStart=d;}
     void setLoopEnd(double d){loopEnd=d;}
     void setXfadeLength(double d){xfadeLength=d;}
+	void setXfadeCurve(double d){ xfadeCurve = d; }
+	void setReleaseStart(double d){ releaseStart = d; }
+	void setReleaseTime(double d){ releaseTime = d; }
+	void setReleaseCurve(double d){ releaseCurve = d; }
+	
 	AudioThumbnailCache& getCache(){ return cache; }
 	AudioThumbnail& getThumbnail(){ return thumbnail; }
 	AudioFormatManager& getFormatManager(){ return formatManager; }
@@ -43,10 +48,14 @@ private:
     double length_sec;
     double sample_rate;
     double sample_start;
+	double releaseStart;
+	double releaseTime;
+	double releaseCurve;
     double loopStart;
     double loopEnd;
     double playPosition;
     double xfadeLength;
+	double xfadeCurve;
     bool playing;
     AudioThumbnailCache cache;
     AudioThumbnail thumbnail;
