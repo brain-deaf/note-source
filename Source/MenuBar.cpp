@@ -16,6 +16,7 @@
 #include <lauxlib.h>
 #include <lualib.h>
 #include "MainComponent.h"
+#include "RoundRobin.h"
 
 MenuBar::MenuBar(InstrumentBin * i) : menuBar(this), scriptBin(nullptr), deviceManager(), file{}, view{}, edit{},
     audioSettingsWindow{nullptr}, parent(i) {
@@ -188,6 +189,16 @@ void MenuBar::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/){
                     zone->setAttribute("loop_end", z->getPlaySettings()->getLoopEnd());
                     zone->setAttribute("xfade_length", z->getPlaySettings()->getXfadeLength());
 					zone->setAttribute("xfade_curve", z->getPlaySettings()->getXfadeCurve());
+
+					for (int k = 0; k < 10; k++){
+						if (z->getRRGroup()->getRoundRobin(k)->getData() != nullptr){
+							XmlElement* round_robin = new XmlElement("RR");
+							round_robin->setAttribute("index", k);
+							round_robin->setAttribute("state", z->getRRGroup()->getRoundRobin(k)->getState());
+							round_robin->setAttribute("file", z->getRRGroup()->getRoundRobin(k)->getFileName());
+							zone->addChildElement(round_robin);
+						}
+					}
                     group->addChildElement(zone);
                 }
                 for (int j=0; j<fx_group_list[i]->group_fx.size(); j++){

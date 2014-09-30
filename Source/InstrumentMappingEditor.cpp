@@ -453,6 +453,13 @@ void MappingEditorGraph::loadPatch(XmlElement* i){
                 new_zones.add(new_zone);
                                        
                 instrument.getTabWindow()->getWaveBin()->updateZone(new_zone);
+
+				forEachXmlChildElement(*zone, round_robin){
+					if (round_robin->hasTagName("RR")){
+						new_zone->getRRGroup()->getRoundRobin(round_robin->getIntAttribute("index"))->setData(round_robin->getStringAttribute("file"));
+						new_zone->getRRGroup()->getRoundRobin(round_robin->getIntAttribute("index"))->setState(round_robin->getBoolAttribute("state"));
+					}
+				}
             }
             count++;
         }

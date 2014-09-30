@@ -2,6 +2,23 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+class RoundRobinButton : public TextButton
+{
+public:
+	RoundRobinButton() : TextButton(""){}
+	~RoundRobinButton(){}
+	void mouseDown(const MouseEvent& m){
+		if (m.mods.isRightButtonDown()){
+			if (getToggleState()){
+				setToggleState(false, sendNotification);
+			}
+			else{
+				setToggleState(true, sendNotification);
+			}
+		}
+	}
+private:
+};
 
 class RoundRobinDropTarget;
 class RoundRobinComponent : public Component, public Button::Listener
@@ -15,7 +32,7 @@ public:
 	void updateRoundRobinComponentForGroup();
 private:
 	ScopedPointer<Label> header;
-	OwnedArray<TextButton> buttons;
+	OwnedArray<RoundRobinButton> buttons;
 	RoundRobinDropTarget* rrTarget;
 	int selectedRR;
 };

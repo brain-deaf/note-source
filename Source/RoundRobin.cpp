@@ -6,10 +6,9 @@
 RoundRobinComponent::RoundRobinComponent(int n, RoundRobinDropTarget* target) : Component(), selectedRR(0), rrTarget(target)
 {
 	for (int i = 0; i < n; i++){
-		buttons.add(new TextButton(""));
+		buttons.add(new RoundRobinButton());
 	}
 	for (auto button : buttons){
-		button->setClickingTogglesState(true);
 		button->addListener(this);
 		addAndMakeVisible(button);
 	}
@@ -39,7 +38,7 @@ void RoundRobinComponent::updateRoundRobinComponentForGroup(){
 }
 
 void RoundRobinComponent::buttonClicked(Button* source){
-	selectedRR = buttons.indexOf((TextButton*)source);
+	selectedRR = buttons.indexOf((RoundRobinButton*)source);
 	ZoneInfo* parent = static_cast<ZoneInfo*>(getParentComponent());
 
 	String file_name;
@@ -188,13 +187,14 @@ int RoundRobinGroup::getActiveRoundRobin(int index){
 	int rr_index_count(0);
 	for (int i = 0; i < roundRobins.size(); i++){
 		rr_index_count++;
-		if (roundRobins[i]->getData() != nullptr){
+		if (roundRobins[i]->getData() != nullptr && roundRobins[i]->getState()){
 			rr_count++;
 			if (rr_count > index){
 				return --rr_index_count;
 			}
 		}
 	}
+	return -1;
 }
 
 int RoundRobinPlayback::getNextRoundRobin(){
